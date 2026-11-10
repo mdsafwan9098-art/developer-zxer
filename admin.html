@@ -478,39 +478,223 @@ catch(e){console.error(e);toast("Delete failed.");}
 }
 window.deleteCategory=deleteCategory;
 
+/* PRODUCT ORDER LOADING */
 async function collectOrders(){
-const snap=await get(ref(db,"orders")),data=snap.val()||[],list=[];
-Object.entries(data).forEach(([uid,orders])=>Object.entries(orders||{}).forEach(([orderId,o])=>list.push({uid,orderId,...o})));
-return list.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+const snap=await get(ref(db,"orders")),data=snap.val()||{},list=[];
+Object.entries(data).forEach(([uid,orders])=>
+Object.entries(orders||{}).forEach(([orderId,o])=>
+list.push({uid,orderId,...o})
+));
+return list.sort((a,b)=>(b.requestedAt||b.createdAt||0)-(a.requestedAt||a.createdAt||0));
 }
+
 async function loadRequests(){
 $("requestsTable").innerHTML='<tr><td colspan="5">Loading orders...</td></tr>';
 try{allRequests=await collectOrders();renderRequests();}
 catch(e){console.error(e);$("requestsTable").innerHTML='<tr><td colspan="5">Unable to read orders. Check Database Rules.</td></tr>';toast("Order loading failed.");}
 }
+
 function renderRequests(){
 const body=$("requestsTable");
 if(!allRequests.length){body.innerHTML='<tr><td colspan="5"><div class="empty"><i class="fa-solid fa-inbox"></i>No product orders found.</div></td></tr>';return;}
 body.innerHTML=allRequests.map(r=>{
 const s=String(r.status||"pending").toLowerCase();
-const method=r.paymentMethod||r.method||"—";
-return `<tr><td><strong>${esc(r.productName||"Product")}</strong><br><small>${esc(r.uid.slice(0,12))}...</small></td>
-<td>${money(r.price||r.amount||0)}</td><td>${esc(method)}</td>
+const method=r.paymentMethod||r.paymentProvider||r.method||"—";
+const canReview=s==="pending";
+return `<tr>
+<td><strong>${esc(r.productName||"Product")}</strong><br><small>${esc(r.uid.slice(0,12))}...</small></td>
+<td>${money(r.price||r.amount||0)}</td>
+<td>${esc(method)}</td>
 <td><span class="status ${statusClass(s)}">${esc(s.toUpperCase())}</span></td>
-<td><div class="table-actions"><button class="action-btn green" onclick="updateRequest('${r.uid}','${r.orderId}','approved')">APPROVE</button><button class="action-btn red" onclick="updateRequest('${r.uid}','${r.orderId}','rejected')">REJECT</button><button class="action-btn gray" onclick="viewRequest('${r.uid}','${r.orderId}')">VIEW</button></div></td></tr>`;
+<td><div class="table-actions">
+${canReview?`<button class="action-btn green" onclick="updateRequest('${r.uid}','${r.orderId}','approved')">APPROVE</button><button class="action-btn red" onclick="updateRequest('${r.uid}','${r.orderId}','rejected')">REJECT</button>`:""}
+<button class="action-btn gray" onclick="viewRequest('${r.uid}','${r.orderId}')">VIEW</button>
+</div></td></tr>`;
 }).join("");
 }
+
+/* Find the product using its saved ID, or an exact unique product name. */
+async function findOrderProduct(order){
+const fresh=await get(ref(db,"products"));
+const currentProducts=fresh.val()||{};
+let productId=order.productId||order.productKey||order.product?.id||"";
+
+if(productId&&currentProducts[productId]){
+return {id:productId,data:currentProducts[productId]};
+}
+
+const wanted=String(order.productName||order.name||"").trim().toLowerCase();
+if(!wanted)return null;
+
+const matches=Object.entries(currentProducts).filter(([id,p])=>
+String(p.name||p.title||"").trim().toLowerCase()===wanted
+);
+if(matches.length!==1)return null;
+return {id:matches[0][0],data:matches[0][1]};
+}
+
+/* Approve or reject a product order. */
 async function updateRequest(uid,orderId,status){
+if(!adminUser){toast("Admin login required.");return;}
 const current=allRequests.find(x=>x.uid===uid&&x.orderId===orderId);
 if(!current)return;
-if(current.status==="approved"||current.status==="rejected"){toast("This order has already been reviewed.");return;}
-if(!confirm("Are you sure you want to "+status+" this order?"))return;
+if(String(current.status||"pending").toLowerCase()!=="pending"){
+toast("This order has already been reviewed or is processing.");return;
+}
+
+if(status==="rejected"){
+if(!confirm("Reject this product order? No wallet amount will be deducted."))return;
 try{
-await update(ref(db,"orders/"+uid+"/"+orderId),{status,reviewedAt:Date.now(),reviewedBy:adminUser.uid});
-toast("Order "+status+".");await loadRequests();await loadDashboard();
-}catch(e){console.error(e);toast("Could not update order. Check Database Rules.");}
+const orderRef=ref(db,"orders/"+uid+"/"+orderId);
+const claim=await runTransaction(orderRef,old=>{
+if(!old||String(old.status||"pending").toLowerCase()!=="pending")return;
+return {...old,status:"rejected",reviewedAt:Date.now(),reviewedBy:adminUser.uid};
+});
+if(!claim.committed){toast("Order is already being processed.");return;}
+toast("Product order rejected.");
+await loadRequests();await loadDashboard();
+}catch(e){console.error(e);toast("Could not reject order: "+e.message);}
+return;
+}
+
+if(status!=="approved")return;
+
+const method=String(current.paymentMethod||current.paymentProvider||current.method||"").toLowerCase();
+const isWallet=method.includes("wallet");
+
+if(isWallet){
+if(!confirm("Wallet order approval: the current product price will be deducted from this user's wallet. Continue?"))return;
+}else{
+if(!current.trxId){
+toast("Transaction ID is missing. Cannot approve this instant payment order.");return;
+}
+if(!confirm("Have you personally verified this Trx ID and exact amount in your bKash/Nagad transaction history? Only continue if the money was actually received."))return;
+}
+
+const orderRef=ref(db,"orders/"+uid+"/"+orderId);
+let claimed=false;
+
+try{
+/* Lock the order first to prevent double approval. */
+const claim=await runTransaction(orderRef,old=>{
+if(!old||String(old.status||"pending").toLowerCase()!=="pending")return;
+return {...old,status:"processing",processingAt:Date.now(),processingBy:adminUser.uid};
+});
+if(!claim.committed){toast("This order is already being processed or reviewed.");return;}
+claimed=true;
+
+if(isWallet){
+/* Read the authoritative product price from the products node. */
+const found=await findOrderProduct(current);
+if(!found)throw new Error("Product could not be matched uniquely. Check productId and product name.");
+
+const product=found.data;
+if(product.active===false)throw new Error("This product is currently inactive.");
+
+const price=Number(product.price||0);
+if(!Number.isFinite(price)||price<=0)throw new Error("This wallet order has an invalid product price.");
+
+const submittedPrice=Number(current.price??current.amount??0);
+if(!Number.isFinite(submittedPrice)||Math.abs(submittedPrice-price)>0.001){
+throw new Error("Order price does not match the current product price. Please review this order.");
+}
+
+/* Deduct the exact current product price. */
+const balanceRef=ref(db,"wallets/"+uid+"/balance");
+const debit=await runTransaction(balanceRef,balance=>{
+const available=Number(balance||0);
+if(!Number.isFinite(available)||available<price)return;
+return available-price;
+});
+
+if(!debit.committed){
+await update(orderRef,{
+status:"pending",
+processingError:"Insufficient wallet balance",
+processingAt:null
+});
+claimed=false;
+toast("Insufficient wallet balance. Order returned to Pending.");
+await loadRequests();
+return;
+}
+
+const balanceAfter=Number(debit.snapshot.val()||0);
+
+/* Store deduction information before completing the order. */
+await update(orderRef,{
+walletDeducted:true,
+walletDeductedAmount:price,
+walletBalanceAfter:balanceAfter,
+walletProductId:found.id,
+walletDeductedAt:Date.now()
+});
+
+/* Record the wallet deduction in the transaction ledger. */
+const transactionRef=push(ref(db,"walletTransactions/"+uid));
+await set(transactionRef,{
+type:"purchase",
+amount:price,
+method:"wallet",
+productId:found.id,
+productName:product.name||product.title||current.productName||"Product",
+orderId,
+status:"completed",
+createdAt:Date.now(),
+balanceAfter
+});
+
+await update(orderRef,{
+status:"approved",
+approvedAt:Date.now(),
+approvedBy:adminUser.uid,
+reviewedAt:Date.now(),
+reviewedBy:adminUser.uid,
+walletTransactionId:transactionRef.key
+});
+
+toast("Wallet order approved. Exact product price deducted.");
+}else{
+/* Instant bKash/Nagad order: admin must verify the real transaction first. */
+await update(orderRef,{
+status:"approved",
+approvedAt:Date.now(),
+approvedBy:adminUser.uid,
+reviewedAt:Date.now(),
+reviewedBy:adminUser.uid,
+paymentVerified:true
+});
+toast("Payment order approved.");
+}
+
+await loadRequests();
+await loadTransactions();
+await loadUsers();
+await loadDashboard();
+
+}catch(e){
+console.error(e);
+if(claimed){
+/* Keep it in processing if a debit/ledger step may already have happened.
+   This prevents a second approval from deducting money again. */
+try{
+const latest=await get(orderRef);
+const value=latest.val()||{};
+if(!value.walletDeducted){
+await update(orderRef,{
+status:"pending",
+processingError:e.message,
+processingFailedAt:Date.now()
+});
+}
+}catch(resetError){console.error("Order recovery check failed:",resetError);}
+}
+toast("Approval could not finish: "+e.message+". Check this order's status before retrying.");
+await loadRequests();
+}
 }
 window.updateRequest=updateRequest;
+
 function viewRequest(uid,orderId){
 const r=allRequests.find(x=>x.uid===uid&&x.orderId===orderId);if(!r)return;
 $("modalTitle").textContent="Product Order Details";
@@ -519,119 +703,250 @@ $("modalContent").innerHTML=`
 <div class="field"><label>USER UID</label><div style="overflow-wrap:anywhere">${esc(uid)}</div></div>
 <div class="field"><label>ORDER ID</label><div style="overflow-wrap:anywhere">${esc(orderId)}</div></div>
 <div class="field"><label>AMOUNT</label><div>${money(r.price||r.amount||0)}</div></div>
-<div class="field"><label>PAYMENT METHOD</label><div>${esc(r.paymentMethod||r.method||"—")}</div></div>
+<div class="field"><label>PAYMENT METHOD</label><div>${esc(r.paymentMethod||r.paymentProvider||r.method||"—")}</div></div>
 <div class="field"><label>TRANSACTION ID</label><div>${esc(r.trxId||"Not provided")}</div></div>
-<div class="field"><label>DATE / STATUS</label><div>${esc(formatDate(r.requestedAt))} / ${esc(r.status||"pending")}</div></div>
-<div class="table-actions"><button class="btn success" onclick="updateRequest('${uid}','${orderId}','approved');closeAdminModal()">APPROVE</button><button class="btn danger" onclick="updateRequest('${uid}','${orderId}','rejected');closeAdminModal()">REJECT</button></div>`;
+<div class="field"><label>DATE / STATUS</label><div>${esc(formatDate(r.requestedAt||r.createdAt))} / ${esc(r.status||"pending")}</div></div>
+<div class="field"><label>WALLET DEDUCTION</label><div>${r.walletDeducted?money(r.walletDeductedAmount):"Not deducted"}</div></div>
+<div class="table-actions">
+${String(r.status||"pending").toLowerCase()==="pending"?`<button class="btn success" onclick="closeAdminModal();updateRequest('${uid}','${orderId}','approved')">APPROVE</button><button class="btn danger" onclick="closeAdminModal();updateRequest('${uid}','${orderId}','rejected')">REJECT</button>`:""}
+</div>`;
 $("modalBg").classList.add("show");
 }
 window.viewRequest=viewRequest;
 
+/* WALLET REQUESTS */
 async function loadWalletRequests(){
 $("walletRequestsTable").innerHTML='<tr><td colspan="6">Loading...</td></tr>';
 try{
 const snap=await get(ref(db,"walletRequests")),data=snap.val()||{};
 allWalletRequests=[];
-Object.entries(data).forEach(([uid,items])=>Object.entries(items||{}).forEach(([requestId,r])=>allWalletRequests.push({uid,requestId,...r})));
+Object.entries(data).forEach(([uid,items])=>
+Object.entries(items||{}).forEach(([requestId,r])=>
+allWalletRequests.push({uid,requestId,...r})
+));
 allWalletRequests.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
 renderWalletRequests();
 }catch(e){console.error(e);$("walletRequestsTable").innerHTML='<tr><td colspan="6">Unable to load wallet requests.</td></tr>';toast("Wallet request loading failed.");}
 }
+
 function renderWalletRequests(){
 const body=$("walletRequestsTable");
 if(!allWalletRequests.length){body.innerHTML='<tr><td colspan="6"><div class="empty"><i class="fa-solid fa-wallet"></i>No wallet requests found.</div></td></tr>';return;}
 body.innerHTML=allWalletRequests.map(r=>{
 const s=String(r.status||"pending").toLowerCase();
-return `<tr><td><strong>${esc(r.userName||r.name||"User")}</strong><br><small>${esc(r.email||r.uid)}</small></td>
-<td>${esc(String(r.method||"—").toUpperCase())}</td><td>${money(r.amount)}</td><td>${esc(r.trxId||"—")}</td>
+const canReview=s==="pending";
+return `<tr>
+<td><strong>${esc(r.userName||r.name||"User")}</strong><br><small>${esc(r.email||r.uid)}</small></td>
+<td>${esc(String(r.method||"—").toUpperCase())}</td>
+<td>${money(r.amount)}</td>
+<td>${esc(r.trxId||"—")}</td>
 <td><span class="status ${statusClass(s)}">${esc(s.toUpperCase())}</span></td>
-<td><div class="table-actions"><button class="action-btn green" onclick="reviewWalletRequest('${r.uid}','${r.requestId}','approved')">APPROVE</button><button class="action-btn red" onclick="reviewWalletRequest('${r.uid}','${r.requestId}','rejected')">REJECT</button></div></td></tr>`;
+<td><div class="table-actions">
+${canReview?`<button class="action-btn green" onclick="reviewWalletRequest('${r.uid}','${r.requestId}','approved')">APPROVE</button><button class="action-btn red" onclick="reviewWalletRequest('${r.uid}','${r.requestId}','rejected')">REJECT</button>`:""}
+</div></td></tr>`;
 }).join("");
 }
+
 async function reviewWalletRequest(uid,requestId,status){
+if(!adminUser){toast("Admin login required.");return;}
 const item=allWalletRequests.find(x=>x.uid===uid&&x.requestId===requestId);
 if(!item)return;
-if(item.status==="approved"||item.status==="rejected"){toast("This request has already been reviewed.");return;}
-if(status==="approved"&&(!Number.isFinite(Number(item.amount))||Number(item.amount)<=0)){toast("Invalid request amount.");return;}
-if(!confirm("Are you sure you want to "+status+" this wallet request?"))return;
-try{
-const requestRef=ref(db,"walletRequests/"+uid+"/"+requestId);
-if(status==="rejected"){
-const claim=await runTransaction(requestRef,current=>{
-if(!current||current.status==="approved"||current.status==="rejected"||current.status==="processing")return;
-return {...current,status:"rejected",reviewedAt:Date.now(),reviewedBy:adminUser.uid};
-});
-if(!claim.committed){toast("This request is already being processed or reviewed.");return;}
-toast("Wallet request rejected.");await loadWalletRequests();return;
+
+if(String(item.status||"pending").toLowerCase()!=="pending"){
+toast("This request has already been reviewed or is processing.");return;
 }
+
+if(status==="approved"){
+if(!Number.isFinite(Number(item.amount))||Number(item.amount)<=0){
+toast("Invalid request amount.");return;
+}
+if(!item.trxId){
+toast("Transaction ID is missing.");return;
+}
+if(!confirm("Have you verified this Trx ID and confirmed that the exact amount was received in your bKash/Nagad account? Continue to credit the user's wallet only if verified."))return;
+}else{
+if(!confirm("Reject this wallet request? No money will be added."))return;
+}
+
+const requestRef=ref(db,"walletRequests/"+uid+"/"+requestId);
+let claimed=false;
+
+try{
+/* Claim request so it cannot be credited twice. */
 const claim=await runTransaction(requestRef,current=>{
-if(!current||current.status==="approved"||current.status==="rejected"||current.status==="processing")return;
+if(!current||String(current.status||"pending").toLowerCase()!=="pending")return;
 return {...current,status:"processing",processingAt:Date.now(),reviewedBy:adminUser.uid};
 });
-if(!claim.committed){toast("This request is already being processed or reviewed.");return;}
+if(!claim.committed){
+toast("This request is already being processed or reviewed.");return;
+}
+claimed=true;
+
+if(status==="rejected"){
+await update(requestRef,{
+status:"rejected",
+reviewedAt:Date.now(),
+reviewedBy:adminUser.uid
+});
+toast("Wallet request rejected.");
+await loadWalletRequests();
+await loadDashboard();
+return;
+}
 
 const amount=Number(item.amount);
 const balanceRef=ref(db,"wallets/"+uid+"/balance");
-const credit=await runTransaction(balanceRef,current=>Number(current||0)+amount);
+
+/* Credit wallet balance exactly once. */
+const credit=await runTransaction(balanceRef,current=>{
+const oldBalance=Number(current||0);
+if(!Number.isFinite(oldBalance)||oldBalance<0)return;
+return oldBalance+amount;
+});
 if(!credit.committed)throw new Error("Wallet balance could not be updated.");
 
+const balanceAfter=Number(credit.snapshot.val()||0);
+
+/* Save the credited marker before finishing request status. */
+await update(requestRef,{
+walletCredited:true,
+creditedAmount:amount,
+balanceAfter,
+creditedAt:Date.now()
+});
+
+/* Create ledger entry. */
 const transactionRef=push(ref(db,"walletTransactions/"+uid));
 await set(transactionRef,{
-type:"deposit",amount,method:item.method||"",
-trxId:item.trxId||"",requestId,
-status:"approved",createdAt:Date.now(),balanceAfter:Number(credit.snapshot.val()||0)
+type:"deposit",
+amount,
+method:String(item.method||"").toLowerCase(),
+trxId:item.trxId||"",
+requestId,
+status:"approved",
+createdAt:Date.now(),
+balanceAfter
 });
-await update(requestRef,{status:"approved",approvedAt:Date.now(),approvedBy:adminUser.uid});
+
+await update(requestRef,{
+status:"approved",
+approvedAt:Date.now(),
+approvedBy:adminUser.uid,
+transactionId:transactionRef.key
+});
+
 toast("Wallet request approved. Balance credited.");
-await loadWalletRequests();await loadTransactions();await loadUsers();await loadDashboard();
+await loadWalletRequests();
+await loadTransactions();
+await loadUsers();
+await loadDashboard();
+
 }catch(e){
 console.error(e);
-toast("Approval incomplete: "+e.message+". Check the request status before retrying.");
+if(claimed){
+try{
+const latest=await get(requestRef);
+const value=latest.val()||{};
+if(!value.walletCredited){
+await update(requestRef,{
+status:"pending",
+processingError:e.message,
+processingFailedAt:Date.now()
+});
+}
+}catch(resetError){console.error("Wallet recovery check failed:",resetError);}
+}
+toast("Approval could not finish: "+e.message+". Check request status before retrying.");
 await loadWalletRequests();
 }
 }
 window.reviewWalletRequest=reviewWalletRequest;
 
+/* WALLET TRANSACTION HISTORY */
 async function loadTransactions(){
 $("transactionsTable").innerHTML='<tr><td colspan="5">Loading...</td></tr>';
 try{
 const snap=await get(ref(db,"walletTransactions")),data=snap.val()||{},list=[];
-Object.entries(data).forEach(([uid,items])=>Object.entries(items||{}).forEach(([id,t])=>list.push({uid,id,...t})));
+Object.entries(data).forEach(([uid,items])=>
+Object.entries(items||{}).forEach(([id,t])=>
+list.push({uid,id,...t})
+));
 list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-if(!list.length){$("transactionsTable").innerHTML='<tr><td colspan="5">No transactions found.</td></tr>';return;}
-$("transactionsTable").innerHTML=list.map(t=>`<tr><td>${esc(t.uid.slice(0,14))}...</td><td>${esc(t.type||"—")}</td><td>${money(t.amount)}</td><td>${esc(t.method||"—")}</td><td>${esc(formatDate(t.createdAt))}</td></tr>`).join("");
+if(!list.length){
+$("transactionsTable").innerHTML='<tr><td colspan="5">No transactions found.</td></tr>';return;
+}
+$("transactionsTable").innerHTML=list.map(t=>
+`<tr>
+<td>${esc(t.uid.slice(0,14))}...</td>
+<td>${esc(t.type||"—")}</td>
+<td>${money(t.amount)}</td>
+<td>${esc(t.method||"—")}</td>
+<td>${esc(formatDate(t.createdAt))}</td>
+</tr>`
+).join("");
 }catch(e){console.error(e);$("transactionsTable").innerHTML='<tr><td colspan="5">Unable to load transactions.</td></tr>';toast("Transaction loading failed.");}
 }
 window.loadTransactions=loadTransactions;
 
+/* USERS */
 async function loadUsers(){
 $("usersTable").innerHTML='<tr><td colspan="4">Loading...</td></tr>';
 try{
-const [uSnap,wSnap]=await Promise.all([get(ref(db,"users")),get(ref(db,"wallets"))]);
-allUsers=uSnap.val()||{};const wallets=wSnap.val()||{};
+const [uSnap,wSnap]=await Promise.all([
+get(ref(db,"users")),get(ref(db,"wallets"))
+]);
+allUsers=uSnap.val()||{};
+const wallets=wSnap.val()||{};
 const entries=Object.entries(allUsers);
-if(!entries.length){$("usersTable").innerHTML='<tr><td colspan="4">No user profiles found.</td></tr>';return;}
-$("usersTable").innerHTML=entries.map(([uid,u])=>`<tr><td><strong>${esc(u.name||"User")}</strong></td><td>${esc(u.email||"—")}</td><td>${money(wallets[uid]?.balance||0)}</td><td>${esc(uid.slice(0,14))}...</td></tr>`).join("");
+if(!entries.length){
+$("usersTable").innerHTML='<tr><td colspan="4">No user profiles found.</td></tr>';return;
+}
+$("usersTable").innerHTML=entries.map(([uid,u])=>
+`<tr>
+<td><strong>${esc(u.name||"User")}</strong></td>
+<td>${esc(u.email||"—")}</td>
+<td>${money(wallets[uid]?.balance||0)}</td>
+<td>${esc(uid.slice(0,14))}...</td>
+</tr>`
+).join("");
 }catch(e){console.error(e);$("usersTable").innerHTML='<tr><td colspan="4">Unable to load users. Check Database Rules.</td></tr>';}
 }
 window.loadUsers=loadUsers;
 
+/* DASHBOARD */
 async function loadDashboard(){
 try{
 const [pSnap,uSnap,oSnap,wSnap]=await Promise.all([
-get(ref(db,"products")),get(ref(db,"users")),get(ref(db,"orders")),get(ref(db,"walletRequests"))
+get(ref(db,"products")),
+get(ref(db,"users")),
+get(ref(db,"orders")),
+get(ref(db,"walletRequests"))
 ]);
-products=pSnap.val()||{};allUsers=uSnap.val()||{};
-const orders=oSnap.val()||{},wallets=wSnap.val()||{};
-let total=0,pending=0;allRequests=[];
-Object.entries(orders).forEach(([uid,items])=>Object.entries(items||{}).forEach(([orderId,o])=>{
-total++;if(!o.status||o.status==="pending")pending++;
+products=pSnap.val()||{};
+allUsers=uSnap.val()||{};
+const orders=oSnap.val()||{};
+const walletRequests=wSnap.val()||{};
+let total=0,pending=0;
+allRequests=[];
+
+Object.entries(orders).forEach(([uid,items])=>
+Object.entries(items||{}).forEach(([orderId,o])=>{
+total++;
+const status=String(o.status||"pending").toLowerCase();
+if(status==="pending"||status==="processing")pending++;
 allRequests.push({uid,orderId,...o});
-}));
-Object.entries(wallets).forEach(([uid,items])=>Object.values(items||{}).forEach(r=>{
-total++;if(!r.status||r.status==="pending")pending++;
-}));
-allRequests.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+})
+);
+
+Object.entries(walletRequests).forEach(([uid,items])=>
+Object.values(items||{}).forEach(r=>{
+total++;
+const status=String(r.status||"pending").toLowerCase();
+if(status==="pending"||status==="processing")pending++;
+})
+);
+
+allRequests.sort((a,b)=>(b.requestedAt||b.createdAt||0)-(a.requestedAt||a.createdAt||0));
 $("statProducts").textContent=Object.keys(products).length;
 $("statUsers").textContent=Object.keys(allUsers).length;
 $("statRequests").textContent=total;
@@ -643,25 +958,41 @@ window.loadDashboard=loadDashboard;
 
 function renderRecentRequests(){
 const box=$("recentRequests"),recent=allRequests.slice(0,5);
-if(!recent.length){box.innerHTML='<div class="empty"><i class="fa-solid fa-inbox"></i>No recent product orders.</div>';return;}
-box.innerHTML=recent.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #ffffff10"><div><strong style="font-size:11px">${esc(r.productName||"Product")}</strong><br><small style="color:#8196b4">${esc(r.uid.slice(0,12))}...</small></div><span class="status ${statusClass(r.status)}">${esc((r.status||"pending").toUpperCase())}</span></div>`).join("");
+if(!recent.length){
+box.innerHTML='<div class="empty"><i class="fa-solid fa-inbox"></i>No recent product orders.</div>';return;
+}
+box.innerHTML=recent.map(r=>
+`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #ffffff10">
+<div><strong style="font-size:11px">${esc(r.productName||"Product")}</strong><br><small style="color:#8196b4">${esc(r.uid.slice(0,12))}...</small></div>
+<span class="status ${statusClass(r.status)}">${esc((r.status||"pending").toUpperCase())}</span>
+</div>`
+).join("");
 }
 
+/* HOME SETTINGS */
 async function loadHomeSettings(){
 try{
-const [homeSnap,noticeSnap]=await Promise.all([get(ref(db,"settings/home")),get(ref(db,"settings/notice"))]);
+const [homeSnap,noticeSnap]=await Promise.all([
+get(ref(db,"settings/home")),
+get(ref(db,"settings/notice"))
+]);
 const home=homeSnap.val()||{};
-$("homeTitle").value=home.title||"";$("homeSubtitle").value=home.subtitle||"";
+$("homeTitle").value=home.title||"";
+$("homeSubtitle").value=home.subtitle||"";
 $("homeBanner").value=home.bannerImage||home.bannerUrl||"";
-const notice=noticeSnap.val();$("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
+const notice=noticeSnap.val();
+$("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
 }catch(e){console.error(e);toast("Could not load home settings.");}
 }
+
 async function saveHomeSettings(){
 try{
 await Promise.all([
 update(ref(db,"settings/home"),{
-title:$("homeTitle").value.trim(),subtitle:$("homeSubtitle").value.trim(),
-bannerImage:$("homeBanner").value.trim(),updatedAt:Date.now()
+title:$("homeTitle").value.trim(),
+subtitle:$("homeSubtitle").value.trim(),
+bannerImage:$("homeBanner").value.trim(),
+updatedAt:Date.now()
 }),
 set(ref(db,"settings/notice"),$("homeNotice").value.trim())
 ]);
