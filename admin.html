@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,142 +8,75 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
 <style>
-:root{
---bg:#080d19;--panel:#111d30;--panel2:#15243b;
---blue:#287bff;--cyan:#20d9f5;--text:#f4f7ff;
---muted:#8b9bb5;--line:rgba(255,255,255,.09);
---green:#35d69a;--red:#ff647c;--yellow:#ffd47a
-}
+:root{--bg:#080d19;--panel:#111d30;--panel2:#15243b;--blue:#287bff;--cyan:#20d9f5;--text:#f4f7ff;--muted:#8b9bb5;--line:rgba(255,255,255,.09);--green:#35d69a;--red:#ff647c;--yellow:#ffd47a}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 10% 0%,#174c8a25,transparent 30%),var(--bg);color:var(--text);min-height:100vh}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-button:disabled{opacity:.5;cursor:not-allowed}
+button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}button:disabled{opacity:.5;cursor:not-allowed}
 .login-screen{min-height:100vh;display:grid;place-items:center;padding:20px}
 .login-card{width:100%;max-width:420px;background:linear-gradient(145deg,#162640,#0d1728);border:1px solid var(--line);border-radius:25px;padding:28px 22px;box-shadow:0 25px 80px #0008}
 .logo{width:58px;height:58px;border-radius:18px;margin:auto;display:grid;place-items:center;background:linear-gradient(135deg,#1764ed,#19c9e8);box-shadow:0 8px 30px #167aff40;font-size:24px;font-weight:900}
-.login-card h1{text-align:center;font-size:21px;margin-top:16px}
-.login-card .sub{text-align:center;font-size:10px;color:var(--cyan);letter-spacing:2px;margin:7px 0 24px}
-.field{margin:14px 0}
-.field label{display:block;font-size:10px;color:#aabbd3;font-weight:700;margin-bottom:8px}
+.login-card h1{text-align:center;font-size:21px;margin-top:16px}.login-card .sub{text-align:center;font-size:10px;color:var(--cyan);letter-spacing:2px;margin:7px 0 24px}
+.field{margin:14px 0}.field label{display:block;font-size:10px;color:#aabbd3;font-weight:700;margin-bottom:8px}
 .field input,.field textarea,.field select{width:100%;background:#091526;color:white;border:1px solid var(--line);padding:13px;border-radius:11px;outline:none;font-size:12px}
-.field textarea{resize:vertical;min-height:85px;line-height:1.6}
-.field select option{background:#102039}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue)}
+.field textarea{resize:vertical;min-height:85px;line-height:1.6}.field select option{background:#102039}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue)}
 .btn{border:0;border-radius:11px;padding:12px 15px;font-size:11px;font-weight:800;color:white;background:linear-gradient(100deg,#246fff,#13bddc)}
-.btn.full{width:100%;padding:14px}
-.btn.secondary{background:#1a2a43;border:1px solid var(--line)}
-.btn.danger{background:linear-gradient(100deg,#d93855,#ff657e)}
-.btn.success{background:linear-gradient(100deg,#159c70,#38d79f)}
-.btn.warning{background:linear-gradient(100deg,#ad741d,#e7b44e);color:#17120a}
+.btn.full{width:100%;padding:14px}.btn.secondary{background:#1a2a43;border:1px solid var(--line)}.btn.danger{background:linear-gradient(100deg,#d93855,#ff657e)}.btn.success{background:linear-gradient(100deg,#159c70,#38d79f)}.btn.warning{background:linear-gradient(100deg,#ad741d,#e7b44e);color:#17120a}
 .login-note{text-align:center;color:var(--muted);font-size:10px;line-height:1.8;margin-top:18px}
-.layout{max-width:1250px;margin:auto;min-height:100vh}
-.header{height:70px;position:sticky;top:0;z-index:30;background:#0b1425ed;backdrop-filter:blur(18px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
-.header-brand{display:flex;align-items:center;gap:11px}
-.mini-logo{width:39px;height:39px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#1764ed,#19c9e8);font-weight:900}
-.header-brand strong{font-size:13px;letter-spacing:.7px}
-.header-brand small{display:block;color:var(--cyan);font-size:9px;margin-top:3px;letter-spacing:1.5px}
-.header-actions{display:flex;gap:8px}
+.layout{max-width:1250px;margin:auto;min-height:100vh}.header{height:70px;position:sticky;top:0;z-index:30;background:#0b1425ed;backdrop-filter:blur(18px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.header-brand{display:flex;align-items:center;gap:11px}.mini-logo{width:39px;height:39px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#1764ed,#19c9e8);font-weight:900}
+.header-brand strong{font-size:13px;letter-spacing:.7px}.header-brand small{display:block;color:var(--cyan);font-size:9px;margin-top:3px;letter-spacing:1.5px}.header-actions{display:flex;gap:8px}
 .icon-btn{width:39px;height:39px;border:1px solid var(--line);border-radius:12px;background:#14233a;color:white}
-.admin-body{display:grid;grid-template-columns:225px minmax(0,1fr);min-height:calc(100vh - 70px)}
-.sidebar{padding:20px 13px;background:#0b1424;border-right:1px solid var(--line)}
+.admin-body{display:grid;grid-template-columns:225px minmax(0,1fr);min-height:calc(100vh - 70px)}.sidebar{padding:20px 13px;background:#0b1424;border-right:1px solid var(--line)}
 .side-label{font-size:9px;color:#647995;letter-spacing:2px;font-weight:800;padding:8px 10px 13px}
 .side-btn{width:100%;display:flex;align-items:center;gap:12px;padding:13px 12px;border:0;border-radius:11px;background:transparent;color:#9aabc4;font-size:11px;font-weight:700;text-align:left;margin-bottom:5px}
-.side-btn i{width:17px;text-align:center;font-size:14px}
-.side-btn.active{background:linear-gradient(100deg,#1b5fc7,#164b85);color:white}
-.side-btn:hover{background:#172a45;color:white}
-.main{padding:25px;min-width:0}
-.admin-page{display:none}
-.admin-page.active{display:block}
-.page-title{font-size:22px;font-weight:900;margin-bottom:7px}
+.side-btn i{width:17px;text-align:center;font-size:14px}.side-btn.active{background:linear-gradient(100deg,#1b5fc7,#164b85);color:white}.side-btn:hover{background:#172a45;color:white}
+.main{padding:25px;min-width:0}.admin-page{display:none}.admin-page.active{display:block}.page-title{font-size:22px;font-weight:900;margin-bottom:7px}
 .page-subtitle{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:23px}
 .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:22px}
 .stat-card{background:linear-gradient(145deg,#152640,#101b2d);border:1px solid var(--line);border-radius:16px;padding:17px}
-.stat-top{display:flex;justify-content:space-between;align-items:center}
-.stat-icon{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:#247bff20;color:#62cfff}
-.stat-card small{font-size:10px;color:var(--muted)}
-.stat-card h2{font-size:24px;margin-top:12px;font-weight:900}
+.stat-top{display:flex;justify-content:space-between;align-items:center}.stat-icon{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:#247bff20;color:#62cfff}
+.stat-card small{font-size:10px;color:var(--muted)}.stat-card h2{font-size:24px;margin-top:12px;font-weight:900}
 .panel{background:linear-gradient(145deg,#14233a,#0e192b);border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:17px}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
-.panel-head h3{font-size:13px;font-weight:800}
-.panel-head small{font-size:10px;color:var(--muted)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-.full-field{grid-column:1/-1}
-.check-line{display:flex;align-items:center;gap:9px;font-size:11px;color:#b8c9df;margin:8px 0 15px}
-.check-line input{accent-color:#287bff;width:16px;height:16px}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:570px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.panel-head h3{font-size:13px;font-weight:800}.panel-head small{font-size:10px;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.full-field{grid-column:1/-1}
+.check-line{display:flex;align-items:center;gap:9px;font-size:11px;color:#b8c9df;margin:8px 0 15px}.check-line input{accent-color:#287bff;width:16px;height:16px}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:570px}
 th{text-align:left;font-size:9px;letter-spacing:.7px;color:#8196b4;padding:12px 10px;border-bottom:1px solid var(--line)}
-td{font-size:10px;color:#d5e0ef;padding:13px 10px;border-bottom:1px solid #ffffff0a;vertical-align:middle}
-td strong{font-size:11px}
-.table-actions{display:flex;gap:6px;flex-wrap:wrap}
-.action-btn{border:0;border-radius:8px;padding:8px 10px;font-size:9px;font-weight:800;color:white;background:#1e68c5}
-.action-btn.red{background:#a9324d}
-.action-btn.green{background:#137e60}
-.action-btn.gray{background:#293b55}
+td{font-size:10px;color:#d5e0ef;padding:13px 10px;border-bottom:1px solid #ffffff0a;vertical-align:middle}td strong{font-size:11px}
+.table-actions{display:flex;gap:6px;flex-wrap:wrap}.action-btn{border:0;border-radius:8px;padding:8px 10px;font-size:9px;font-weight:800;color:white;background:#1e68c5}
+.action-btn.red{background:#a9324d}.action-btn.green{background:#137e60}.action-btn.gray{background:#293b55}
 .status{display:inline-block;padding:6px 9px;border-radius:20px;font-size:9px;font-weight:800;background:#ffffff12;color:#c4d6ec}
-.status.pending{background:#47391c;color:#ffda88}
-.status.approved{background:#123e32;color:#56e4a9}
-.status.rejected{background:#401d2a;color:#ff8296}
-.status.processing{background:#263b60;color:#9bc9ff}
+.status.pending{background:#47391c;color:#ffda88}.status.approved{background:#123e32;color:#56e4a9}.status.rejected{background:#401d2a;color:#ff8296}.status.processing{background:#263b60;color:#9bc9ff}
 .thumb{width:43px;height:43px;border-radius:9px;object-fit:cover;background:#0b1425}
-.empty{text-align:center;color:var(--muted);padding:30px 12px;font-size:11px;line-height:2}
-.empty i{display:block;font-size:26px;color:#4e86c5;margin-bottom:10px}
+.empty{text-align:center;color:var(--muted);padding:30px 12px;font-size:11px;line-height:2}.empty i{display:block;font-size:26px;color:#4e86c5;margin-bottom:10px}
 .file-hint{font-size:9px;color:#8499b7;line-height:1.7;margin-top:6px}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:100;background:#1c2c45;border:1px solid #ffffff22;padding:12px 17px;border-radius:12px;color:white;font-size:11px;max-width:90%;box-shadow:0 10px 35px #0008;text-align:center}
-.modal-bg{position:fixed;inset:0;background:#000b;z-index:80;display:none;align-items:center;justify-content:center;padding:15px}
-.modal-bg.show{display:flex}
+.modal-bg{position:fixed;inset:0;background:#000b;z-index:80;display:none;align-items:center;justify-content:center;padding:15px}.modal-bg.show{display:flex}
 .modal{width:100%;max-width:460px;max-height:85vh;overflow:auto;background:#13223a;border:1px solid var(--line);border-radius:19px;padding:20px}
-.modal h3{font-size:15px;margin-bottom:15px}
-.modal-close{float:right;border:0;background:#ffffff12;color:white;border-radius:8px;width:30px;height:30px}
-.mobile-menu{display:none}
-.balance-value{font-size:25px;font-weight:900;color:#53dfff}
-@media(max-width:800px){
-.admin-body{display:block}
-.sidebar{position:fixed;z-index:40;top:70px;bottom:0;left:0;width:245px;transform:translateX(-105%);transition:.25s;box-shadow:15px 0 40px #0007}
-.sidebar.open{transform:translateX(0)}
-.mobile-menu{display:inline-grid;place-items:center}
-.main{padding:20px 14px}
-.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:480px){
-.form-grid{grid-template-columns:1fr}
-.full-field{grid-column:auto}
-.page-title{font-size:20px}
-.stat-card h2{font-size:21px}
-}
+.modal h3{font-size:15px;margin-bottom:15px}.modal-close{float:right;border:0;background:#ffffff12;color:white;border-radius:8px;width:30px;height:30px}
+.mobile-menu{display:none}.balance-value{font-size:25px;font-weight:900;color:#53dfff}
+@media(max-width:800px){.admin-body{display:block}.sidebar{position:fixed;z-index:40;top:70px;bottom:0;left:0;width:245px;transform:translateX(-105%);transition:.25s;box-shadow:15px 0 40px #0007}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-grid;place-items:center}.main{padding:20px 14px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.form-grid{grid-template-columns:1fr}.full-field{grid-column:auto}.page-title{font-size:20px}.stat-card h2{font-size:21px}}
 </style>
 </head>
 <body>
-
-<section id="loginScreen" class="login-screen">
-<div class="login-card">
-<div class="logo">ZX</div>
-<h1>ADMIN CONTROL</h1>
-<div class="sub">DEVELOPER ZXER</div>
+<section id="loginScreen" class="login-screen"><div class="login-card">
+<div class="logo">ZX</div><h1>ADMIN CONTROL</h1><div class="sub">DEVELOPER ZXER</div>
 <div class="field"><label>ADMIN EMAIL</label><input id="loginEmail" type="email" placeholder="Enter admin email" autocomplete="username"></div>
 <div class="field"><label>PASSWORD</label><input id="loginPassword" type="password" placeholder="Enter admin password" autocomplete="current-password"></div>
 <button id="loginButton" class="btn full" onclick="adminLogin()"><i class="fa-solid fa-lock"></i> SECURE ADMIN LOGIN</button>
 <div class="login-note">Authorized administrators only.<br>Protected by Firebase Authentication.</div>
-</div>
-</section>
+</div></section>
 
 <div id="adminApp" class="layout hidden">
-<header class="header">
-<div class="header-brand">
+<header class="header"><div class="header-brand">
 <button class="icon-btn mobile-menu" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-<div class="mini-logo">ZX</div>
-<div><strong>DEVELOPER ZXER</strong><small>ADMIN DASHBOARD</small></div>
-</div>
-<div class="header-actions">
+<div class="mini-logo">ZX</div><div><strong>DEVELOPER ZXER</strong><small>ADMIN DASHBOARD</small></div>
+</div><div class="header-actions">
 <button class="icon-btn" onclick="loadDashboard()" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
 <button class="icon-btn" onclick="adminLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
-</div>
-</header>
-
+</div></header>
 <div class="admin-body">
 <aside id="sidebar" class="sidebar">
 <div class="side-label">MAIN MENU</div>
@@ -157,51 +89,33 @@ td strong{font-size:11px}
 <button class="side-btn" data-page="transactions" onclick="showAdminPage('transactions')"><i class="fa-solid fa-clock-rotate-left"></i>Wallet Transactions</button>
 <button class="side-btn" data-page="users" onclick="showAdminPage('users')"><i class="fa-solid fa-users"></i>Users</button>
 <button class="side-btn" data-page="homeEdit" onclick="showAdminPage('homeEdit')"><i class="fa-solid fa-pen-to-square"></i>Home Edit</button>
-<div class="side-label" style="margin-top:15px">SYSTEM</div>
-<button class="side-btn" onclick="adminLogout()"><i class="fa-solid fa-power-off"></i>Logout</button>
+<div class="side-label" style="margin-top:15px">SYSTEM</div><button class="side-btn" onclick="adminLogout()"><i class="fa-solid fa-power-off"></i>Logout</button>
 </aside>
-
 <main class="main">
-
 <section id="dashboardPage" class="admin-page active">
-<h1 class="page-title">Dashboard Overview</h1>
-<p class="page-subtitle">Welcome to your Developer ZXER control center.</p>
+<h1 class="page-title">Dashboard Overview</h1><p class="page-subtitle">Welcome to your Developer ZXER control center.</p>
 <div class="stats-grid">
 <div class="stat-card"><div class="stat-top"><small>Total Products</small><span class="stat-icon"><i class="fa-solid fa-cubes"></i></span></div><h2 id="statProducts">0</h2></div>
 <div class="stat-card"><div class="stat-top"><small>Total Users</small><span class="stat-icon"><i class="fa-solid fa-users"></i></span></div><h2 id="statUsers">0</h2></div>
 <div class="stat-card"><div class="stat-top"><small>Total Orders</small><span class="stat-icon"><i class="fa-solid fa-inbox"></i></span></div><h2 id="statRequests">0</h2></div>
 <div class="stat-card"><div class="stat-top"><small>Pending Requests</small><span class="stat-icon"><i class="fa-solid fa-clock"></i></span></div><h2 id="statPending">0</h2></div>
 </div>
-<div class="panel">
-<div class="panel-head"><h3><i class="fa-solid fa-bolt" style="color:#53dfff"></i> Quick Actions</h3></div>
+<div class="panel"><div class="panel-head"><h3><i class="fa-solid fa-bolt" style="color:#53dfff"></i> Quick Actions</h3></div>
 <div style="display:flex;gap:9px;flex-wrap:wrap">
 <button class="btn" onclick="resetProductForm();showAdminPage('addProduct')"><i class="fa-solid fa-plus"></i> Add Product</button>
 <button class="btn secondary" onclick="showAdminPage('requests')"><i class="fa-solid fa-list-check"></i> View Orders</button>
 <button class="btn secondary" onclick="showAdminPage('walletRequests')"><i class="fa-solid fa-wallet"></i> Wallet Requests</button>
 <button class="btn secondary" onclick="showAdminPage('homeEdit')"><i class="fa-solid fa-pen"></i> Edit Home</button>
-</div>
-</div>
-<div class="panel">
-<div class="panel-head"><h3>Recent Product Orders</h3><button class="btn secondary" onclick="showAdminPage('requests')">View All</button></div>
-<div id="recentRequests" class="empty">Loading...</div>
-</div>
+</div></div>
+<div class="panel"><div class="panel-head"><h3>Recent Product Orders</h3><button class="btn secondary" onclick="showAdminPage('requests')">View All</button></div><div id="recentRequests" class="empty">Loading...</div></div>
 </section>
 
-<section id="productsPage" class="admin-page">
-<h1 class="page-title">Product Management</h1>
-<p class="page-subtitle">Manage all products displayed in the user panel.</p>
-<div class="panel">
-<div class="panel-head"><h3>All Products</h3><button class="btn" onclick="resetProductForm();showAdminPage('addProduct')"><i class="fa-solid fa-plus"></i> Add New</button></div>
-<div class="table-wrap"><table><thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="productsTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div>
-</div>
-</section>
+<section id="productsPage" class="admin-page"><h1 class="page-title">Product Management</h1><p class="page-subtitle">Manage all products displayed in the user panel.</p>
+<div class="panel"><div class="panel-head"><h3>All Products</h3><button class="btn" onclick="resetProductForm();showAdminPage('addProduct')"><i class="fa-solid fa-plus"></i> Add New</button></div>
+<div class="table-wrap"><table><thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="productsTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></div></section>
 
-<section id="addProductPage" class="admin-page">
-<h1 class="page-title" id="productFormTitle">Add New Product</h1>
-<p class="page-subtitle">Create or edit a product for your digital store.</p>
-<div class="panel">
-<form id="productForm" onsubmit="saveProduct(event)">
-<input type="hidden" id="editProductId">
+<section id="addProductPage" class="admin-page"><h1 class="page-title" id="productFormTitle">Add New Product</h1><p class="page-subtitle">Create or edit a product for your digital store.</p>
+<div class="panel"><form id="productForm" onsubmit="saveProduct(event)"><input type="hidden" id="editProductId">
 <div class="form-grid">
 <div class="field"><label>PRODUCT NAME *</label><input id="productName" required placeholder="Example: Premium Tool"></div>
 <div class="field"><label>CATEGORY *</label><select id="productCategory" required><option value="">Select category</option></select></div>
@@ -216,81 +130,39 @@ td strong{font-size:11px}
 <label class="check-line"><input id="productFeatured" type="checkbox"> Mark as featured product</label>
 <button id="saveProductButton" class="btn" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> SAVE PRODUCT</button>
 <button class="btn secondary" type="button" onclick="resetProductForm();showAdminPage('products')">CANCEL</button>
-</form>
-</div>
-</section>
+</form></div></section>
 
-<section id="categoriesPage" class="admin-page">
-<h1 class="page-title">Category Management</h1>
-<p class="page-subtitle">Create and manage product categories.</p>
-<div class="panel">
-<div class="panel-head"><h3>Add New Category</h3></div>
-<div class="field"><label>CATEGORY NAME</label><input id="newCategoryName" placeholder="Example: Android Tools"></div>
-<button class="btn" onclick="addCategory()"><i class="fa-solid fa-plus"></i> ADD CATEGORY</button>
-</div>
-<div class="panel"><div class="panel-head"><h3>Existing Categories</h3></div><div id="categoryList" class="empty">Loading...</div></div>
-</section>
+<section id="categoriesPage" class="admin-page"><h1 class="page-title">Category Management</h1><p class="page-subtitle">Create and manage product categories.</p>
+<div class="panel"><div class="panel-head"><h3>Add New Category</h3></div><div class="field"><label>CATEGORY NAME</label><input id="newCategoryName" placeholder="Example: Android Tools"></div>
+<button class="btn" onclick="addCategory()"><i class="fa-solid fa-plus"></i> ADD CATEGORY</button></div>
+<div class="panel"><div class="panel-head"><h3>Existing Categories</h3></div><div id="categoryList" class="empty">Loading...</div></div></section>
 
-<section id="requestsPage" class="admin-page">
-<h1 class="page-title">Product Orders</h1>
-<p class="page-subtitle">Review product orders and approve or reject access.</p>
-<div class="panel">
-<div class="panel-head"><h3>All Product Orders</h3><button class="btn secondary" onclick="loadRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
-<div class="table-wrap"><table><thead><tr><th>PRODUCT / USER</th><th>AMOUNT</th><th>PAYMENT</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="requestsTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div>
-</div>
-</section>
+<section id="requestsPage" class="admin-page"><h1 class="page-title">Product Orders</h1><p class="page-subtitle">Review product orders and approve or reject access.</p>
+<div class="panel"><div class="panel-head"><h3>All Product Orders</h3><button class="btn secondary" onclick="loadRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+<div class="table-wrap"><table><thead><tr><th>PRODUCT / USER</th><th>AMOUNT</th><th>PAYMENT</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="requestsTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></div></section>
 
-<section id="walletRequestsPage" class="admin-page">
-<h1 class="page-title">Wallet Requests</h1>
-<p class="page-subtitle">Review Send Money requests submitted by users.</p>
-<div class="panel">
-<div class="panel-head"><h3>Pending / All Wallet Requests</h3><button class="btn secondary" onclick="loadWalletRequests()">Refresh</button></div>
-<div class="table-wrap"><table><thead><tr><th>USER</th><th>METHOD</th><th>AMOUNT</th><th>TRX ID</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="walletRequestsTable"><tr><td colspan="6">Loading...</td></tr></tbody></table></div>
-</div>
-</section>
+<section id="walletRequestsPage" class="admin-page"><h1 class="page-title">Wallet Requests</h1><p class="page-subtitle">Review Send Money requests submitted by users.</p>
+<div class="panel"><div class="panel-head"><h3>Pending / All Wallet Requests</h3><button class="btn secondary" onclick="loadWalletRequests()">Refresh</button></div>
+<div class="table-wrap"><table><thead><tr><th>USER</th><th>METHOD</th><th>AMOUNT</th><th>TRX ID</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="walletRequestsTable"><tr><td colspan="6">Loading...</td></tr></tbody></table></div></div></section>
 
-<section id="transactionsPage" class="admin-page">
-<h1 class="page-title">Wallet Transactions</h1>
-<p class="page-subtitle">Review wallet balance changes recorded for users.</p>
-<div class="panel">
-<div class="panel-head"><h3>Transaction Ledger</h3><button class="btn secondary" onclick="loadTransactions()">Refresh</button></div>
-<div class="table-wrap"><table><thead><tr><th>USER</th><th>TYPE</th><th>AMOUNT</th><th>METHOD</th><th>DATE</th></tr></thead><tbody id="transactionsTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div>
-</div>
-</section>
+<section id="transactionsPage" class="admin-page"><h1 class="page-title">Wallet Transactions</h1><p class="page-subtitle">Review wallet balance changes recorded for users.</p>
+<div class="panel"><div class="panel-head"><h3>Transaction Ledger</h3><button class="btn secondary" onclick="loadTransactions()">Refresh</button></div>
+<div class="table-wrap"><table><thead><tr><th>USER</th><th>TYPE</th><th>AMOUNT</th><th>METHOD</th><th>DATE</th></tr></thead><tbody id="transactionsTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></div></section>
 
-<section id="usersPage" class="admin-page">
-<h1 class="page-title">User Management</h1>
-<p class="page-subtitle">View user profiles and wallet balances stored in the database.</p>
-<div class="panel">
-<div class="panel-head"><h3>Registered Profiles</h3><button class="btn secondary" onclick="loadUsers()">Refresh</button></div>
-<div class="table-wrap"><table><thead><tr><th>NAME</th><th>EMAIL</th><th>WALLET</th><th>USER ID</th></tr></thead><tbody id="usersTable"><tr><td colspan="4">Loading...</td></tr></tbody></table></div>
-</div>
-</section>
+<section id="usersPage" class="admin-page"><h1 class="page-title">User Management</h1><p class="page-subtitle">View user profiles and wallet balances stored in the database.</p>
+<div class="panel"><div class="panel-head"><h3>Registered Profiles</h3><button class="btn secondary" onclick="loadUsers()">Refresh</button></div>
+<div class="table-wrap"><table><thead><tr><th>NAME</th><th>EMAIL</th><th>WALLET</th><th>USER ID</th></tr></thead><tbody id="usersTable"><tr><td colspan="4">Loading...</td></tr></tbody></table></div></div></section>
 
-<section id="homeEditPage" class="admin-page">
-<h1 class="page-title">Home Page Editor</h1>
-<p class="page-subtitle">Update the welcome section, banner and announcement shown on the user panel.</p>
-<div class="panel">
-<div class="field"><label>HERO TITLE</label><input id="homeTitle" placeholder="Explore Premium Digital Products."></div>
+<section id="homeEditPage" class="admin-page"><h1 class="page-title">Home Page Editor</h1><p class="page-subtitle">Update the welcome section, banner and announcement shown on the user panel.</p>
+<div class="panel"><div class="field"><label>HERO TITLE</label><input id="homeTitle" placeholder="Explore Premium Digital Products."></div>
 <div class="field"><label>HERO SUBTITLE</label><textarea id="homeSubtitle" placeholder="Write your homepage subtitle..."></textarea></div>
 <div class="field"><label>HOME BANNER IMAGE URL</label><input id="homeBanner" type="url" placeholder="https://..."></div>
 <div class="field"><label>ANNOUNCEMENT / NOTICE</label><textarea id="homeNotice" placeholder="Write a notice for users..."></textarea></div>
-<button class="btn" onclick="saveHomeSettings()"><i class="fa-solid fa-floppy-disk"></i> SAVE HOME SETTINGS</button>
-</div>
-</section>
-
-</main>
-</div>
-</div>
-
-<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeAdminModal()">
-<div class="modal">
-<button class="modal-close" onclick="closeAdminModal()"><i class="fa-solid fa-xmark"></i></button>
-<h3 id="modalTitle">Details</h3>
-<div id="modalContent"></div>
-</div>
-</div>
-<div id="toast" class="toast hidden"></div>
+<button class="btn" onclick="saveHomeSettings()"><i class="fa-solid fa-floppy-disk"></i> SAVE HOME SETTINGS</button></div></section>
+</main></div></div>
+<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeAdminModal()"><div class="modal">
+<button class="modal-close" onclick="closeAdminModal()"><i class="fa-solid fa-xmark"></i></button><h3 id="modalTitle">Details</h3><div id="modalContent"></div>
+</div></div><div id="toast" class="toast hidden"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -308,22 +180,18 @@ appId:"1:101740085617:web:86d08757e668d4b897b6d0",
 measurementId:"G-1635XV6SKV"
 };
 
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getDatabase(app);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
 let adminUser=null,products={},categories={},allRequests=[],allWalletRequests=[],allUsers={};
-
 const $=id=>document.getElementById(id);
 const money=n=>"৳"+Number(n||0).toLocaleString("en-BD",{maximumFractionDigits:2});
+const asObject=v=>v&&typeof v==="object"&&!Array.isArray(v)?v:{};
 
 function toast(message){
-const el=$("toast");el.textContent=message;el.classList.remove("hidden");
+const el=$("toast");el.textContent=String(message);el.classList.remove("hidden");
 clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.add("hidden"),3500);
 }
-function esc(v){
-return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-}
-function formatDate(v){return v?new Date(v).toLocaleString():"—";}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function formatDate(v){return v?new Date(Number(v)).toLocaleString():"—";}
 function statusClass(s){s=String(s||"pending").toLowerCase();return ["pending","approved","rejected","processing"].includes(s)?s:"pending";}
 
 async function verifyAdmin(user){
@@ -336,10 +204,8 @@ if(!email||!password){toast("Enter admin email and password.");return;}
 const btn=$("loginButton");btn.disabled=true;btn.textContent="VERIFYING ADMIN...";
 try{
 const result=await signInWithEmailAndPassword(auth,email,password);
-if(!(await verifyAdmin(result.user))){
-await signOut(auth);toast("Access denied. This account is not an authorized admin.");
-}
-}catch(e){console.error(e);toast(e.code==="auth/invalid-credential"?"Incorrect email or password.":e.message);}
+if(!(await verifyAdmin(result.user))){await signOut(auth);toast("Access denied. This account is not an authorized admin.");}
+}catch(e){console.error(e);toast(e.code==="auth/invalid-credential"?"Incorrect email or password.":e.message||"Login failed.");}
 finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-lock"></i> SECURE ADMIN LOGIN';}
 }
 window.adminLogin=adminLogin;
@@ -352,52 +218,39 @@ adminUser=user;$("loginScreen").classList.add("hidden");$("adminApp").classList.
 }catch(e){console.error(e);toast("Could not verify admin. Check Database Rules.");}
 });
 
-async function adminLogout(){try{await signOut(auth);toast("Logged out.");}catch(e){toast(e.message);}}
+async function adminLogout(){try{await signOut(auth);toast("Logged out.");}catch(e){toast(e.message||"Logout failed.");}}
 window.adminLogout=adminLogout;
 function toggleSidebar(){$("sidebar").classList.toggle("open");}
 window.toggleSidebar=toggleSidebar;
 
 function showAdminPage(page){
+const pageEl=$(page+"Page");if(!pageEl)return;
 document.querySelectorAll(".admin-page").forEach(p=>p.classList.remove("active"));
-$(page+"Page").classList.add("active");
+pageEl.classList.add("active");
 document.querySelectorAll(".side-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
 $("sidebar").classList.remove("open");
-const actions={
-dashboard:loadDashboard,products:loadProducts,categories:loadCategories,
-requests:loadRequests,walletRequests:loadWalletRequests,
-transactions:loadTransactions,users:loadUsers,homeEdit:loadHomeSettings
-};
+const actions={dashboard:loadDashboard,products:loadProducts,categories:loadCategories,requests:loadRequests,walletRequests:loadWalletRequests,transactions:loadTransactions,users:loadUsers,homeEdit:loadHomeSettings};
 if(actions[page])actions[page]();
 }
 window.showAdminPage=showAdminPage;
-
-async function initializeAdmin(){
-await Promise.all([loadProducts(),loadCategories(),loadDashboard()]);
-}
+async function initializeAdmin(){await Promise.all([loadProducts(),loadCategories(),loadDashboard()]);}
 
 async function loadProducts(){
-try{
-const s=await get(ref(db,"products"));products=s.val()||{};renderProducts();populateCategorySelect();
-}catch(e){console.error(e);toast("Unable to read products. Check Database Rules.");}
+try{const s=await get(ref(db,"products"));products=asObject(s.val());renderProducts();populateCategorySelect();}
+catch(e){console.error(e);toast("Unable to read products. Check Database Rules.");}
 }
 function renderProducts(){
 const body=$("productsTable"),entries=Object.entries(products);
 if(!entries.length){body.innerHTML='<tr><td colspan="5"><div class="empty"><i class="fa-solid fa-box-open"></i>No products added yet.</div></td></tr>';return;}
 body.innerHTML=entries.map(([id,p])=>{
-const price=Number(p.price||0);
-return `<tr><td><strong>${esc(p.name||p.title||"Untitled")}</strong></td>
-<td>${esc(p.category||"—")}</td><td>${price>0?money(price):"FREE"}</td>
-<td><span class="status ${p.active===false?"rejected":"approved"}">${p.active===false?"HIDDEN":"ACTIVE"}</span></td>
-<td><div class="table-actions"><button class="action-btn" onclick="editProduct('${id}')">EDIT</button><button class="action-btn red" onclick="deleteProduct('${id}')">DELETE</button></div></td></tr>`;
+p=asObject(p);const price=Number(p.price||0),inactive=p.active===false||p.status==="inactive";
+return `<tr><td><strong>${esc(p.name||p.title||"Untitled")}</strong></td><td>${esc(p.category||"—")}</td><td>${price>0?money(price):"FREE"}</td><td><span class="status ${inactive?"rejected":"approved"}">${inactive?"HIDDEN":"ACTIVE"}</span></td><td><div class="table-actions"><button class="action-btn" onclick="editProduct('${esc(id)}')">EDIT</button><button class="action-btn red" onclick="deleteProduct('${esc(id)}')">DELETE</button></div></td></tr>`;
 }).join("");
 }
 function populateCategorySelect(){
 const select=$("productCategory");if(!select)return;
 const current=select.value;select.innerHTML='<option value="">Select category</option>';
-Object.values(categories).forEach(c=>{
-const name=typeof c==="string"?c:c.name||c.title;if(!name)return;
-const o=document.createElement("option");o.value=name;o.textContent=name;select.appendChild(o);
-});
+Object.values(categories).forEach(c=>{const name=typeof c==="string"?c:c?.name||c?.title;if(!name)return;const o=document.createElement("option");o.value=name;o.textContent=name;select.appendChild(o);});
 if(current)select.value=current;
 }
 function resetProductForm(){
@@ -406,16 +259,14 @@ $("productFormTitle").textContent="Add New Product";
 $("saveProductButton").innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> SAVE PRODUCT';
 }
 window.resetProductForm=resetProductForm;
-
 function editProduct(id){
 const p=products[id];if(!p)return;
 $("editProductId").value=id;$("productName").value=p.name||p.title||"";
 $("productCategory").value=p.category||"";$("productPrice").value=Number(p.price||0);
-$("productActive").value=String(p.active!==false);
+$("productActive").value=String(p.active!==false&&p.status!=="inactive");
 $("productDescription").value=p.description||"";$("productGuide").value=p.setupGuide||"";
 $("productVideo").value=p.videoUrl||"";$("productImageUrl").value=p.imageUrl||p.image||"";
-$("productDownloadUrl").value=p.downloadUrl||p.fileUrl||"";
-$("productFeatured").checked=p.featured===true;
+$("productDownloadUrl").value=p.downloadUrl||p.fileUrl||"";$("productFeatured").checked=p.featured===true;
 $("productFormTitle").textContent="Edit Product";$("saveProductButton").textContent="UPDATE PRODUCT";
 showAdminPage("addProduct");
 }
@@ -430,21 +281,17 @@ if(!name||!category||!description||!Number.isFinite(price)||price<0){toast("Plea
 const btn=$("saveProductButton");btn.disabled=true;btn.textContent="SAVING PRODUCT...";
 try{
 const productRef=id?ref(db,"products/"+id):push(ref(db,"products"));
-const data={
-name,title:name,category,price,type:price>0?"premium":"free",
-active:$("productActive").value==="true",description,
+const active=$("productActive").value==="true";
+const data={name,title:name,category,price,type:price>0?"premium":"free",active,status:active?"active":"inactive",description,
 setupGuide:$("productGuide").value.trim(),videoUrl:$("productVideo").value.trim(),
 imageUrl:$("productImageUrl").value.trim(),downloadUrl:$("productDownloadUrl").value.trim(),
-featured:$("productFeatured").checked,updatedAt:Date.now(),
-createdAt:existing?.createdAt||Date.now()
-};
+featured:$("productFeatured").checked,updatedAt:Date.now(),createdAt:existing?.createdAt||Date.now()};
 await set(productRef,data);toast(id?"Product updated successfully.":"Product added successfully.");
 resetProductForm();await loadProducts();await loadDashboard();showAdminPage("products");
-}catch(e){console.error(e);toast("Save failed: "+e.message);}
-finally{btn.disabled=false;btn.textContent="SAVE PRODUCT";}
+}catch(e){console.error(e);toast("Save failed: "+(e.message||"Unknown error"));}
+finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> SAVE PRODUCT';}
 }
 window.saveProduct=saveProduct;
-
 async function deleteProduct(id){
 if(!confirm("Are you sure you want to delete this product?"))return;
 try{await remove(ref(db,"products/"+id));delete products[id];renderProducts();toast("Product deleted.");await loadDashboard();}
@@ -453,20 +300,17 @@ catch(e){console.error(e);toast("Delete failed. Check Database Rules.");}
 window.deleteProduct=deleteProduct;
 
 async function loadCategories(){
-try{const s=await get(ref(db,"categories"));categories=s.val()||{};renderCategories();populateCategorySelect();}
+try{const s=await get(ref(db,"categories"));categories=asObject(s.val());renderCategories();populateCategorySelect();}
 catch(e){console.error(e);toast("Unable to load categories.");}
 }
 function renderCategories(){
 const box=$("categoryList"),entries=Object.entries(categories);
 if(!entries.length){box.innerHTML='<div class="empty"><i class="fa-solid fa-layer-group"></i>No categories yet.</div>';return;}
-box.innerHTML=entries.map(([id,c])=>{
-const name=typeof c==="string"?c:c.name||c.title||"Category";
-return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #ffffff10"><strong style="font-size:11px">${esc(name)}</strong><button class="action-btn red" onclick="deleteCategory('${id}')">DELETE</button></div>`;
-}).join("");
+box.innerHTML=entries.map(([id,c])=>{const name=typeof c==="string"?c:c?.name||c?.title||"Category";return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #ffffff10"><strong style="font-size:11px">${esc(name)}</strong><button class="action-btn red" onclick="deleteCategory('${esc(id)}')">DELETE</button></div>`;}).join("");
 }
 async function addCategory(){
 const name=$("newCategoryName").value.trim();if(!name){toast("Enter a category name.");return;}
-if(Object.values(categories).some(c=>(typeof c==="string"?c:c.name||c.title||"").toLowerCase()===name.toLowerCase())){toast("This category already exists.");return;}
+if(Object.values(categories).some(c=>(typeof c==="string"?c:c?.name||c?.title||"").toLowerCase()===name.toLowerCase())){toast("This category already exists.");return;}
 try{const item=push(ref(db,"categories"));await set(item,{name,createdAt:Date.now()});$("newCategoryName").value="";await loadCategories();toast("Category added.");}
 catch(e){console.error(e);toast("Could not add category. Check Database Rules.");}
 }
@@ -478,218 +322,121 @@ catch(e){console.error(e);toast("Delete failed.");}
 }
 window.deleteCategory=deleteCategory;
 
-/* PRODUCT ORDER LOADING */
+/* Orders are stored as orders/{uid}/{orderId}. */
 async function collectOrders(){
-const snap=await get(ref(db,"orders")),data=snap.val()||{},list=[];
-Object.entries(data).forEach(([uid,orders])=>
-Object.entries(orders||{}).forEach(([orderId,o])=>
-list.push({uid,orderId,...o})
-));
-return list.sort((a,b)=>(b.requestedAt||b.createdAt||0)-(a.requestedAt||a.createdAt||0));
+const snap=await get(ref(db,"orders")),data=asObject(snap.val()),list=[];
+Object.entries(data).forEach(([uid,orders])=>Object.entries(asObject(orders)).forEach(([orderId,o])=>list.push({uid,orderId,...asObject(o)})));
+return list.sort((a,b)=>Number(b.requestedAt||b.createdAt||0)-Number(a.requestedAt||a.createdAt||0));
 }
-
 async function loadRequests(){
 $("requestsTable").innerHTML='<tr><td colspan="5">Loading orders...</td></tr>';
 try{allRequests=await collectOrders();renderRequests();}
-catch(e){console.error(e);$("requestsTable").innerHTML='<tr><td colspan="5">Unable to read orders. Check Database Rules.</td></tr>';toast("Order loading failed.");}
+catch(e){console.error(e);$("requestsTable").innerHTML='<tr><td colspan="5">Unable to read orders. Check Database Rules.</td></tr>';toast("Order loading failed: "+(e.message||""));}
 }
-
 function renderRequests(){
 const body=$("requestsTable");
 if(!allRequests.length){body.innerHTML='<tr><td colspan="5"><div class="empty"><i class="fa-solid fa-inbox"></i>No product orders found.</div></td></tr>';return;}
 body.innerHTML=allRequests.map(r=>{
-const s=String(r.status||"pending").toLowerCase();
-const method=r.paymentMethod||r.paymentProvider||r.method||"—";
-const canReview=s==="pending";
-return `<tr>
-<td><strong>${esc(r.productName||"Product")}</strong><br><small>${esc(r.uid.slice(0,12))}...</small></td>
-<td>${money(r.price||r.amount||0)}</td>
-<td>${esc(method)}</td>
-<td><span class="status ${statusClass(s)}">${esc(s.toUpperCase())}</span></td>
-<td><div class="table-actions">
-${canReview?`<button class="action-btn green" onclick="updateRequest('${r.uid}','${r.orderId}','approved')">APPROVE</button><button class="action-btn red" onclick="updateRequest('${r.uid}','${r.orderId}','rejected')">REJECT</button>`:""}
-<button class="action-btn gray" onclick="viewRequest('${r.uid}','${r.orderId}')">VIEW</button>
-</div></td></tr>`;
+const s=String(r.status||"pending").toLowerCase(),method=r.paymentMethod||r.paymentProvider||r.method||"—";
+return `<tr><td><strong>${esc(r.productName||"Product")}</strong><br><small>${esc(r.uid.slice(0,12))}...</small></td><td>${money(r.price??r.amount??0)}</td><td>${esc(method)}</td><td><span class="status ${statusClass(s)}">${esc(s.toUpperCase())}</span></td><td><div class="table-actions">${s==="pending"?`<button class="action-btn green" onclick="updateRequest('${esc(r.uid)}','${esc(r.orderId)}','approved')">APPROVE</button><button class="action-btn red" onclick="updateRequest('${esc(r.uid)}','${esc(r.orderId)}','rejected')">REJECT</button>`:""}<button class="action-btn gray" onclick="viewRequest('${esc(r.uid)}','${esc(r.orderId)}')">VIEW</button></div></td></tr>`;
 }).join("");
 }
-
-/* Find the product using its saved ID, or an exact unique product name. */
 async function findOrderProduct(order){
-const fresh=await get(ref(db,"products"));
-const currentProducts=fresh.val()||{};
-let productId=order.productId||order.productKey||order.product?.id||"";
-
-if(productId&&currentProducts[productId]){
-return {id:productId,data:currentProducts[productId]};
+const fresh=await get(ref(db,"products")),currentProducts=asObject(fresh.val());
+const productId=order.productId||order.productKey||order.product?.id||"";
+if(productId&&currentProducts[productId])return {id:productId,data:currentProducts[productId]};
+const wanted=String(order.productName||order.name||"").trim().toLowerCase();if(!wanted)return null;
+const matches=Object.entries(currentProducts).filter(([id,p])=>String(p?.name||p?.title||"").trim().toLowerCase()===wanted);
+return matches.length===1?{id:matches[0][0],data:matches[0][1]}:null;
 }
 
-const wanted=String(order.productName||order.name||"").trim().toLowerCase();
-if(!wanted)return null;
-
-const matches=Object.entries(currentProducts).filter(([id,p])=>
-String(p.name||p.title||"").trim().toLowerCase()===wanted
-);
-if(matches.length!==1)return null;
-return {id:matches[0][0],data:matches[0][1]};
+/*
+ * Atomic wallet update: balance + processed marker are committed together.
+ * A retry can therefore detect an earlier credit/debit and never repeat it.
+ */
+async function changeWalletOnce(uid,markerNode,markerId,amount,operation){
+const walletRef=ref(db,"wallets/"+uid);let outcome="failed",balanceAfter=null;
+const result=await runTransaction(walletRef,current=>{
+const wallet=asObject(current),markers=asObject(wallet[markerNode]);
+if(markers[markerId]===true){outcome="already";balanceAfter=Number(wallet.balance||0);return;}
+const balance=Number(wallet.balance||0);
+if(!Number.isFinite(balance)||balance<0){outcome="invalid";return;}
+if(operation==="debit"&&balance<amount){outcome="insufficient";return;}
+const nextBalance=operation==="credit"?balance+amount:balance-amount;
+outcome="applied";balanceAfter=nextBalance;
+return {...wallet,balance:nextBalance,[markerNode]:{...markers,[markerId]:true}};
+},{applyLocally:false});
+const finalWallet=asObject(result.snapshot.val());
+if(result.committed){balanceAfter=Number(finalWallet.balance||0);}
+else if(asObject(finalWallet[markerNode])[markerId]===true){outcome="already";balanceAfter=Number(finalWallet.balance||0);}
+return {outcome,balanceAfter};
 }
 
-/* Approve or reject a product order. */
 async function updateRequest(uid,orderId,status){
 if(!adminUser){toast("Admin login required.");return;}
-const current=allRequests.find(x=>x.uid===uid&&x.orderId===orderId);
-if(!current)return;
-if(String(current.status||"pending").toLowerCase()!=="pending"){
-toast("This order has already been reviewed or is processing.");return;
-}
-
+const current=allRequests.find(x=>x.uid===uid&&x.orderId===orderId);if(!current)return;
+if(String(current.status||"pending").toLowerCase()!=="pending"){toast("This order has already been reviewed or is processing.");return;}
+const orderRef=ref(db,"orders/"+uid+"/"+orderId);
 if(status==="rejected"){
 if(!confirm("Reject this product order? No wallet amount will be deducted."))return;
 try{
-const orderRef=ref(db,"orders/"+uid+"/"+orderId);
-const claim=await runTransaction(orderRef,old=>{
-if(!old||String(old.status||"pending").toLowerCase()!=="pending")return;
-return {...old,status:"rejected",reviewedAt:Date.now(),reviewedBy:adminUser.uid};
-});
-if(!claim.committed){toast("Order is already being processed.");return;}
-toast("Product order rejected.");
-await loadRequests();await loadDashboard();
-}catch(e){console.error(e);toast("Could not reject order: "+e.message);}
+const result=await runTransaction(orderRef,old=>!old||String(old.status||"pending").toLowerCase()!=="pending"?undefined:{...old,status:"rejected",reviewedAt:Date.now(),reviewedBy:adminUser.uid});
+if(!result.committed){toast("Order is already being processed.");return;}
+toast("Product order rejected.");await loadRequests();await loadDashboard();
+}catch(e){console.error(e);toast("Could not reject order: "+(e.message||""));}
 return;
 }
-
 if(status!=="approved")return;
-
-const method=String(current.paymentMethod||current.paymentProvider||current.method||"").toLowerCase();
-const isWallet=method.includes("wallet");
-
+const method=String(current.paymentMethod||current.paymentProvider||current.method||"").toLowerCase(),isWallet=method.includes("wallet");
 if(isWallet){
 if(!confirm("Wallet order approval: the current product price will be deducted from this user's wallet. Continue?"))return;
 }else{
-if(!current.trxId){
-toast("Transaction ID is missing. Cannot approve this instant payment order.");return;
-}
+if(!current.trxId){toast("Transaction ID is missing. Cannot approve this instant payment order.");return;}
 if(!confirm("Have you personally verified this Trx ID and exact amount in your bKash/Nagad transaction history? Only continue if the money was actually received."))return;
 }
-
-const orderRef=ref(db,"orders/"+uid+"/"+orderId);
 let claimed=false;
-
 try{
-/* Lock the order first to prevent double approval. */
-const claim=await runTransaction(orderRef,old=>{
-if(!old||String(old.status||"pending").toLowerCase()!=="pending")return;
-return {...old,status:"processing",processingAt:Date.now(),processingBy:adminUser.uid};
-});
+const claim=await runTransaction(orderRef,old=>!old||String(old.status||"pending").toLowerCase()!=="pending"?undefined:{...old,status:"processing",processingAt:Date.now(),processingBy:adminUser.uid});
 if(!claim.committed){toast("This order is already being processed or reviewed.");return;}
 claimed=true;
-
 if(isWallet){
-/* Read the authoritative product price from the products node. */
-const found=await findOrderProduct(current);
-if(!found)throw new Error("Product could not be matched uniquely. Check productId and product name.");
-
-const product=found.data;
-if(product.active===false)throw new Error("This product is currently inactive.");
-
-const price=Number(product.price||0);
-if(!Number.isFinite(price)||price<=0)throw new Error("This wallet order has an invalid product price.");
-
+const found=await findOrderProduct(current);if(!found)throw new Error("Product could not be matched uniquely. Check productId and product name.");
+const product=asObject(found.data);
+if(product.active===false||product.status==="inactive")throw new Error("This product is currently inactive.");
+const price=Number(product.price||0);if(!Number.isFinite(price)||price<=0)throw new Error("This wallet order has an invalid product price.");
 const submittedPrice=Number(current.price??current.amount??0);
-if(!Number.isFinite(submittedPrice)||Math.abs(submittedPrice-price)>0.001){
-throw new Error("Order price does not match the current product price. Please review this order.");
+if(!Number.isFinite(submittedPrice)||Math.abs(submittedPrice-price)>0.001)throw new Error("Order price does not match the current product price. Please review this order.");
+const walletResult=await changeWalletOnce(uid,"processedOrders",orderId,price,"debit");
+if(walletResult.outcome==="insufficient"){
+await update(orderRef,{status:"pending",processingError:"Insufficient wallet balance",processingAt:null});claimed=false;
+toast("Insufficient wallet balance. Order returned to Pending.");await loadRequests();return;
 }
-
-/* Deduct the exact current product price. */
-const balanceRef=ref(db,"wallets/"+uid+"/balance");
-const debit=await runTransaction(balanceRef,balance=>{
-const available=Number(balance||0);
-if(!Number.isFinite(available)||available<price)return;
-return available-price;
-});
-
-if(!debit.committed){
-await update(orderRef,{
-status:"pending",
-processingError:"Insufficient wallet balance",
-processingAt:null
-});
-claimed=false;
-toast("Insufficient wallet balance. Order returned to Pending.");
-await loadRequests();
-return;
-}
-
-const balanceAfter=Number(debit.snapshot.val()||0);
-
-/* Store deduction information before completing the order. */
-await update(orderRef,{
-walletDeducted:true,
-walletDeductedAmount:price,
-walletBalanceAfter:balanceAfter,
-walletProductId:found.id,
-walletDeductedAt:Date.now()
-});
-
-/* Record the wallet deduction in the transaction ledger. */
-const transactionRef=push(ref(db,"walletTransactions/"+uid));
-await set(transactionRef,{
-type:"purchase",
-amount:price,
-method:"wallet",
-productId:found.id,
-productName:product.name||product.title||current.productName||"Product",
-orderId,
-status:"completed",
-createdAt:Date.now(),
-balanceAfter
-});
-
-await update(orderRef,{
-status:"approved",
-approvedAt:Date.now(),
-approvedBy:adminUser.uid,
-reviewedAt:Date.now(),
-reviewedBy:adminUser.uid,
-walletTransactionId:transactionRef.key
-});
-
-toast("Wallet order approved. Exact product price deducted.");
+if(walletResult.outcome==="invalid"||walletResult.outcome==="failed")throw new Error("Wallet balance could not be safely updated.");
+const balanceAfter=walletResult.balanceAfter;
+await update(orderRef,{walletDeducted:true,walletDeductedAmount:price,walletBalanceAfter:balanceAfter,walletProductId:found.id,walletDeductedAt:Date.now()});
+const transactionId="purchase_"+orderId,transactionRef=ref(db,"walletTransactions/"+uid+"/"+transactionId);
+await set(transactionRef,{type:"purchase",amount:price,method:"wallet",productId:found.id,productName:product.name||product.title||current.productName||"Product",orderId,status:"completed",createdAt:Date.now(),balanceAfter});
+await update(orderRef,{status:"approved",approvedAt:Date.now(),approvedBy:adminUser.uid,reviewedAt:Date.now(),reviewedBy:adminUser.uid,walletTransactionId:transactionId});
+toast(walletResult.outcome==="already"?"Wallet order completed using its existing debit.":"Wallet order approved. Exact product price deducted.");
 }else{
-/* Instant bKash/Nagad order: admin must verify the real transaction first. */
-await update(orderRef,{
-status:"approved",
-approvedAt:Date.now(),
-approvedBy:adminUser.uid,
-reviewedAt:Date.now(),
-reviewedBy:adminUser.uid,
-paymentVerified:true
-});
+await update(orderRef,{status:"approved",approvedAt:Date.now(),approvedBy:adminUser.uid,reviewedAt:Date.now(),reviewedBy:adminUser.uid,paymentVerified:true});
 toast("Payment order approved.");
 }
-
-await loadRequests();
-await loadTransactions();
-await loadUsers();
-await loadDashboard();
-
+await loadRequests();await loadTransactions();await loadUsers();await loadDashboard();
 }catch(e){
 console.error(e);
 if(claimed){
-/* Keep it in processing if a debit/ledger step may already have happened.
-   This prevents a second approval from deducting money again. */
 try{
-const latest=await get(orderRef);
-const value=latest.val()||{};
-if(!value.walletDeducted){
-await update(orderRef,{
-status:"pending",
-processingError:e.message,
-processingFailedAt:Date.now()
-});
+const latest=asObject((await get(orderRef)).val());
+if(latest.walletDeducted!==true){
+const wallet=asObject((await get(ref(db,"wallets/"+uid))).val());
+if(asObject(wallet.processedOrders)[orderId]===true){
+await update(orderRef,{walletDeducted:true,walletDeductedAmount:Number(current.price??current.amount??0),walletBalanceAfter:Number(wallet.balance||0),walletDeductedAt:Date.now()});
+}else await update(orderRef,{status:"pending",processingError:e.message,processingFailedAt:Date.now()});
 }
-}catch(resetError){console.error("Order recovery check failed:",resetError);}
+}catch(recoveryError){console.error("Order recovery check failed:",recoveryError);}
 }
-toast("Approval could not finish: "+e.message+". Check this order's status before retrying.");
+toast("Approval could not finish: "+(e.message||"Unknown error")+". Check this order's status before retrying.");
 await loadRequests();
 }
 }
@@ -702,305 +449,144 @@ $("modalContent").innerHTML=`
 <div class="field"><label>PRODUCT</label><div>${esc(r.productName||"Product")}</div></div>
 <div class="field"><label>USER UID</label><div style="overflow-wrap:anywhere">${esc(uid)}</div></div>
 <div class="field"><label>ORDER ID</label><div style="overflow-wrap:anywhere">${esc(orderId)}</div></div>
-<div class="field"><label>AMOUNT</label><div>${money(r.price||r.amount||0)}</div></div>
+<div class="field"><label>AMOUNT</label><div>${money(r.price??r.amount??0)}</div></div>
 <div class="field"><label>PAYMENT METHOD</label><div>${esc(r.paymentMethod||r.paymentProvider||r.method||"—")}</div></div>
 <div class="field"><label>TRANSACTION ID</label><div>${esc(r.trxId||"Not provided")}</div></div>
 <div class="field"><label>DATE / STATUS</label><div>${esc(formatDate(r.requestedAt||r.createdAt))} / ${esc(r.status||"pending")}</div></div>
 <div class="field"><label>WALLET DEDUCTION</label><div>${r.walletDeducted?money(r.walletDeductedAmount):"Not deducted"}</div></div>
-<div class="table-actions">
-${String(r.status||"pending").toLowerCase()==="pending"?`<button class="btn success" onclick="closeAdminModal();updateRequest('${uid}','${orderId}','approved')">APPROVE</button><button class="btn danger" onclick="closeAdminModal();updateRequest('${uid}','${orderId}','rejected')">REJECT</button>`:""}
-</div>`;
+<div class="table-actions">${String(r.status||"pending").toLowerCase()==="pending"?`<button class="btn success" onclick="closeAdminModal();updateRequest('${esc(uid)}','${esc(orderId)}','approved')">APPROVE</button><button class="btn danger" onclick="closeAdminModal();updateRequest('${esc(uid)}','${esc(orderId)}','rejected')">REJECT</button>`:""}</div>`;
 $("modalBg").classList.add("show");
 }
 window.viewRequest=viewRequest;
 
-/* WALLET REQUESTS */
+/* Wallet requests are stored as walletRequests/{uid}/{requestId}. */
 async function loadWalletRequests(){
 $("walletRequestsTable").innerHTML='<tr><td colspan="6">Loading...</td></tr>';
 try{
-const snap=await get(ref(db,"walletRequests")),data=snap.val()||{};
-allWalletRequests=[];
-Object.entries(data).forEach(([uid,items])=>
-Object.entries(items||{}).forEach(([requestId,r])=>
-allWalletRequests.push({uid,requestId,...r})
-));
-allWalletRequests.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
-renderWalletRequests();
-}catch(e){console.error(e);$("walletRequestsTable").innerHTML='<tr><td colspan="6">Unable to load wallet requests.</td></tr>';toast("Wallet request loading failed.");}
+const snap=await get(ref(db,"walletRequests")),data=asObject(snap.val());allWalletRequests=[];
+Object.entries(data).forEach(([uid,items])=>Object.entries(asObject(items)).forEach(([requestId,r])=>allWalletRequests.push({uid,requestId,...asObject(r)})));
+allWalletRequests.sort((a,b)=>Number(b.requestedAt||b.createdAt||0)-Number(a.requestedAt||a.createdAt||0));renderWalletRequests();
+}catch(e){console.error(e);$("walletRequestsTable").innerHTML='<tr><td colspan="6">Unable to load wallet requests.</td></tr>';toast("Wallet request loading failed: "+(e.message||""));}
 }
-
 function renderWalletRequests(){
 const body=$("walletRequestsTable");
 if(!allWalletRequests.length){body.innerHTML='<tr><td colspan="6"><div class="empty"><i class="fa-solid fa-wallet"></i>No wallet requests found.</div></td></tr>';return;}
 body.innerHTML=allWalletRequests.map(r=>{
 const s=String(r.status||"pending").toLowerCase();
-const canReview=s==="pending";
-return `<tr>
-<td><strong>${esc(r.userName||r.name||"User")}</strong><br><small>${esc(r.email||r.uid)}</small></td>
-<td>${esc(String(r.method||"—").toUpperCase())}</td>
-<td>${money(r.amount)}</td>
-<td>${esc(r.trxId||"—")}</td>
-<td><span class="status ${statusClass(s)}">${esc(s.toUpperCase())}</span></td>
-<td><div class="table-actions">
-${canReview?`<button class="action-btn green" onclick="reviewWalletRequest('${r.uid}','${r.requestId}','approved')">APPROVE</button><button class="action-btn red" onclick="reviewWalletRequest('${r.uid}','${r.requestId}','rejected')">REJECT</button>`:""}
-</div></td></tr>`;
+return `<tr><td><strong>${esc(r.userName||r.name||"User")}</strong><br><small>${esc(r.email||r.uid)}</small></td><td>${esc(String(r.method||"—").toUpperCase())}</td><td>${money(r.amount)}</td><td>${esc(r.trxId||"—")}</td><td><span class="status ${statusClass(s)}">${esc(s.toUpperCase())}</span></td><td><div class="table-actions">${s==="pending"?`<button class="action-btn green" onclick="reviewWalletRequest('${esc(r.uid)}','${esc(r.requestId)}','approved')">APPROVE</button><button class="action-btn red" onclick="reviewWalletRequest('${esc(r.uid)}','${esc(r.requestId)}','rejected')">REJECT</button>`:""}</div></td></tr>`;
 }).join("");
 }
-
 async function reviewWalletRequest(uid,requestId,status){
 if(!adminUser){toast("Admin login required.");return;}
-const item=allWalletRequests.find(x=>x.uid===uid&&x.requestId===requestId);
-if(!item)return;
-
-if(String(item.status||"pending").toLowerCase()!=="pending"){
-toast("This request has already been reviewed or is processing.");return;
-}
-
+const item=allWalletRequests.find(x=>x.uid===uid&&x.requestId===requestId);if(!item)return;
+if(String(item.status||"pending").toLowerCase()!=="pending"){toast("This request has already been reviewed or is processing.");return;}
 if(status==="approved"){
-if(!Number.isFinite(Number(item.amount))||Number(item.amount)<=0){
-toast("Invalid request amount.");return;
-}
-if(!item.trxId){
-toast("Transaction ID is missing.");return;
-}
+if(!Number.isFinite(Number(item.amount))||Number(item.amount)<=0){toast("Invalid request amount.");return;}
+if(!item.trxId){toast("Transaction ID is missing.");return;}
 if(!confirm("Have you verified this Trx ID and confirmed that the exact amount was received in your bKash/Nagad account? Continue to credit the user's wallet only if verified."))return;
-}else{
+}else if(status==="rejected"){
 if(!confirm("Reject this wallet request? No money will be added."))return;
-}
-
-const requestRef=ref(db,"walletRequests/"+uid+"/"+requestId);
-let claimed=false;
-
+}else return;
+const requestRef=ref(db,"walletRequests/"+uid+"/"+requestId);let claimed=false;
 try{
-/* Claim request so it cannot be credited twice. */
-const claim=await runTransaction(requestRef,current=>{
-if(!current||String(current.status||"pending").toLowerCase()!=="pending")return;
-return {...current,status:"processing",processingAt:Date.now(),reviewedBy:adminUser.uid};
-});
-if(!claim.committed){
-toast("This request is already being processed or reviewed.");return;
-}
+const claim=await runTransaction(requestRef,current=>!current||String(current.status||"pending").toLowerCase()!=="pending"?undefined:{...current,status:"processing",processingAt:Date.now(),reviewedBy:adminUser.uid});
+if(!claim.committed){toast("This request is already being processed or reviewed.");return;}
 claimed=true;
-
 if(status==="rejected"){
-await update(requestRef,{
-status:"rejected",
-reviewedAt:Date.now(),
-reviewedBy:adminUser.uid
-});
-toast("Wallet request rejected.");
-await loadWalletRequests();
-await loadDashboard();
-return;
+await update(requestRef,{status:"rejected",reviewedAt:Date.now(),reviewedBy:adminUser.uid});
+toast("Wallet request rejected.");await loadWalletRequests();await loadDashboard();return;
 }
-
-const amount=Number(item.amount);
-const balanceRef=ref(db,"wallets/"+uid+"/balance");
-
-/* Credit wallet balance exactly once. */
-const credit=await runTransaction(balanceRef,current=>{
-const oldBalance=Number(current||0);
-if(!Number.isFinite(oldBalance)||oldBalance<0)return;
-return oldBalance+amount;
-});
-if(!credit.committed)throw new Error("Wallet balance could not be updated.");
-
-const balanceAfter=Number(credit.snapshot.val()||0);
-
-/* Save the credited marker before finishing request status. */
-await update(requestRef,{
-walletCredited:true,
-creditedAmount:amount,
-balanceAfter,
-creditedAt:Date.now()
-});
-
-/* Create ledger entry. */
-const transactionRef=push(ref(db,"walletTransactions/"+uid));
-await set(transactionRef,{
-type:"deposit",
-amount,
-method:String(item.method||"").toLowerCase(),
-trxId:item.trxId||"",
-requestId,
-status:"approved",
-createdAt:Date.now(),
-balanceAfter
-});
-
-await update(requestRef,{
-status:"approved",
-approvedAt:Date.now(),
-approvedBy:adminUser.uid,
-transactionId:transactionRef.key
-});
-
-toast("Wallet request approved. Balance credited.");
-await loadWalletRequests();
-await loadTransactions();
-await loadUsers();
-await loadDashboard();
-
+const amount=Number(item.amount),walletResult=await changeWalletOnce(uid,"processedWalletRequests",requestId,amount,"credit");
+if(walletResult.outcome==="invalid"||walletResult.outcome==="failed")throw new Error("Wallet balance could not be safely updated.");
+const balanceAfter=walletResult.balanceAfter;
+await update(requestRef,{walletCredited:true,creditedAmount:amount,balanceAfter,creditedAt:Date.now()});
+const transactionId="deposit_"+requestId,transactionRef=ref(db,"walletTransactions/"+uid+"/"+transactionId);
+await set(transactionRef,{type:"deposit",amount,method:String(item.method||"").toLowerCase(),trxId:item.trxId||"",requestId,status:"approved",createdAt:Date.now(),balanceAfter});
+await update(requestRef,{status:"approved",approvedAt:Date.now(),approvedBy:adminUser.uid,transactionId});
+toast(walletResult.outcome==="already"?"Request approved; existing credit was not repeated.":"Wallet request approved. Balance credited.");
+await loadWalletRequests();await loadTransactions();await loadUsers();await loadDashboard();
 }catch(e){
 console.error(e);
 if(claimed){
 try{
-const latest=await get(requestRef);
-const value=latest.val()||{};
-if(!value.walletCredited){
-await update(requestRef,{
-status:"pending",
-processingError:e.message,
-processingFailedAt:Date.now()
-});
+const latest=asObject((await get(requestRef)).val());
+if(latest.walletCredited!==true){
+const wallet=asObject((await get(ref(db,"wallets/"+uid))).val());
+if(asObject(wallet.processedWalletRequests)[requestId]===true){
+await update(requestRef,{walletCredited:true,creditedAmount:Number(item.amount),balanceAfter:Number(wallet.balance||0),creditedAt:Date.now()});
+}else await update(requestRef,{status:"pending",processingError:e.message,processingFailedAt:Date.now()});
 }
-}catch(resetError){console.error("Wallet recovery check failed:",resetError);}
+}catch(recoveryError){console.error("Wallet recovery check failed:",recoveryError);}
 }
-toast("Approval could not finish: "+e.message+". Check request status before retrying.");
+toast("Approval could not finish: "+(e.message||"Unknown error")+". Check request status before retrying.");
 await loadWalletRequests();
 }
 }
 window.reviewWalletRequest=reviewWalletRequest;
 
-/* WALLET TRANSACTION HISTORY */
 async function loadTransactions(){
 $("transactionsTable").innerHTML='<tr><td colspan="5">Loading...</td></tr>';
 try{
-const snap=await get(ref(db,"walletTransactions")),data=snap.val()||{},list=[];
-Object.entries(data).forEach(([uid,items])=>
-Object.entries(items||{}).forEach(([id,t])=>
-list.push({uid,id,...t})
-));
-list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-if(!list.length){
-$("transactionsTable").innerHTML='<tr><td colspan="5">No transactions found.</td></tr>';return;
-}
-$("transactionsTable").innerHTML=list.map(t=>
-`<tr>
-<td>${esc(t.uid.slice(0,14))}...</td>
-<td>${esc(t.type||"—")}</td>
-<td>${money(t.amount)}</td>
-<td>${esc(t.method||"—")}</td>
-<td>${esc(formatDate(t.createdAt))}</td>
-</tr>`
-).join("");
+const snap=await get(ref(db,"walletTransactions")),data=asObject(snap.val()),list=[];
+Object.entries(data).forEach(([uid,items])=>Object.entries(asObject(items)).forEach(([id,t])=>list.push({uid,id,...asObject(t)})));
+list.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+if(!list.length){$("transactionsTable").innerHTML='<tr><td colspan="5">No transactions found.</td></tr>';return;}
+$("transactionsTable").innerHTML=list.map(t=>`<tr><td>${esc(t.uid.slice(0,14))}...</td><td>${esc(t.type||"—")}</td><td>${money(t.amount)}</td><td>${esc(t.method||"—")}</td><td>${esc(formatDate(t.createdAt))}</td></tr>`).join("");
 }catch(e){console.error(e);$("transactionsTable").innerHTML='<tr><td colspan="5">Unable to load transactions.</td></tr>';toast("Transaction loading failed.");}
 }
 window.loadTransactions=loadTransactions;
 
-/* USERS */
 async function loadUsers(){
 $("usersTable").innerHTML='<tr><td colspan="4">Loading...</td></tr>';
 try{
-const [uSnap,wSnap]=await Promise.all([
-get(ref(db,"users")),get(ref(db,"wallets"))
-]);
-allUsers=uSnap.val()||{};
-const wallets=wSnap.val()||{};
-const entries=Object.entries(allUsers);
-if(!entries.length){
-$("usersTable").innerHTML='<tr><td colspan="4">No user profiles found.</td></tr>';return;
-}
-$("usersTable").innerHTML=entries.map(([uid,u])=>
-`<tr>
-<td><strong>${esc(u.name||"User")}</strong></td>
-<td>${esc(u.email||"—")}</td>
-<td>${money(wallets[uid]?.balance||0)}</td>
-<td>${esc(uid.slice(0,14))}...</td>
-</tr>`
-).join("");
-}catch(e){console.error(e);$("usersTable").innerHTML='<tr><td colspan="4">Unable to load users. Check Database Rules.</td></tr>';}
+const [uSnap,wSnap]=await Promise.all([get(ref(db,"users")),get(ref(db,"wallets"))]);
+allUsers=asObject(uSnap.val());const wallets=asObject(wSnap.val()),entries=Object.entries(allUsers);
+if(!entries.length){$("usersTable").innerHTML='<tr><td colspan="4">No user profiles found.</td></tr>';return;}
+$("usersTable").innerHTML=entries.map(([uid,u])=>`<tr><td><strong>${esc(u?.name||"User")}</strong></td><td>${esc(u?.email||"—")}</td><td>${money(wallets[uid]?.balance||0)}</td><td>${esc(uid.slice(0,14))}...</td></tr>`).join("");
+}catch(e){console.error(e);$("usersTable").innerHTML='<tr><td colspan="4">Unable to load users. Check Database Rules.</td></tr>';toast("User loading failed.");}
 }
 window.loadUsers=loadUsers;
 
-/* DASHBOARD */
 async function loadDashboard(){
 try{
-const [pSnap,uSnap,oSnap,wSnap]=await Promise.all([
-get(ref(db,"products")),
-get(ref(db,"users")),
-get(ref(db,"orders")),
-get(ref(db,"walletRequests"))
-]);
-products=pSnap.val()||{};
-allUsers=uSnap.val()||{};
-const orders=oSnap.val()||{};
-const walletRequests=wSnap.val()||{};
-let total=0,pending=0;
-allRequests=[];
-
-Object.entries(orders).forEach(([uid,items])=>
-Object.entries(items||{}).forEach(([orderId,o])=>{
-total++;
-const status=String(o.status||"pending").toLowerCase();
-if(status==="pending"||status==="processing")pending++;
-allRequests.push({uid,orderId,...o});
-})
-);
-
-Object.entries(walletRequests).forEach(([uid,items])=>
-Object.values(items||{}).forEach(r=>{
-total++;
-const status=String(r.status||"pending").toLowerCase();
-if(status==="pending"||status==="processing")pending++;
-})
-);
-
-allRequests.sort((a,b)=>(b.requestedAt||b.createdAt||0)-(a.requestedAt||a.createdAt||0));
-$("statProducts").textContent=Object.keys(products).length;
-$("statUsers").textContent=Object.keys(allUsers).length;
-$("statRequests").textContent=total;
-$("statPending").textContent=pending;
-renderRecentRequests();
-}catch(e){console.error(e);toast("Dashboard data could not load. Check Database Rules.");}
+const [pSnap,uSnap,oSnap,wSnap]=await Promise.all([get(ref(db,"products")),get(ref(db,"users")),get(ref(db,"orders")),get(ref(db,"walletRequests"))]);
+products=asObject(pSnap.val());allUsers=asObject(uSnap.val());
+const orders=asObject(oSnap.val()),walletRequests=asObject(wSnap.val());let total=0,pending=0;allRequests=[];
+Object.entries(orders).forEach(([uid,items])=>Object.entries(asObject(items)).forEach(([orderId,o])=>{
+const order=asObject(o);total++;const s=String(order.status||"pending").toLowerCase();if(s==="pending"||s==="processing")pending++;
+allRequests.push({uid,orderId,...order});
+}));
+Object.values(walletRequests).forEach(items=>Object.values(asObject(items)).forEach(r=>{total++;const s=String(r?.status||"pending").toLowerCase();if(s==="pending"||s==="processing")pending++;}));
+allRequests.sort((a,b)=>Number(b.requestedAt||b.createdAt||0)-Number(a.requestedAt||a.createdAt||0));
+$("statProducts").textContent=Object.keys(products).length;$("statUsers").textContent=Object.keys(allUsers).length;
+$("statRequests").textContent=total;$("statPending").textContent=pending;renderRecentRequests();
+}catch(e){console.error(e);toast("Dashboard data could not load. Check Database Rules: "+(e.message||""));}
 }
 window.loadDashboard=loadDashboard;
-
 function renderRecentRequests(){
 const box=$("recentRequests"),recent=allRequests.slice(0,5);
-if(!recent.length){
-box.innerHTML='<div class="empty"><i class="fa-solid fa-inbox"></i>No recent product orders.</div>';return;
-}
-box.innerHTML=recent.map(r=>
-`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #ffffff10">
-<div><strong style="font-size:11px">${esc(r.productName||"Product")}</strong><br><small style="color:#8196b4">${esc(r.uid.slice(0,12))}...</small></div>
-<span class="status ${statusClass(r.status)}">${esc((r.status||"pending").toUpperCase())}</span>
-</div>`
-).join("");
+if(!recent.length){box.innerHTML='<div class="empty"><i class="fa-solid fa-inbox"></i>No recent product orders.</div>';return;}
+box.innerHTML=recent.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #ffffff10"><div><strong style="font-size:11px">${esc(r.productName||"Product")}</strong><br><small style="color:#8196b4">${esc(r.uid.slice(0,12))}...</small></div><span class="status ${statusClass(r.status)}">${esc((r.status||"pending").toUpperCase())}</span></div>`).join("");
 }
 
-/* HOME SETTINGS */
 async function loadHomeSettings(){
 try{
-const [homeSnap,noticeSnap]=await Promise.all([
-get(ref(db,"settings/home")),
-get(ref(db,"settings/notice"))
-]);
-const home=homeSnap.val()||{};
-$("homeTitle").value=home.title||"";
-$("homeSubtitle").value=home.subtitle||"";
+const [homeSnap,noticeSnap]=await Promise.all([get(ref(db,"settings/home")),get(ref(db,"settings/notice"))]);
+const home=asObject(homeSnap.val());$("homeTitle").value=home.title||"";$("homeSubtitle").value=home.subtitle||"";
 $("homeBanner").value=home.bannerImage||home.bannerUrl||"";
-const notice=noticeSnap.val();
-$("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
+const notice=noticeSnap.val();$("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
 }catch(e){console.error(e);toast("Could not load home settings.");}
 }
-
 async function saveHomeSettings(){
 try{
 await Promise.all([
-update(ref(db,"settings/home"),{
-title:$("homeTitle").value.trim(),
-subtitle:$("homeSubtitle").value.trim(),
-bannerImage:$("homeBanner").value.trim(),
-updatedAt:Date.now()
-}),
+update(ref(db,"settings/home"),{title:$("homeTitle").value.trim(),subtitle:$("homeSubtitle").value.trim(),bannerImage:$("homeBanner").value.trim(),updatedAt:Date.now()}),
 set(ref(db,"settings/notice"),$("homeNotice").value.trim())
 ]);
 toast("Home settings saved successfully.");
 }catch(e){console.error(e);toast("Save failed. Check Database Rules.");}
 }
 window.saveHomeSettings=saveHomeSettings;
-
 function closeAdminModal(){$("modalBg").classList.remove("show");}
 window.closeAdminModal=closeAdminModal;
 </script>
