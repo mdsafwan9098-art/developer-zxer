@@ -463,6 +463,10 @@ function safeText(value){
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
  }[c]));
 }
+function normalizeCategory(value){
+ return String(value??"Uncategorized").trim().replace(/\s+/g," ").toLowerCase();
+}
+
 function toggleAuth(mode){
  authMode=mode;
  $("loginTab").classList.toggle("active",mode==="login");
@@ -533,7 +537,9 @@ function showPage(page){
 }
 window.showPage=showPage;
 
-function getProductCategory(product){return String(product.category||"Uncategorized").trim();}
+function getProductCategory(product){
+ return String(product.category||"Uncategorized").trim().replace(/\s+/g," ");
+}
 function isFree(product){
  if(product.price!==undefined&&product.price!==null&&product.price!==""){
   return Number(product.price)<=0;
@@ -573,19 +579,27 @@ function startProductListeners(){
 
 function renderCategories(){
  const container=$("categories");
- const names=[...new Set([...categories.map(c=>c.name||c.title),...products.map(getProductCategory)].filter(Boolean))];
+ const names=[...new Set([
+  ...categories.map(c=>c.name||c.title),
+  ...products.map(getProductCategory)
+ ].filter(Boolean).map(name=>String(name).trim().replace(/\s+/g," ")))];
+
  container.innerHTML='<button class="cat-btn '+(selectedCategory==="all"?"active":"")+'" onclick="selectCategory(\'all\',this)">All Products</button>';
+
  names.forEach(name=>{
   const button=document.createElement("button");
-  button.className="cat-btn "+(selectedCategory===name?"active":"");
-  button.textContent=name;button.onclick=()=>selectCategory(name,button);
+  button.className="cat-btn "+(normalizeCategory(selectedCategory)===normalizeCategory(name)?"active":"");
+  button.textContent=name;
+  button.onclick=()=>selectCategory(name,button);
   container.appendChild(button);
  });
 }
+
 function selectCategory(name,button){
  selectedCategory=name;
  document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("active"));
- if(button)button.classList.add("active");renderProducts();
+ if(button)button.classList.add("active");
+ renderProducts();
 }
 window.selectCategory=selectCategory;
 
@@ -594,7 +608,8 @@ function renderProducts(){
  const list=products.filter(p=>{
   const name=String(p.name||p.title||"").toLowerCase();
   const description=String(p.description||"").toLowerCase();
-  const matchesCategory=selectedCategory==="all"||getProductCategory(p).toLowerCase()===selectedCategory.toLowerCase();
+  const matchesCategory=selectedCategory==="all"||
+   normalizeCategory(getProductCategory(p))===normalizeCategory(selectedCategory);
   return matchesCategory&&(name.includes(search)||description.includes(search))&&p.active!==false;
  });
  $("productCount").textContent=list.length+" PRODUCTS";
@@ -661,7 +676,8 @@ async function openProduct(id){
  if(free)$("productAction").onclick=()=>downloadProduct(product);
  else{
   window.productPaymentMode="wallet";window.productPaymentMethod="bKash";
-  $("productAction").onclick=()=>window.productPaymentMode==="wallet"?payWithWallet(product):submitInstantPurchase(product);
+  $("productAction").onclick=()=>window.productPaymentMode==="wallet"
+   ?payWithWallet(product):submitInstantPurchase(product);
  }
 }
 window.openProduct=openProduct;
@@ -702,51 +718,62 @@ async function downloadProduct(product){
 async function alreadyHasAccess(productId){
  const snap=await get(ref(db,"orders/"+currentUser.uid));
  const orders=snap.val()||{};
- return Object.values(orders).some(o=>o.productId===productId&&["pending","approved"].includes(String(o.status).toLowerCase()));
+ return Object.values(orders).some(o=>
+  o.productId===productId&&["pending","approved"].includes(String(o.status).toLowerCase())
+ );
 }
 
+/*
+ Wallet purchase:
+ User only submits a pending request.
+ Admin Panel must verify the current product price and wallet balance,
+ deduct the balance once, then approve the order.
+*/
 async function payWithWallet(product){
  if(!currentUser){toast("Please login first.");return;}
  const price=productPrice(product);
  if(price<=0){downloadProduct(product);return;}
- const button=$("productAction");button.disabled=true;button.textContent="PROCESSING PAYMENT...";
- let deducted=false;
+
+ const button=$("productAction");
+ button.disabled=true;
+ button.textContent="SUBMITTING REQUEST...";
+
  try{
-  if(await alreadyHasAccess(product.id)){toast("You already have a request or access for this product.");return;}
-  const balanceRef=ref(db,"wallets/"+currentUser.uid+"/balance");
-  const result=await runTransaction(balanceRef,current=>{
-   const balance=Number(current||0);
-   if(balance<price)return;
-   return Number((balance-price).toFixed(2));
-  });
-  if(!result.committed){toast("Insufficient wallet balance. Please add funds.");return;}
-  deducted=true;
+  if(await alreadyHasAccess(product.id)){
+   toast("You already have a request or access for this product.");
+   return;
+  }
+
+  const balanceSnap=await get(ref(db,"wallets/"+currentUser.uid+"/balance"));
+  const balance=Number(balanceSnap.val()||0);
+
+  if(balance<price){
+   toast("Insufficient wallet balance. Please add funds.");
+   return;
+  }
+
   const orderRef=push(ref(db,"orders/"+currentUser.uid));
   await set(orderRef,{
-   uid:currentUser.uid,productId:product.id,
+   uid:currentUser.uid,
+   productId:product.id,
    productName:product.name||product.title||"Product",
-   price,status:"approved",paymentMethod:"wallet",
-   paidAt:Date.now(),requestedAt:Date.now()
+   price:price,
+   paymentMethod:"wallet",
+   status:"pending",
+   requestedAt:Date.now()
   });
-  const txRef=push(ref(db,"walletTransactions/"+currentUser.uid));
-  await set(txRef,{
-   type:"purchase",amount:price,productId:product.id,
-   productName:product.name||product.title||"Product",
-   status:"completed",createdAt:Date.now()
-  });
-  toast("Payment successful! Your download is ready.");
-  closeModal();loadWalletHistory();loadOrders();loadDownloads();
-  const url=await resolveProductFile(product);
-  if(url)window.open(url,"_blank","noopener");
-  else toast("Payment complete. Download file is not available yet.");
+
+  toast("Wallet purchase request submitted. Waiting for admin approval.");
+  closeModal();
+  loadOrders();
+
  }catch(error){
-  console.error(error);
-  if(deducted){
-   try{await runTransaction(ref(db,"wallets/"+currentUser.uid+"/balance"),v=>Number((Number(v||0)+price).toFixed(2)));}
-   catch(refundError){console.error("Refund recovery error:",refundError);}
-  }
-  toast("Wallet payment failed. Please try again.");
- }finally{button.disabled=false;}
+  console.error("Wallet request error:",error);
+  toast("Request failed. Check Database Rules.");
+ }finally{
+  button.disabled=false;
+  button.textContent="PAY WITH WALLET";
+ }
 }
 window.payWithWallet=payWithWallet;
 
@@ -754,21 +781,40 @@ async function submitInstantPurchase(product){
  if(!currentUser){toast("Please login first.");return;}
  const trx=$("productTrx")?.value.trim();
  if(!trx){toast("Please enter your Transaction ID.");return;}
- const button=$("productAction");button.disabled=true;button.textContent="SUBMITTING...";
+
+ const button=$("productAction");
+ button.disabled=true;
+ button.textContent="SUBMITTING...";
+
  try{
-  if(await alreadyHasAccess(product.id)){toast("You already have a request or access for this product.");return;}
+  if(await alreadyHasAccess(product.id)){
+   toast("You already have a request or access for this product.");
+   return;
+  }
+
   const orderRef=push(ref(db,"orders/"+currentUser.uid));
   await set(orderRef,{
-   uid:currentUser.uid,productId:product.id,
+   uid:currentUser.uid,
+   productId:product.id,
    productName:product.name||product.title||"Product",
-   price:productPrice(product),status:"pending",
-   paymentMethod:"instant",paymentProvider:window.productPaymentMethod||"bKash",
-   trxId:trx,requestedAt:Date.now()
+   price:productPrice(product),
+   status:"pending",
+   paymentMethod:"instant",
+   paymentProvider:window.productPaymentMethod||"bKash",
+   trxId:trx,
+   requestedAt:Date.now()
   });
+
   toast("Payment request submitted. Waiting for admin approval.");
-  closeModal();loadOrders();
- }catch(error){console.error(error);toast("Request failed. Check Database Rules.");}
- finally{button.disabled=false;}
+  closeModal();
+  loadOrders();
+
+ }catch(error){
+  console.error(error);
+  toast("Request failed. Check Database Rules.");
+ }finally{
+  button.disabled=false;
+ }
 }
 window.submitInstantPurchase=submitInstantPurchase;
 
@@ -781,69 +827,113 @@ window.selectFundMethod=selectFundMethod;
 
 async function submitFundRequest(){
  if(!currentUser){toast("Please login first.");return;}
- const amount=Number($("fundAmount").value),trx=$("fundTrx").value.trim();
- if(!Number.isFinite(amount)||amount<=0){toast("Enter a valid amount.");return;}
- if(!trx){toast("Enter your Transaction ID.");return;}
- const button=$("fundSubmit");button.disabled=true;button.textContent="SUBMITTING REQUEST...";
+
+ const amount=Number($("fundAmount").value);
+ const trx=$("fundTrx").value.trim();
+
+ if(!Number.isFinite(amount)||amount<=0){
+  toast("Enter a valid amount.");return;
+ }
+ if(!trx){
+  toast("Enter your Transaction ID.");return;
+ }
+
+ const button=$("fundSubmit");
+ button.disabled=true;
+ button.textContent="SUBMITTING REQUEST...";
+
  try{
   const requestRef=push(ref(db,"walletRequests/"+currentUser.uid));
+
   await set(requestRef,{
-   uid:currentUser.uid,email:currentUser.email||"",
+   uid:currentUser.uid,
+   email:currentUser.email||"",
    userName:currentUser.displayName||currentUser.email?.split("@")[0]||"User",
-   amount:amount,method:fundMethod,trxId:trx,
-   status:"pending",requestedAt:Date.now()
+   amount:amount,
+   method:fundMethod.toLowerCase(),
+   trxId:trx,
+   status:"pending",
+   requestedAt:Date.now()
   });
-  $("fundAmount").value="";$("fundTrx").value="";
+
+  $("fundAmount").value="";
+  $("fundTrx").value="";
   toast("Add Fund request submitted. Waiting for admin approval.");
- }catch(error){console.error(error);toast("Request failed. Check Database Rules.");}
- finally{button.disabled=false;button.textContent="SUBMIT ADD FUND REQUEST";}
+
+ }catch(error){
+  console.error("Add Fund request error:",error);
+  toast("Request failed. Check Database Rules.");
+ }finally{
+  button.disabled=false;
+  button.textContent="SUBMIT ADD FUND REQUEST";
+ }
 }
 window.submitFundRequest=submitFundRequest;
 
 function startWalletListener(){
  if(walletListenerStarted||!currentUser)return;
  walletListenerStarted=true;
+
  onValue(ref(db,"wallets/"+currentUser.uid+"/balance"),snapshot=>{
   const balance=Number(snapshot.val()||0);
   $("walletBalance").textContent=money(balance);
   $("profileWalletBalance").textContent=money(balance);
- },error=>{console.error(error);toast("Unable to load wallet balance.");});
+ },error=>{
+  console.error("Wallet balance listener:",error);
+  toast("Unable to load wallet balance.");
+ });
 }
 
 async function loadWalletHistory(){
  if(!currentUser)return;
+
  $("walletHistory").innerHTML='<div class="loading">Loading transactions...</div>';
+
  try{
   const [txSnap,requestSnap]=await Promise.all([
    get(ref(db,"walletTransactions/"+currentUser.uid)),
    get(ref(db,"walletRequests/"+currentUser.uid))
   ]);
+
   const transactions=Object.entries(txSnap.val()||{}).map(([id,v])=>({id,...v}));
   const requests=Object.entries(requestSnap.val()||{}).map(([id,v])=>({id,...v,type:"addfund"}));
-  const all=[...transactions,...requests].sort((a,b)=>(b.createdAt||b.requestedAt||0)-(a.createdAt||a.requestedAt||0));
+
+  const all=[...transactions,...requests].sort((a,b)=>
+   (b.createdAt||b.requestedAt||0)-(a.createdAt||a.requestedAt||0)
+  );
+
   if(!all.length){
-   $("walletHistory").innerHTML='<div class="empty"><i class="fa-solid fa-clock-rotate-left"></i>No wallet transactions yet.</div>';return;
+   $("walletHistory").innerHTML='<div class="empty"><i class="fa-solid fa-clock-rotate-left"></i>No wallet transactions yet.</div>';
+   return;
   }
+
   $("walletHistory").innerHTML="";
+
   all.forEach(item=>{
    const add=item.type==="addfund"||item.type==="deposit";
    const status=String(item.status||"pending").toLowerCase();
    const title=add?"Add Fund":item.productName||"Wallet Transaction";
-   const card=document.createElement("div");card.className="panel-card";
+
+   const card=document.createElement("div");
+   card.className="panel-card";
    card.innerHTML=`
     <div class="order-item">
-     <div><h3>${safeText(title)}</h3>
+     <div>
+      <h3>${safeText(title)}</h3>
       <p>${safeText(item.method||item.paymentProvider||item.type||"Transaction")} · ${new Date(item.createdAt||item.requestedAt||Date.now()).toLocaleString()}</p>
      </div>
      <div style="text-align:right">
       <strong style="color:${add?"#4ce3a7":"#ffb2bf"}">${add?"+":"−"}৳${money(item.amount)}</strong>
-      <div style="margin-top:7px"><span class="status ${["approved","completed","rejected","pending"].includes(status)?(status==="completed"?"approved":status):"pending"}">${safeText(status.toUpperCase())}</span></div>
+      <div style="margin-top:7px">
+       <span class="status ${["approved","completed","rejected","pending"].includes(status)?(status==="completed"?"approved":status):"pending"}">${safeText(status.toUpperCase())}</span>
+      </div>
      </div>
     </div>`;
    $("walletHistory").appendChild(card);
   });
+
  }catch(error){
-  console.error(error);
+  console.error("Wallet history error:",error);
   $("walletHistory").innerHTML='<div class="empty">Unable to load wallet history. Check Database Rules.</div>';
  }
 }
@@ -851,66 +941,100 @@ window.loadWalletHistory=loadWalletHistory;
 
 async function loadOrders(){
  if(!currentUser)return;
+
  $("ordersList").innerHTML='<div class="loading">Loading requests...</div>';
+
  try{
   const snapshot=await get(ref(db,"orders/"+currentUser.uid));
   userOrders=snapshot.val()||{};
-  const entries=Object.entries(userOrders).sort((a,b)=>(b[1].requestedAt||0)-(a[1].requestedAt||0));
+
+  const entries=Object.entries(userOrders).sort((a,b)=>
+   (b[1].requestedAt||0)-(a[1].requestedAt||0)
+  );
+
   if(!entries.length){
-   $("ordersList").innerHTML='<div class="empty"><i class="fa-solid fa-clipboard-list"></i>You have not submitted any requests yet.</div>';return;
+   $("ordersList").innerHTML='<div class="empty"><i class="fa-solid fa-clipboard-list"></i>You have not submitted any requests yet.</div>';
+   return;
   }
+
   $("ordersList").innerHTML="";
+
   entries.forEach(([id,order])=>{
    const status=String(order.status||"pending").toLowerCase();
    const rejected=status==="rejected";
-   const card=document.createElement("div");card.className="panel-card";
+
+   const card=document.createElement("div");
+   card.className="panel-card";
    card.innerHTML=`
     <div class="order-item">
-     <div><h3>${safeText(order.productName||"Product")}</h3>
+     <div>
+      <h3>${safeText(order.productName||"Product")}</h3>
       <p>৳${money(order.price||0)} · ${safeText(order.paymentMethod||"Request").toUpperCase()}</p>
       <p>Request ID: ${safeText(id.slice(-8))}</p>
       ${rejected?'<p style="color:#ff8395;margin-top:7px">Payment Failed — Your payment request was rejected.</p>':""}
      </div>
      <span class="status ${["approved","rejected","pending"].includes(status)?status:"pending"}">${safeText(rejected?"PAYMENT FAILED":status.toUpperCase())}</span>
     </div>`;
+
    $("ordersList").appendChild(card);
   });
+
  }catch(error){
-  console.error(error);
+  console.error("Orders load error:",error);
   $("ordersList").innerHTML='<div class="empty">Unable to load requests. Check Database Rules.</div>';
  }
 }
 
 async function loadDownloads(){
  if(!currentUser)return;
+
  $("downloadsList").innerHTML='<div class="loading">Loading downloads...</div>';
+
  try{
   const snapshot=await get(ref(db,"orders/"+currentUser.uid));
   const orders=snapshot.val()||{};
-  const approved=Object.values(orders).filter(o=>String(o.status).toLowerCase()==="approved");
+
+  const approved=Object.values(orders).filter(o=>
+   String(o.status).toLowerCase()==="approved"
+  );
+
   if(!approved.length){
-   $("downloadsList").innerHTML='<div class="empty"><i class="fa-solid fa-cloud-arrow-down"></i>No approved downloads yet.</div>';return;
+   $("downloadsList").innerHTML='<div class="empty"><i class="fa-solid fa-cloud-arrow-down"></i>No approved downloads yet.</div>';
+   return;
   }
+
   $("downloadsList").innerHTML="";
+
   approved.forEach(order=>{
    const product=products.find(p=>p.id===order.productId);
-   const card=document.createElement("div");card.className="panel-card";
+   const card=document.createElement("div");
+   card.className="panel-card";
    card.innerHTML=`<h3>${safeText(order.productName||"Product")}</h3><p>Access approved. Your download is available.</p>`;
+
    const button=document.createElement("button");
-   button.className="primary-btn";button.style.marginTop="12px";button.style.padding="10px 13px";
+   button.className="primary-btn";
+   button.style.marginTop="12px";
+   button.style.padding="10px 13px";
    button.innerHTML='<i class="fa-solid fa-download"></i> DOWNLOAD';
+
    button.onclick=async()=>{
     if(!product){toast("Product information is unavailable.");return;}
     try{
      const url=await resolveProductFile(product);
      if(!url){toast("Download file has not been added yet.");return;}
      window.open(url,"_blank","noopener");
-    }catch(error){console.error(error);toast("Download failed. Check file settings.");}
+    }catch(error){
+     console.error(error);
+     toast("Download failed. Check file settings.");
+    }
    };
-   card.appendChild(button);$("downloadsList").appendChild(card);
+
+   card.appendChild(button);
+   $("downloadsList").appendChild(card);
   });
+
  }catch(error){
-  console.error(error);
+  console.error("Downloads load error:",error);
   $("downloadsList").innerHTML='<div class="empty">Unable to load downloads.</div>';
  }
 }
@@ -926,17 +1050,21 @@ function updateProfileUI(user){
 
 onAuthStateChanged(auth,user=>{
  currentUser=user;
+
  if(user){
   $("authScreen").classList.add("hidden");
   $("app").classList.remove("hidden");
+
   updateProfileUI(user);
   startProductListeners();
   startWalletListener();
   loadOrders();
   loadWalletHistory();
+
  }else{
   $("app").classList.add("hidden");
   $("authScreen").classList.remove("hidden");
+
   walletListenerStarted=false;
   productListenerStarted=false;
  }
