@@ -1,0 +1,789 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d19">
+<title>Developer ZXER | Premium Digital Store</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+:root{
+ --bg:#080d19;--panel:#101a2c;--panel2:#111f35;
+ --blue:#287bff;--cyan:#20d9f5;--text:#f4f7ff;
+ --muted:#8998b2;--line:rgba(255,255,255,.08);
+ --green:#35d69a;--red:#ff647c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Inter,Arial,sans-serif;background:
+ radial-gradient(circle at 15% 0%,rgba(28,100,220,.15),transparent 32%),
+ radial-gradient(circle at 95% 20%,rgba(0,210,240,.08),transparent 28%),
+ var(--bg);color:var(--text);min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.app{max-width:1050px;margin:auto;min-height:100vh;padding-bottom:95px}
+.topbar{
+ height:72px;padding:0 19px;display:flex;align-items:center;
+ justify-content:space-between;border-bottom:1px solid var(--line);
+ background:rgba(8,13,25,.88);backdrop-filter:blur(18px);
+ position:sticky;top:0;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{
+ width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
+ background:linear-gradient(135deg,#1764ed,#19c9e8);
+ box-shadow:0 5px 25px #167aff45;font-size:19px;font-weight:900;
+}
+.brand-name{font-size:15px;font-weight:900;letter-spacing:1px}
+.brand-sub{font-size:9px;color:var(--cyan);letter-spacing:2px;margin-top:3px}
+.top-actions{display:flex;gap:9px}
+.icon-btn{
+ width:40px;height:40px;border-radius:13px;border:1px solid var(--line);
+ background:#14223a;color:white;font-size:15px;
+}
+.page{display:none;padding:22px 17px}
+.page.active{display:block}
+.hero{
+ position:relative;overflow:hidden;padding:27px 23px;border-radius:25px;
+ border:1px solid rgba(73,154,255,.25);
+ background:linear-gradient(125deg,#10264a,#10213b 55%,#102b42);
+ box-shadow:0 15px 50px #0005;margin-bottom:22px;
+}
+.hero:after{
+ content:"";position:absolute;width:210px;height:210px;border-radius:50%;
+ background:#1d82ff20;right:-65px;top:-85px;filter:blur(2px);
+}
+.hero-tag{font-size:10px;letter-spacing:2px;color:#71dfff;font-weight:800}
+.hero h1{font-size:27px;line-height:1.25;margin:12px 0 9px;font-weight:900}
+.hero p{font-size:12px;color:#b6c9e4;line-height:1.8;max-width:550px}
+.hero-buttons{display:flex;gap:10px;margin-top:19px;position:relative;z-index:1}
+.primary-btn,.secondary-btn{
+ border:0;border-radius:12px;padding:12px 16px;font-size:12px;font-weight:800;
+}
+.primary-btn{background:linear-gradient(100deg,#2475ff,#16c9e8);color:white}
+.secondary-btn{background:#ffffff12;border:1px solid #ffffff20;color:white}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:23px 2px 13px}
+.section-head h2{font-size:16px;font-weight:800}
+.section-head span{font-size:10px;color:var(--muted)}
+.notice{
+ background:#111e32;border:1px solid #23466c;border-radius:14px;
+ padding:13px 14px;display:flex;gap:11px;align-items:center;
+ font-size:11px;color:#c4d7f1;line-height:1.6;margin-bottom:20px;
+}
+.notice i{color:var(--cyan);font-size:16px}
+.search-box{position:relative;margin:14px 0}
+.search-box i{position:absolute;left:15px;top:14px;color:#8195b2}
+.search-box input{
+ width:100%;padding:13px 15px 13px 42px;background:#111d30;
+ border:1px solid var(--line);border-radius:13px;color:white;outline:none;
+}
+.search-box input:focus,.field input:focus{border-color:#2785ff}
+.categories{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.cat-btn{
+ flex-shrink:0;border:1px solid var(--line);background:#111d30;
+ color:#aab8ce;padding:9px 14px;border-radius:30px;font-size:10px;font-weight:700;
+}
+.cat-btn.active{background:linear-gradient(100deg,#216df2,#12bcd9);color:white;border-color:transparent}
+.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.product-card{
+ background:linear-gradient(145deg,#14223a,#0e192b);
+ border:1px solid var(--line);border-radius:18px;overflow:hidden;
+ transition:.2s;min-width:0;
+}
+.product-card:active{transform:scale(.98)}
+.product-image{
+ height:130px;background:#0b1424;display:grid;place-items:center;
+ overflow:hidden;position:relative;
+}
+.product-image img{width:100%;height:100%;object-fit:cover}
+.product-image i{font-size:35px;color:#367bce}
+.product-type{
+ position:absolute;top:9px;left:9px;padding:5px 8px;border-radius:20px;
+ font-size:8px;font-weight:900;letter-spacing:.5px;
+ background:#0c1d35e8;color:#6ce7ff;border:1px solid #287bff55;
+}
+.product-info{padding:12px}
+.product-info h3{font-size:12px;font-weight:800;line-height:1.5;margin-bottom:5px}
+.product-info p{font-size:10px;color:var(--muted);line-height:1.6;height:32px;overflow:hidden}
+.product-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:5px}
+.product-bottom span{font-size:9px;color:#7ce7ff;font-weight:800}
+.small-btn{
+ border:0;background:linear-gradient(100deg,#246fff,#13bcd9);
+ color:white;border-radius:9px;padding:9px 11px;font-size:9px;font-weight:800;
+}
+.empty{
+ text-align:center;padding:38px 15px;color:var(--muted);
+ background:#111c2d;border:1px dashed #34445e;border-radius:16px;
+ grid-column:1/-1;font-size:12px;line-height:2;
+}
+.empty i{display:block;font-size:28px;margin-bottom:10px;color:#4b85c8}
+.bottom-nav{
+ position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+ width:100%;max-width:1050px;display:flex;justify-content:space-around;
+ background:rgba(10,17,30,.96);backdrop-filter:blur(18px);
+ border-top:1px solid var(--line);padding:11px 5px calc(11px + env(safe-area-inset-bottom));
+ z-index:30;
+}
+.nav-btn{border:0;background:none;color:#7586a2;font-size:9px;font-weight:700;min-width:58px}
+.nav-btn i{display:block;font-size:18px;margin-bottom:6px}
+.nav-btn.active{color:#4edfff}
+.auth-screen{
+ min-height:100vh;display:grid;place-items:center;padding:22px;
+ background:radial-gradient(circle at 50% 10%,#174b8b55,transparent 40%),var(--bg);
+}
+.auth-card{
+ width:100%;max-width:420px;background:linear-gradient(145deg,#14233b,#0d1728);
+ border:1px solid #ffffff15;border-radius:25px;padding:27px 22px;
+ box-shadow:0 25px 80px #0008;
+}
+.auth-logo{text-align:center;margin-bottom:23px}
+.auth-logo .logo{margin:auto;width:58px;height:58px;font-size:24px}
+.auth-logo h1{font-size:21px;font-weight:900;margin-top:13px}
+.auth-logo p{font-size:10px;color:var(--cyan);letter-spacing:2px;margin-top:6px}
+.auth-tabs{display:flex;background:#091323;padding:5px;border-radius:12px;margin:20px 0}
+.auth-tab{flex:1;padding:11px;border:0;border-radius:9px;background:none;color:#91a2bd;font-size:11px;font-weight:800}
+.auth-tab.active{background:#1b69d7;color:white}
+.field{margin:13px 0}
+.field label{font-size:10px;color:#aabbd3;display:block;margin-bottom:8px;font-weight:700}
+.field input{
+ width:100%;padding:13px 14px;background:#0a1526;color:white;
+ border:1px solid #ffffff16;border-radius:11px;outline:none;font-size:12px;
+}
+.auth-submit{width:100%;margin-top:12px;padding:14px}
+.auth-foot{text-align:center;color:#7587a2;font-size:10px;line-height:1.8;margin-top:17px}
+.page-title{font-size:22px;font-weight:900;margin:4px 0 7px}
+.page-desc{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.panel-card{
+ background:linear-gradient(145deg,#14223a,#0e192b);
+ border:1px solid var(--line);border-radius:17px;padding:17px;margin-bottom:13px;
+}
+.panel-card h3{font-size:13px;margin-bottom:8px}
+.panel-card p{font-size:11px;color:var(--muted);line-height:1.8}
+.order-item{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.status{font-size:9px;font-weight:800;padding:6px 9px;border-radius:20px;background:#ffffff12;color:#c5d5eb}
+.status.approved{color:#4ce3a7;background:#123b31}
+.status.rejected{color:#ff8395;background:#3a1c29}
+.status.pending{color:#ffd47a;background:#3c301a}
+.profile-avatar{
+ width:55px;height:55px;border-radius:18px;display:grid;place-items:center;
+ background:linear-gradient(135deg,#2676ff,#12c9df);font-size:22px;font-weight:900;
+}
+.profile-row{display:flex;align-items:center;gap:13px}
+.modal-bg{
+ position:fixed;inset:0;background:#000b;display:none;align-items:center;
+ justify-content:center;padding:18px;z-index:60;
+}
+.modal-bg.show{display:flex}
+.modal{
+ width:100%;max-width:430px;max-height:85vh;overflow:auto;
+ background:#111e32;border:1px solid #ffffff1c;border-radius:21px;padding:20px;
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.modal-head h3{font-size:16px}
+.close-btn{border:0;background:#ffffff12;color:white;width:32px;height:32px;border-radius:9px}
+.modal-image{width:100%;height:170px;object-fit:cover;border-radius:13px;margin-bottom:14px}
+.modal-desc{font-size:11px;line-height:1.8;color:#a9bad2;margin:10px 0 15px}
+.modal-action{width:100%;margin-top:9px;padding:13px}
+.toast{
+ position:fixed;left:50%;bottom:90px;transform:translateX(-50%);
+ background:#1c2c45;color:white;padding:12px 17px;border-radius:12px;
+ border:1px solid #ffffff22;font-size:11px;z-index:100;
+ box-shadow:0 8px 30px #0008;max-width:90%;text-align:center;
+}
+.loading{text-align:center;padding:30px;color:#9eb4d1;font-size:12px}
+.loading i{margin-right:8px;color:var(--cyan)}
+@media(min-width:700px){
+ .page{padding:28px 28px}
+ .product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+ .product-image{height:165px}
+ .hero{padding:38px}
+ .hero h1{font-size:35px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- AUTHENTICATION -->
+<section id="authScreen" class="auth-screen">
+ <div class="auth-card">
+  <div class="auth-logo">
+   <div class="logo">ZX</div>
+   <h1>DEVELOPER ZXER</h1>
+   <p>PREMIUM DIGITAL STORE</p>
+  </div>
+
+  <div class="auth-tabs">
+   <button id="loginTab" class="auth-tab active" onclick="toggleAuth('login')">LOGIN</button>
+   <button id="registerTab" class="auth-tab" onclick="toggleAuth('register')">CREATE ACCOUNT</button>
+  </div>
+
+  <div id="nameField" class="field hidden">
+   <label>FULL NAME</label>
+   <input id="authName" type="text" placeholder="Enter your full name" autocomplete="name">
+  </div>
+  <div class="field">
+   <label>EMAIL ADDRESS</label>
+   <input id="authEmail" type="email" placeholder="Enter your email" autocomplete="email">
+  </div>
+  <div class="field">
+   <label>PASSWORD</label>
+   <input id="authPassword" type="password" placeholder="Enter password" autocomplete="current-password">
+  </div>
+  <button id="authSubmit" class="primary-btn auth-submit" onclick="handleAuth()">LOGIN TO ACCOUNT <i class="fa-solid fa-arrow-right"></i></button>
+  <button id="forgotBtn" onclick="forgotPassword()" style="display:block;margin:15px auto 0;background:none;border:0;color:#67cfff;font-size:10px">Forgot Password?</button>
+  <div class="auth-foot">Secure account access powered by Firebase.<br>Developer ZXER © 2026</div>
+ </div>
+</section>
+
+<!-- MAIN APPLICATION -->
+<div id="app" class="app hidden">
+ <header class="topbar">
+  <div class="brand">
+   <div class="logo">ZX</div>
+   <div>
+    <div class="brand-name">DEVELOPER ZXER</div>
+    <div class="brand-sub">PREMIUM DIGITAL STORE</div>
+   </div>
+  </div>
+  <div class="top-actions">
+   <button class="icon-btn" onclick="showPage('account')" aria-label="Account"><i class="fa-regular fa-user"></i></button>
+  </div>
+ </header>
+
+ <!-- HOME -->
+ <main id="homePage" class="page active">
+  <section class="hero">
+   <div class="hero-tag">WELCOME TO DEVELOPER ZXER</div>
+   <h1 id="heroTitle">Explore Premium<br>Digital Products.</h1>
+   <p id="heroSubtitle">Discover digital tools, resources and exclusive products in one place.</p>
+   <div class="hero-buttons">
+    <button class="primary-btn" onclick="document.getElementById('catalogSection').scrollIntoView({behavior:'smooth'})">EXPLORE STORE <i class="fa-solid fa-arrow-right"></i></button>
+    <button class="secondary-btn" onclick="showPage('orders')">MY REQUESTS</button>
+   </div>
+  </section>
+
+  <div class="notice">
+   <i class="fa-solid fa-bullhorn"></i>
+   <div><strong>ANNOUNCEMENT</strong><br><span id="noticeText">Welcome to Developer ZXER. Explore our latest digital products.</span></div>
+  </div>
+
+  <div class="section-head">
+   <h2>Discover Products</h2><span id="productCount">0 PRODUCTS</span>
+  </div>
+
+  <div class="search-box">
+   <i class="fa-solid fa-magnifying-glass"></i>
+   <input id="searchInput" type="search" placeholder="Search products..." oninput="renderProducts()">
+  </div>
+
+  <div id="categories" class="categories">
+   <button class="cat-btn active" onclick="selectCategory('all',this)">All Products</button>
+  </div>
+
+  <div id="catalogSection" class="product-grid">
+   <div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading products...</div>
+  </div>
+ </main>
+
+ <!-- ORDERS -->
+ <section id="ordersPage" class="page">
+  <h1 class="page-title">My Requests</h1>
+  <p class="page-desc">Track your product access requests and their approval status.</p>
+  <div id="ordersList"><div class="loading">Loading requests...</div></div>
+ </section>
+
+ <!-- DOWNLOADS -->
+ <section id="downloadsPage" class="page">
+  <h1 class="page-title">My Downloads</h1>
+  <p class="page-desc">Your available product downloads appear here.</p>
+  <div id="downloadsList"><div class="loading">Loading downloads...</div></div>
+ </section>
+
+ <!-- ACCOUNT -->
+ <section id="accountPage" class="page">
+  <h1 class="page-title">My Account</h1>
+  <p class="page-desc">Manage your account information.</p>
+  <div class="panel-card">
+   <div class="profile-row">
+    <div class="profile-avatar" id="profileAvatar">U</div>
+    <div>
+     <h3 id="profileName">User</h3>
+     <p id="profileEmail">user@email.com</p>
+    </div>
+   </div>
+  </div>
+  <div class="panel-card">
+   <h3><i class="fa-solid fa-shield-halved" style="color:#42d9ef"></i> Account Security</h3>
+   <p>Your account is authenticated through Firebase Authentication.</p>
+  </div>
+  <button class="primary-btn" style="width:100%;padding:14px" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> LOGOUT</button>
+ </section>
+
+ <nav class="bottom-nav">
+  <button class="nav-btn active" data-page="home" onclick="showPage('home')"><i class="fa-solid fa-house"></i>Home</button>
+  <button class="nav-btn" data-page="orders" onclick="showPage('orders')"><i class="fa-solid fa-clipboard-list"></i>Requests</button>
+  <button class="nav-btn" data-page="downloads" onclick="showPage('downloads')"><i class="fa-solid fa-cloud-arrow-down"></i>Downloads</button>
+  <button class="nav-btn" data-page="account" onclick="showPage('account')"><i class="fa-regular fa-user"></i>Account</button>
+ </nav>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModal" class="modal-bg" onclick="if(event.target===this)closeModal()">
+ <div class="modal">
+  <div class="modal-head">
+   <h3 id="modalTitle">Product Details</h3>
+   <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="modalContent"></div>
+ </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {
+ getAuth,onAuthStateChanged,createUserWithEmailAndPassword,
+ signInWithEmailAndPassword,signOut,sendPasswordResetEmail,
+ updateProfile
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+ getDatabase,ref,get,set,push,update,onValue
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import {
+ getStorage,ref as storageRef,getDownloadURL
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+
+/* FIREBASE CONFIGURATION */
+const firebaseConfig = {
+ apiKey: "AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+ authDomain: "devzxer-9d8e9.firebaseapp.com",
+ databaseURL: "https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+ projectId: "devzxer-9d8e9",
+ storageBucket: "devzxer-9d8e9.firebasestorage.app",
+ messagingSenderId: "101740085617",
+ appId: "1:101740085617:web:86d08757e668d4b897b6d0",
+ measurementId: "G-1635XV6SKV"
+};
+
+const appFirebase = initializeApp(firebaseConfig);
+const auth = getAuth(appFirebase);
+const db = getDatabase(appFirebase);
+const storage = getStorage(appFirebase);
+
+let currentUser = null;
+let authMode = "login";
+let products = [];
+let categories = [];
+let userOrders = {};
+let selectedCategory = "all";
+let currentProduct = null;
+let productListenerStarted = false;
+
+const $ = id => document.getElementById(id);
+
+function toast(message){
+ const el=$("toast");
+ el.textContent=message;
+ el.classList.remove("hidden");
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>el.classList.add("hidden"),3000);
+}
+
+function safeText(value){
+ return String(value ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ }[c]));
+}
+
+function toggleAuth(mode){
+ authMode=mode;
+ $("loginTab").classList.toggle("active",mode==="login");
+ $("registerTab").classList.toggle("active",mode==="register");
+ $("nameField").classList.toggle("hidden",mode!=="register");
+ $("forgotBtn").style.display=mode==="login"?"block":"none";
+ $("authSubmit").innerHTML=mode==="login"
+  ?'LOGIN TO ACCOUNT <i class="fa-solid fa-arrow-right"></i>'
+  :'CREATE MY ACCOUNT <i class="fa-solid fa-user-plus"></i>';
+ $("authPassword").autocomplete=mode==="login"?"current-password":"new-password";
+}
+window.toggleAuth=toggleAuth;
+
+async function handleAuth(){
+ const email=$("authEmail").value.trim();
+ const password=$("authPassword").value;
+ const name=$("authName").value.trim();
+
+ if(!email||!password){toast("Please enter email and password.");return;}
+ if(password.length<6){toast("Password must be at least 6 characters.");return;}
+ if(authMode==="register"&&!name){toast("Please enter your name.");return;}
+
+ const btn=$("authSubmit");
+ btn.disabled=true;
+ btn.textContent="PLEASE WAIT...";
+
+ try{
+  if(authMode==="register"){
+   const result=await createUserWithEmailAndPassword(auth,email,password);
+   await updateProfile(result.user,{displayName:name});
+   try{
+    await set(ref(db,"users/"+result.user.uid),{
+     name:name,email:email,createdAt:Date.now()
+    });
+   }catch(dbError){
+    console.error("Profile database write:",dbError);
+   }
+   toast("Account created successfully!");
+  }else{
+   await signInWithEmailAndPassword(auth,email,password);
+   toast("Welcome back!");
+  }
+ }catch(error){
+  console.error(error);
+  const messages={
+   "auth/email-already-in-use":"This email is already registered.",
+   "auth/invalid-email":"Please enter a valid email.",
+   "auth/invalid-credential":"Incorrect email or password.",
+   "auth/user-not-found":"No account found with this email.",
+   "auth/wrong-password":"Incorrect password.",
+   "auth/too-many-requests":"Too many attempts. Try again later.",
+   "auth/network-request-failed":"Network connection failed."
+  };
+  toast(messages[error.code]||error.message||"Authentication failed.");
+ }finally{
+  btn.disabled=false;
+  toggleAuth(authMode);
+ }
+}
+window.handleAuth=handleAuth;
+
+async function forgotPassword(){
+ const email=$("authEmail").value.trim();
+ if(!email){toast("Enter your email address first.");return;}
+ try{
+  await sendPasswordResetEmail(auth,email);
+  toast("Password reset email sent. Check your inbox.");
+ }catch(error){toast(error.message);}
+}
+window.forgotPassword=forgotPassword;
+
+async function logout(){
+ try{await signOut(auth);toast("Logged out successfully.");}
+ catch(error){toast(error.message);}
+}
+window.logout=logout;
+
+function showPage(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ $(page+"Page").classList.add("active");
+ document.querySelectorAll(".nav-btn").forEach(b=>{
+  b.classList.toggle("active",b.dataset.page===page);
+ });
+ window.scrollTo({top:0,behavior:"smooth"});
+ if(page==="orders")loadOrders();
+ if(page==="downloads")loadDownloads();
+}
+window.showPage=showPage;
+
+function getProductCategory(product){
+ return String(product.category||"Uncategorized").trim();
+}
+function isFree(product){
+ return product.type==="free"||product.isFree===true||product.accessType==="free";
+}
+function productImage(product){
+ return product.imageUrl||product.image||"";
+}
+
+function startProductListeners(){
+ if(productListenerStarted)return;
+ productListenerStarted=true;
+
+ onValue(ref(db,"products"),snapshot=>{
+  const data=snapshot.val()||{};
+  products=Object.entries(data).map(([id,p])=>({id,...p}));
+  renderCategories();
+  renderProducts();
+ },error=>{
+  console.error(error);
+  $("catalogSection").innerHTML='<div class="empty"><i class="fa-solid fa-lock"></i>Unable to load products. Check Firebase Database Rules.</div>';
+ });
+
+ onValue(ref(db,"categories"),snapshot=>{
+  const data=snapshot.val()||{};
+  categories=Object.entries(data).map(([id,c])=>({
+   id,...(typeof c==="string"?{name:c}:c)
+  }));
+  renderCategories();
+ });
+
+ onValue(ref(db,"settings/notice"),snapshot=>{
+  const value=snapshot.val();
+  if(typeof value==="string")$("noticeText").textContent=value;
+  else if(value?.text)$("noticeText").textContent=value.text;
+ });
+
+ onValue(ref(db,"settings/home"),snapshot=>{
+  const data=snapshot.val()||{};
+  if(data.title)$("heroTitle").textContent=data.title;
+  if(data.subtitle)$("heroSubtitle").textContent=data.subtitle;
+ });
+}
+
+function renderCategories(){
+ const container=$("categories");
+ const names=[...new Set([
+  ...categories.map(c=>c.name||c.title),
+  ...products.map(getProductCategory)
+ ].filter(Boolean))];
+
+ container.innerHTML='<button class="cat-btn '+(selectedCategory==="all"?"active":"")+'" onclick="selectCategory(\'all\',this)">All Products</button>';
+ names.forEach(name=>{
+  const active=selectedCategory===name?"active":"";
+  const button=document.createElement("button");
+  button.className="cat-btn "+active;
+  button.textContent=name;
+  button.onclick=()=>selectCategory(name,button);
+  container.appendChild(button);
+ });
+}
+
+function selectCategory(name,button){
+ selectedCategory=name;
+ document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ renderProducts();
+}
+window.selectCategory=selectCategory;
+
+function renderProducts(){
+ const search=$("searchInput").value.trim().toLowerCase();
+ const list=products.filter(p=>{
+  const matchesCategory=selectedCategory==="all"||getProductCategory(p).toLowerCase()===selectedCategory.toLowerCase();
+  const matchesSearch=(p.name||p.title||"").toLowerCase().includes(search)||
+   (p.description||"").toLowerCase().includes(search);
+  return matchesCategory&&matchesSearch&&p.active!==false;
+ });
+ $("productCount").textContent=list.length+" PRODUCTS";
+ const container=$("catalogSection");
+
+ if(!list.length){
+  container.innerHTML='<div class="empty"><i class="fa-solid fa-box-open"></i>No products found.<br>Try another category or search.</div>';
+  return;
+ }
+
+ container.innerHTML="";
+ list.forEach(product=>{
+  const free=isFree(product);
+  const image=productImage(product);
+  const card=document.createElement("article");
+  card.className="product-card";
+
+  const imageHTML=image
+   ?`<img src="${safeText(image)}" alt="${safeText(product.name||product.title||"Product")}" onerror="this.style.display='none'">`
+   :'<i class="fa-solid fa-cube"></i>';
+
+  card.innerHTML=`
+   <div class="product-image">
+    ${imageHTML}
+    <span class="product-type">${free?"FREE ACCESS":"PREMIUM ACCESS"}</span>
+   </div>
+   <div class="product-info">
+    <h3>${safeText(product.name||product.title||"Untitled Product")}</h3>
+    <p>${safeText(product.description||"Explore this digital product.")}</p>
+    <div class="product-bottom">
+     <span>${free?"FREE":"ACCESS REQUEST"}</span>
+     <button class="small-btn">VIEW DETAILS</button>
+    </div>
+   </div>`;
+  card.querySelector("button").onclick=()=>openProduct(product.id);
+  container.appendChild(card);
+ });
+}
+
+async function openProduct(id){
+ const product=products.find(p=>p.id===id);
+ if(!product)return;
+ currentProduct=product;
+
+ $("modalTitle").textContent=product.name||product.title||"Product Details";
+ const image=productImage(product);
+ const free=isFree(product);
+
+ $("modalContent").innerHTML=`
+  ${image?`<img class="modal-image" src="${safeText(image)}" alt="">`:""}
+  <div style="font-size:10px;color:#5bdcf4;font-weight:800;margin-bottom:8px">${free?"FREE PRODUCT":"PREMIUM PRODUCT"}</div>
+  <div class="modal-desc">${safeText(product.description||"No description available.")}</div>
+  ${product.setupGuide?`<div class="modal-desc"><b>Setup Guide:</b><br>${safeText(product.setupGuide)}</div>`:""}
+  ${product.videoUrl?`<a href="${safeText(product.videoUrl)}" target="_blank" rel="noopener" style="display:block;color:#5bdcf4;font-size:11px;margin:12px 0"> <i class="fa-solid fa-circle-play"></i> Watch Setup Video</a>`:""}
+  <button class="primary-btn modal-action" id="productAction">${free?"DOWNLOAD FREE PRODUCT":"REQUEST PRODUCT ACCESS"}</button>
+ `;
+ $("productModal").classList.add("show");
+ $("productAction").onclick=()=>free?downloadProduct(product):requestAccess(product);
+}
+window.openProduct=openProduct;
+
+function closeModal(){
+ $("productModal").classList.remove("show");
+ currentProduct=null;
+}
+window.closeModal=closeModal;
+
+async function downloadProduct(product){
+ try{
+  const url=await resolveProductFile(product);
+  if(!url){toast("Download file has not been added yet.");return;}
+  window.open(url,"_blank","noopener");
+ }catch(error){
+  console.error(error);
+  toast("Unable to download. Check the file settings and Storage Rules.");
+ }
+}
+
+async function resolveProductFile(product){
+ if(product.downloadUrl||product.fileUrl)return product.downloadUrl||product.fileUrl;
+ if(product.storagePath){
+  return await getDownloadURL(storageRef(storage,product.storagePath));
+ }
+ return null;
+}
+
+async function requestAccess(product){
+ if(!currentUser){toast("Please login first.");return;}
+ const button=$("productAction");
+ button.disabled=true;
+ button.textContent="SENDING REQUEST...";
+
+ try{
+  const ordersRef=ref(db,"orders/"+currentUser.uid);
+  const existing=await get(ordersRef);
+  const orders=existing.val()||{};
+  const already=Object.values(orders).some(o=>o.productId===product.id&&o.status!=="rejected");
+
+  if(already){
+   toast("You already have a request for this product.");
+   button.disabled=false;
+   button.textContent="REQUEST PRODUCT ACCESS";
+   return;
+  }
+
+  const newOrder=push(ordersRef);
+  await set(newOrder,{
+   productId:product.id,
+   productName:product.name||product.title||"Product",
+   status:"pending",
+   requestedAt:Date.now()
+  });
+  toast("Access request submitted successfully!");
+  closeModal();
+ }catch(error){
+  console.error(error);
+  toast("Request failed. Check Database Rules.");
+ }finally{
+  button.disabled=false;
+ }
+}
+
+async function loadOrders(){
+ if(!currentUser)return;
+ $("ordersList").innerHTML='<div class="loading">Loading requests...</div>';
+ try{
+  const snapshot=await get(ref(db,"orders/"+currentUser.uid));
+  userOrders=snapshot.val()||{};
+  const entries=Object.entries(userOrders).sort((a,b)=>(b[1].requestedAt||0)-(a[1].requestedAt||0));
+  if(!entries.length){
+   $("ordersList").innerHTML='<div class="empty"><i class="fa-solid fa-clipboard-list"></i>You have not submitted any requests yet.</div>';
+   return;
+  }
+  $("ordersList").innerHTML="";
+  entries.forEach(([id,order])=>{
+   const status=String(order.status||"pending").toLowerCase();
+   const card=document.createElement("div");
+   card.className="panel-card";
+   card.innerHTML=`
+    <div class="order-item">
+     <div><h3>${safeText(order.productName||"Product")}</h3>
+     <p>Request ID: ${safeText(id.slice(-8))}</p></div>
+     <span class="status ${["approved","rejected","pending"].includes(status)?status:"pending"}">${safeText(status.toUpperCase())}</span>
+    </div>`;
+   $("ordersList").appendChild(card);
+  });
+ }catch(error){
+  console.error(error);
+  $("ordersList").innerHTML='<div class="empty">Unable to load requests. Check Database Rules.</div>';
+ }
+}
+
+async function loadDownloads(){
+ if(!currentUser)return;
+ $("downloadsList").innerHTML='<div class="loading">Loading downloads...</div>';
+ try{
+  const snapshot=await get(ref(db,"orders/"+currentUser.uid));
+  const orders=snapshot.val()||{};
+  const approved=Object.values(orders).filter(o=>o.status==="approved");
+  if(!approved.length){
+   $("downloadsList").innerHTML='<div class="empty"><i class="fa-solid fa-cloud-arrow-down"></i>No approved downloads yet.</div>';
+   return;
+  }
+
+  $("downloadsList").innerHTML="";
+  approved.forEach(order=>{
+   const product=products.find(p=>p.id===order.productId);
+   const card=document.createElement("div");
+   card.className="panel-card";
+   const button=document.createElement("button");
+   button.className="primary-btn";
+   button.style.marginTop="12px";
+   button.style.padding="10px 13px";
+   button.innerHTML='<i class="fa-solid fa-download"></i> DOWNLOAD';
+   button.onclick=async()=>{
+    if(!product){toast("Product information is unavailable.");return;}
+    try{
+     const url=await resolveProductFile(product);
+     if(!url){toast("Download file has not been added yet.");return;}
+     window.open(url,"_blank","noopener");
+    }catch(error){console.error(error);toast("Download failed. Check Storage Rules.");}
+   };
+   card.innerHTML=`<h3>${safeText(order.productName||"Product")}</h3><p>Access approved by administrator.</p>`;
+   card.appendChild(button);
+   $("downloadsList").appendChild(card);
+  });
+ }catch(error){
+  console.error(error);
+  $("downloadsList").innerHTML='<div class="empty">Unable to load downloads.</div>';
+ }
+}
+
+function updateProfileUI(user){
+ const name=user.displayName||user.email?.split("@")[0]||"User";
+ $("profileName").textContent=name;
+ $("profileEmail").textContent=user.email||"";
+ $("profileAvatar").textContent=name.charAt(0).toUpperCase();
+}
+
+onAuthStateChanged(auth,async user=>{
+ currentUser=user;
+ if(user){
+  $("authScreen").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  updateProfileUI(user);
+  startProductListeners();
+  loadOrders();
+ }else{
+  $("app").classList.add("hidden");
+  $("authScreen").classList.remove("hidden");
+ }
+});
+</script>
+</body>
+</html>

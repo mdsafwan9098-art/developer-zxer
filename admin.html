@@ -1,0 +1,964 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#080d19">
+<title>Developer ZXER | Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+:root{
+ --bg:#080d19;--panel:#111d30;--panel2:#15243b;
+ --blue:#287bff;--cyan:#20d9f5;--text:#f4f7ff;
+ --muted:#8b9bb5;--line:rgba(255,255,255,.09);
+ --green:#35d69a;--red:#ff647c;--yellow:#ffd47a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Inter,Arial,sans-serif;background:
+ radial-gradient(circle at 10% 0%,#174c8a25,transparent 30%),var(--bg);
+ color:var(--text);min-height:100vh;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+button:disabled{opacity:.5;cursor:not-allowed}
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login-card{
+ width:100%;max-width:420px;background:linear-gradient(145deg,#162640,#0d1728);
+ border:1px solid var(--line);border-radius:25px;padding:28px 22px;
+ box-shadow:0 25px 80px #0008;
+}
+.logo{
+ width:58px;height:58px;border-radius:18px;margin:auto;display:grid;place-items:center;
+ background:linear-gradient(135deg,#1764ed,#19c9e8);
+ box-shadow:0 8px 30px #167aff40;font-size:24px;font-weight:900;
+}
+.login-card h1{text-align:center;font-size:21px;margin-top:16px}
+.login-card .sub{text-align:center;font-size:10px;color:var(--cyan);letter-spacing:2px;margin:7px 0 24px}
+.field{margin:14px 0}
+.field label{display:block;font-size:10px;color:#aabbd3;font-weight:700;margin-bottom:8px}
+.field input,.field textarea,.field select{
+ width:100%;background:#091526;color:white;border:1px solid var(--line);
+ padding:13px;border-radius:11px;outline:none;font-size:12px;
+}
+.field textarea{resize:vertical;min-height:85px;line-height:1.6}
+.field select option{background:#102039}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue)}
+.btn{
+ border:0;border-radius:11px;padding:12px 15px;font-size:11px;
+ font-weight:800;color:white;background:linear-gradient(100deg,#246fff,#13bddc);
+}
+.btn.full{width:100%;padding:14px}
+.btn.secondary{background:#1a2a43;border:1px solid var(--line)}
+.btn.danger{background:linear-gradient(100deg,#d93855,#ff657e)}
+.btn.success{background:linear-gradient(100deg,#159c70,#38d79f)}
+.btn.warning{background:linear-gradient(100deg,#ad741d,#e7b44e);color:#17120a}
+.login-note{text-align:center;color:var(--muted);font-size:10px;line-height:1.8;margin-top:18px}
+.layout{max-width:1250px;margin:auto;min-height:100vh}
+.header{
+ height:70px;position:sticky;top:0;z-index:30;
+ background:#0b1425ed;backdrop-filter:blur(18px);
+ border-bottom:1px solid var(--line);
+ display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+}
+.header-brand{display:flex;align-items:center;gap:11px}
+.mini-logo{
+ width:39px;height:39px;border-radius:13px;display:grid;place-items:center;
+ background:linear-gradient(135deg,#1764ed,#19c9e8);font-weight:900;
+}
+.header-brand strong{font-size:13px;letter-spacing:.7px}
+.header-brand small{display:block;color:var(--cyan);font-size:9px;margin-top:3px;letter-spacing:1.5px}
+.header-actions{display:flex;gap:8px}
+.icon-btn{
+ width:39px;height:39px;border:1px solid var(--line);border-radius:12px;
+ background:#14233a;color:white;
+}
+.admin-body{display:grid;grid-template-columns:225px minmax(0,1fr);min-height:calc(100vh - 70px)}
+.sidebar{
+ padding:20px 13px;background:#0b1424;border-right:1px solid var(--line);
+}
+.side-label{font-size:9px;color:#647995;letter-spacing:2px;font-weight:800;padding:8px 10px 13px}
+.side-btn{
+ width:100%;display:flex;align-items:center;gap:12px;padding:13px 12px;
+ border:0;border-radius:11px;background:transparent;color:#9aabc4;
+ font-size:11px;font-weight:700;text-align:left;margin-bottom:5px;
+}
+.side-btn i{width:17px;text-align:center;font-size:14px}
+.side-btn.active{background:linear-gradient(100deg,#1b5fc7,#164b85);color:white}
+.side-btn:hover{background:#172a45;color:white}
+.main{padding:25px;min-width:0}
+.admin-page{display:none}
+.admin-page.active{display:block}
+.page-title{font-size:22px;font-weight:900;margin-bottom:7px}
+.page-subtitle{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:23px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:22px}
+.stat-card{
+ background:linear-gradient(145deg,#152640,#101b2d);
+ border:1px solid var(--line);border-radius:16px;padding:17px;
+}
+.stat-top{display:flex;justify-content:space-between;align-items:center}
+.stat-icon{
+ width:35px;height:35px;display:grid;place-items:center;border-radius:11px;
+ background:#247bff20;color:#62cfff;
+}
+.stat-card small{font-size:10px;color:var(--muted)}
+.stat-card h2{font-size:24px;margin-top:12px;font-weight:900}
+.panel{
+ background:linear-gradient(145deg,#14233a,#0e192b);
+ border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:17px;
+}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+.panel-head h3{font-size:13px;font-weight:800}
+.panel-head small{font-size:10px;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.full-field{grid-column:1/-1}
+.check-line{display:flex;align-items:center;gap:9px;font-size:11px;color:#b8c9df;margin:8px 0 15px}
+.check-line input{accent-color:#287bff;width:16px;height:16px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:570px}
+th{text-align:left;font-size:9px;letter-spacing:.7px;color:#8196b4;padding:12px 10px;border-bottom:1px solid var(--line)}
+td{font-size:10px;color:#d5e0ef;padding:13px 10px;border-bottom:1px solid #ffffff0a;vertical-align:middle}
+td strong{font-size:11px}
+.table-actions{display:flex;gap:6px;flex-wrap:wrap}
+.action-btn{
+ border:0;border-radius:8px;padding:8px 10px;font-size:9px;font-weight:800;color:white;
+ background:#1e68c5;
+}
+.action-btn.red{background:#a9324d}
+.action-btn.green{background:#137e60}
+.action-btn.gray{background:#293b55}
+.status{
+ display:inline-block;padding:6px 9px;border-radius:20px;font-size:9px;
+ font-weight:800;background:#ffffff12;color:#c4d6ec;
+}
+.status.pending{background:#47391c;color:#ffda88}
+.status.approved{background:#123e32;color:#56e4a9}
+.status.rejected{background:#401d2a;color:#ff8296}
+.thumb{width:43px;height:43px;border-radius:9px;object-fit:cover;background:#0b1425}
+.empty{text-align:center;color:var(--muted);padding:30px 12px;font-size:11px;line-height:2}
+.empty i{display:block;font-size:26px;color:#4e86c5;margin-bottom:10px}
+.file-hint{font-size:9px;color:#8499b7;line-height:1.7;margin-top:6px}
+.toast{
+ position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+ z-index:100;background:#1c2c45;border:1px solid #ffffff22;
+ padding:12px 17px;border-radius:12px;color:white;font-size:11px;
+ max-width:90%;box-shadow:0 10px 35px #0008;text-align:center;
+}
+.modal-bg{position:fixed;inset:0;background:#000b;z-index:80;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-bg.show{display:flex}
+.modal{
+ width:100%;max-width:460px;max-height:85vh;overflow:auto;
+ background:#13223a;border:1px solid var(--line);border-radius:19px;padding:20px;
+}
+.modal h3{font-size:15px;margin-bottom:15px}
+.modal-close{float:right;border:0;background:#ffffff12;color:white;border-radius:8px;width:30px;height:30px}
+.mobile-menu{display:none}
+@media(max-width:800px){
+ .admin-body{display:block}
+ .sidebar{
+  position:fixed;z-index:40;top:70px;bottom:0;left:0;width:245px;
+  transform:translateX(-105%);transition:.25s;box-shadow:15px 0 40px #0007;
+ }
+ .sidebar.open{transform:translateX(0)}
+ .mobile-menu{display:inline-grid;place-items:center}
+ .main{padding:20px 14px}
+ .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+ .form-grid{grid-template-columns:1fr}
+ .full-field{grid-column:auto}
+ .page-title{font-size:20px}
+ .stat-card h2{font-size:21px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ADMIN LOGIN -->
+<section id="loginScreen" class="login-screen">
+ <div class="login-card">
+  <div class="logo">ZX</div>
+  <h1>ADMIN CONTROL</h1>
+  <div class="sub">DEVELOPER ZXER</div>
+
+  <div class="field">
+   <label>ADMIN EMAIL</label>
+   <input id="loginEmail" type="email" placeholder="Enter admin email" autocomplete="username">
+  </div>
+  <div class="field">
+   <label>PASSWORD</label>
+   <input id="loginPassword" type="password" placeholder="Enter admin password" autocomplete="current-password">
+  </div>
+  <button id="loginButton" class="btn full" onclick="adminLogin()">
+   <i class="fa-solid fa-lock"></i> SECURE ADMIN LOGIN
+  </button>
+  <div class="login-note">
+   Authorized administrators only.<br>
+   Protected by Firebase Authentication.
+  </div>
+ </div>
+</section>
+
+<!-- ADMIN APPLICATION -->
+<div id="adminApp" class="layout hidden">
+ <header class="header">
+  <div class="header-brand">
+   <button class="icon-btn mobile-menu" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+   <div class="mini-logo">ZX</div>
+   <div><strong>DEVELOPER ZXER</strong><small>ADMIN DASHBOARD</small></div>
+  </div>
+  <div class="header-actions">
+   <button class="icon-btn" onclick="loadDashboard()" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
+   <button class="icon-btn" onclick="adminLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+ </header>
+
+ <div class="admin-body">
+  <aside id="sidebar" class="sidebar">
+   <div class="side-label">MAIN MENU</div>
+   <button class="side-btn active" data-page="dashboard" onclick="showAdminPage('dashboard')"><i class="fa-solid fa-chart-pie"></i>Dashboard</button>
+   <button class="side-btn" data-page="products" onclick="showAdminPage('products')"><i class="fa-solid fa-cubes"></i>Products</button>
+   <button class="side-btn" data-page="addProduct" onclick="showAdminPage('addProduct')"><i class="fa-solid fa-circle-plus"></i>Add Product</button>
+   <button class="side-btn" data-page="categories" onclick="showAdminPage('categories')"><i class="fa-solid fa-layer-group"></i>Categories</button>
+   <button class="side-btn" data-page="requests" onclick="showAdminPage('requests')"><i class="fa-solid fa-clipboard-check"></i>Product Requests</button>
+   <button class="side-btn" data-page="users" onclick="showAdminPage('users')"><i class="fa-solid fa-users"></i>Users</button>
+   <button class="side-btn" data-page="homeEdit" onclick="showAdminPage('homeEdit')"><i class="fa-solid fa-pen-to-square"></i>Home Edit</button>
+   <div class="side-label" style="margin-top:15px">SYSTEM</div>
+   <button class="side-btn" onclick="adminLogout()"><i class="fa-solid fa-power-off"></i>Logout</button>
+  </aside>
+
+  <main class="main">
+
+   <!-- DASHBOARD -->
+   <section id="dashboardPage" class="admin-page active">
+    <h1 class="page-title">Dashboard Overview</h1>
+    <p class="page-subtitle">Welcome to your Developer ZXER control center.</p>
+
+    <div class="stats-grid">
+     <div class="stat-card"><div class="stat-top"><small>Total Products</small><span class="stat-icon"><i class="fa-solid fa-cubes"></i></span></div><h2 id="statProducts">0</h2></div>
+     <div class="stat-card"><div class="stat-top"><small>Total Users</small><span class="stat-icon"><i class="fa-solid fa-users"></i></span></div><h2 id="statUsers">0</h2></div>
+     <div class="stat-card"><div class="stat-top"><small>Total Requests</small><span class="stat-icon"><i class="fa-solid fa-inbox"></i></span></div><h2 id="statRequests">0</h2></div>
+     <div class="stat-card"><div class="stat-top"><small>Pending Requests</small><span class="stat-icon"><i class="fa-solid fa-clock"></i></span></div><h2 id="statPending">0</h2></div>
+    </div>
+
+    <div class="panel">
+     <div class="panel-head"><h3><i class="fa-solid fa-bolt" style="color:#53dfff"></i> Quick Actions</h3></div>
+     <div style="display:flex;gap:9px;flex-wrap:wrap">
+      <button class="btn" onclick="showAdminPage('addProduct')"><i class="fa-solid fa-plus"></i> Add Product</button>
+      <button class="btn secondary" onclick="showAdminPage('requests')"><i class="fa-solid fa-list-check"></i> View Requests</button>
+      <button class="btn secondary" onclick="showAdminPage('homeEdit')"><i class="fa-solid fa-pen"></i> Edit Home</button>
+     </div>
+    </div>
+
+    <div class="panel">
+     <div class="panel-head"><h3>Recent Product Requests</h3><button class="btn secondary" onclick="showAdminPage('requests')">View All</button></div>
+     <div id="recentRequests" class="empty">Loading...</div>
+    </div>
+   </section>
+
+   <!-- PRODUCTS -->
+   <section id="productsPage" class="admin-page">
+    <h1 class="page-title">Product Management</h1>
+    <p class="page-subtitle">Manage all products displayed in the user panel.</p>
+    <div class="panel">
+     <div class="panel-head">
+      <h3>All Products</h3>
+      <button class="btn" onclick="resetProductForm();showAdminPage('addProduct')"><i class="fa-solid fa-plus"></i> Add New</button>
+     </div>
+     <div class="table-wrap">
+      <table>
+       <thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>TYPE</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+       <tbody id="productsTable"><tr><td colspan="5">Loading...</td></tr></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- ADD / EDIT PRODUCT -->
+   <section id="addProductPage" class="admin-page">
+    <h1 class="page-title" id="productFormTitle">Add New Product</h1>
+    <p class="page-subtitle">Create or edit a product for your digital store.</p>
+    <div class="panel">
+     <form id="productForm" onsubmit="saveProduct(event)">
+      <input type="hidden" id="editProductId">
+      <div class="form-grid">
+       <div class="field">
+        <label>PRODUCT NAME *</label>
+        <input id="productName" required placeholder="Example: Premium Tool">
+       </div>
+       <div class="field">
+        <label>CATEGORY *</label>
+        <select id="productCategory" required><option value="">Select category</option></select>
+       </div>
+       <div class="field">
+        <label>PRODUCT TYPE *</label>
+        <select id="productType" required>
+         <option value="free">Free Product</option>
+         <option value="premium">Premium Access (Request)</option>
+        </select>
+       </div>
+       <div class="field">
+        <label>PRODUCT STATUS</label>
+        <select id="productActive">
+         <option value="true">Active / Visible</option>
+         <option value="false">Inactive / Hidden</option>
+        </select>
+       </div>
+       <div class="field full-field">
+        <label>DESCRIPTION *</label>
+        <textarea id="productDescription" required placeholder="Write product details..."></textarea>
+       </div>
+       <div class="field full-field">
+        <label>SETUP GUIDE (OPTIONAL)</label>
+        <textarea id="productGuide" placeholder="Write installation or setup instructions..."></textarea>
+       </div>
+       <div class="field full-field">
+        <label>SETUP VIDEO URL (OPTIONAL)</label>
+        <input id="productVideo" type="url" placeholder="https://...">
+       </div>
+       <div class="field full-field">
+        <label>PRODUCT IMAGE (OPTIONAL)</label>
+        <input id="productImageFile" type="file" accept="image/*">
+        <div class="file-hint">Upload an image from your device. It will be stored in Firebase Storage.</div>
+       </div>
+       <div class="field full-field">
+        <label>PRODUCT DOWNLOAD FILE (OPTIONAL)</label>
+        <input id="productDownloadFile" type="file">
+        <div class="file-hint">Upload the product file. Do not upload private or sensitive files. Download links may be shared by recipients.</div>
+       </div>
+      </div>
+      <label class="check-line"><input id="productFeatured" type="checkbox"> Mark as featured product</label>
+      <button id="saveProductButton" class="btn" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> SAVE PRODUCT</button>
+      <button class="btn secondary" type="button" onclick="resetProductForm();showAdminPage('products')">CANCEL</button>
+     </form>
+    </div>
+   </section>
+
+   <!-- CATEGORIES -->
+   <section id="categoriesPage" class="admin-page">
+    <h1 class="page-title">Category Management</h1>
+    <p class="page-subtitle">Create and manage product categories.</p>
+    <div class="panel">
+     <div class="panel-head"><h3>Add New Category</h3></div>
+     <div class="field">
+      <label>CATEGORY NAME</label>
+      <input id="newCategoryName" placeholder="Example: Android Tools">
+     </div>
+     <button class="btn" onclick="addCategory()"><i class="fa-solid fa-plus"></i> ADD CATEGORY</button>
+    </div>
+    <div class="panel">
+     <div class="panel-head"><h3>Existing Categories</h3></div>
+     <div id="categoryList" class="empty">Loading...</div>
+    </div>
+   </section>
+
+   <!-- REQUESTS -->
+   <section id="requestsPage" class="admin-page">
+    <h1 class="page-title">Product Requests</h1>
+    <p class="page-subtitle">Review user requests and approve or reject access.</p>
+    <div class="panel">
+     <div class="panel-head">
+      <h3>All Requests</h3>
+      <button class="btn secondary" onclick="loadRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+     </div>
+     <div class="table-wrap">
+      <table>
+       <thead><tr><th>PRODUCT / USER</th><th>REQUEST DATE</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+       <tbody id="requestsTable"><tr><td colspan="4">Loading...</td></tr></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- USERS -->
+   <section id="usersPage" class="admin-page">
+    <h1 class="page-title">User Management</h1>
+    <p class="page-subtitle">View user profiles stored in the database.</p>
+    <div class="panel">
+     <div class="panel-head"><h3>Registered Profiles</h3><button class="btn secondary" onclick="loadUsers()">Refresh</button></div>
+     <div class="table-wrap">
+      <table>
+       <thead><tr><th>NAME</th><th>EMAIL</th><th>USER ID</th></tr></thead>
+       <tbody id="usersTable"><tr><td colspan="3">Loading...</td></tr></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- HOME EDIT -->
+   <section id="homeEditPage" class="admin-page">
+    <h1 class="page-title">Home Page Editor</h1>
+    <p class="page-subtitle">Update the welcome section and announcement shown on the user panel.</p>
+    <div class="panel">
+     <div class="field">
+      <label>HERO TITLE</label>
+      <input id="homeTitle" placeholder="Explore Premium Digital Products.">
+     </div>
+     <div class="field">
+      <label>HERO SUBTITLE</label>
+      <textarea id="homeSubtitle" placeholder="Write your homepage subtitle..."></textarea>
+     </div>
+     <div class="field">
+      <label>ANNOUNCEMENT / NOTICE</label>
+      <textarea id="homeNotice" placeholder="Write a notice for users..."></textarea>
+     </div>
+     <button class="btn" onclick="saveHomeSettings()"><i class="fa-solid fa-floppy-disk"></i> SAVE HOME SETTINGS</button>
+    </div>
+   </section>
+
+  </main>
+ </div>
+</div>
+
+<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeAdminModal()">
+ <div class="modal">
+  <button class="modal-close" onclick="closeAdminModal()"><i class="fa-solid fa-xmark"></i></button>
+  <h3 id="modalTitle">Request Details</h3>
+  <div id="modalContent"></div>
+ </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {
+ getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+ getDatabase,ref,get,set,push,update,remove
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import {
+ getStorage,ref as storageRef,uploadBytes,getDownloadURL
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+
+/* SAME FIREBASE PROJECT AS INDEX.HTML */
+const firebaseConfig={
+ apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+ authDomain:"devzxer-9d8e9.firebaseapp.com",
+ databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+ projectId:"devzxer-9d8e9",
+ storageBucket:"devzxer-9d8e9.firebasestorage.app",
+ messagingSenderId:"101740085617",
+ appId:"1:101740085617:web:86d08757e668d4b897b6d0",
+ measurementId:"G-1635XV6SKV"
+};
+
+const firebaseApp=initializeApp(firebaseConfig);
+const auth=getAuth(firebaseApp);
+const db=getDatabase(firebaseApp);
+const storage=getStorage(firebaseApp);
+
+let adminUser=null;
+let products={};
+let categories={};
+let allRequests=[];
+let allUsers={};
+
+const $=id=>document.getElementById(id);
+
+function toast(message){
+ const el=$("toast");
+ el.textContent=message;
+ el.classList.remove("hidden");
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>el.classList.add("hidden"),3500);
+}
+function esc(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ }[c]));
+}
+function formatDate(value){
+ if(!value)return "—";
+ return new Date(value).toLocaleString();
+}
+
+async function verifyAdmin(user){
+ const snap=await get(ref(db,"admins/"+user.uid));
+ return snap.val()===true;
+}
+
+async function adminLogin(){
+ const email=$("loginEmail").value.trim();
+ const password=$("loginPassword").value;
+ if(!email||!password){toast("Enter admin email and password.");return;}
+
+ const btn=$("loginButton");
+ btn.disabled=true;
+ btn.textContent="VERIFYING ADMIN...";
+
+ try{
+  const result=await signInWithEmailAndPassword(auth,email,password);
+  const allowed=await verifyAdmin(result.user);
+  if(!allowed){
+   await signOut(auth);
+   toast("Access denied. This account is not an authorized admin.");
+  }else{
+   toast("Admin login successful.");
+  }
+ }catch(error){
+  console.error(error);
+  toast(error.code==="auth/invalid-credential"?"Incorrect email or password.":error.message);
+ }finally{
+  btn.disabled=false;
+  btn.innerHTML='<i class="fa-solid fa-lock"></i> SECURE ADMIN LOGIN';
+ }
+}
+window.adminLogin=adminLogin;
+
+onAuthStateChanged(auth,async user=>{
+ if(!user){
+  adminUser=null;
+  $("adminApp").classList.add("hidden");
+  $("loginScreen").classList.remove("hidden");
+  return;
+ }
+ try{
+  const allowed=await verifyAdmin(user);
+  if(!allowed){
+   await signOut(auth);
+   toast("Access denied. Admin authorization required.");
+   return;
+  }
+  adminUser=user;
+  $("loginScreen").classList.add("hidden");
+  $("adminApp").classList.remove("hidden");
+  await initializeAdmin();
+ }catch(error){
+  console.error(error);
+  toast("Could not verify admin. Check Database Rules.");
+ }
+});
+
+async function adminLogout(){
+ try{await signOut(auth);toast("Logged out.");}
+ catch(error){toast(error.message);}
+}
+window.adminLogout=adminLogout;
+
+function toggleSidebar(){
+ $("sidebar").classList.toggle("open");
+}
+window.toggleSidebar=toggleSidebar;
+
+function showAdminPage(page){
+ document.querySelectorAll(".admin-page").forEach(p=>p.classList.remove("active"));
+ $(page+"Page").classList.add("active");
+ document.querySelectorAll(".side-btn").forEach(b=>{
+  b.classList.toggle("active",b.dataset.page===page);
+ });
+ $("sidebar").classList.remove("open");
+
+ if(page==="dashboard")loadDashboard();
+ if(page==="products")loadProducts();
+ if(page==="categories")loadCategories();
+ if(page==="requests")loadRequests();
+ if(page==="users")loadUsers();
+ if(page==="homeEdit")loadHomeSettings();
+}
+window.showAdminPage=showAdminPage;
+
+async function initializeAdmin(){
+ await loadProducts();
+ await loadCategories();
+ await loadDashboard();
+}
+
+async function loadProducts(){
+ try{
+  const snap=await get(ref(db,"products"));
+  products=snap.val()||{};
+  renderProducts();
+  populateCategorySelect();
+ }catch(error){
+  console.error(error);
+  toast("Unable to read products. Check Database Rules.");
+ }
+}
+function renderProducts(){
+ const tbody=$("productsTable");
+ if(!tbody)return;
+ const entries=Object.entries(products);
+ if(!entries.length){
+  tbody.innerHTML='<tr><td colspan="5"><div class="empty"><i class="fa-solid fa-box-open"></i>No products added yet.</div></td></tr>';
+  return;
+ }
+ tbody.innerHTML=entries.map(([id,p])=>`
+  <tr>
+   <td><strong>${esc(p.name||p.title||"Untitled")}</strong></td>
+   <td>${esc(p.category||"—")}</td>
+   <td>${p.type==="free"?"FREE":"PREMIUM"}</td>
+   <td><span class="status ${p.active===false?"rejected":"approved"}">${p.active===false?"HIDDEN":"ACTIVE"}</span></td>
+   <td><div class="table-actions">
+    <button class="action-btn" onclick="editProduct('${id}')">EDIT</button>
+    <button class="action-btn red" onclick="deleteProduct('${id}')">DELETE</button>
+   </div></td>
+  </tr>`).join("");
+}
+
+function populateCategorySelect(){
+ const select=$("productCategory");
+ if(!select)return;
+ const current=select.value;
+ select.innerHTML='<option value="">Select category</option>';
+ Object.entries(categories).forEach(([id,c])=>{
+  const name=typeof c==="string"?c:c.name||c.title;
+  if(!name)return;
+  const option=document.createElement("option");
+  option.value=name;
+  option.textContent=name;
+  select.appendChild(option);
+ });
+ if(current)select.value=current;
+}
+
+function resetProductForm(){
+ $("productForm").reset();
+ $("editProductId").value="";
+ $("productFormTitle").textContent="Add New Product";
+ $("saveProductButton").innerHTML='<i class="fa-solid fa-cloud-arrow-up"></i> SAVE PRODUCT';
+}
+window.resetProductForm=resetProductForm;
+
+function editProduct(id){
+ const p=products[id];
+ if(!p)return;
+ $("editProductId").value=id;
+ $("productName").value=p.name||p.title||"";
+ $("productCategory").value=p.category||"";
+ $("productType").value=p.type||"premium";
+ $("productActive").value=String(p.active!==false);
+ $("productDescription").value=p.description||"";
+ $("productGuide").value=p.setupGuide||"";
+ $("productVideo").value=p.videoUrl||"";
+ $("productFeatured").checked=p.featured===true;
+ $("productFormTitle").textContent="Edit Product";
+ $("saveProductButton").textContent="UPDATE PRODUCT";
+ showAdminPage("addProduct");
+}
+window.editProduct=editProduct;
+
+async function uploadSelectedFile(file,path){
+ if(!file)return null;
+ const target=storageRef(storage,path);
+ const result=await uploadBytes(target,file);
+ return await getDownloadURL(result.ref);
+}
+
+async function saveProduct(event){
+ event.preventDefault();
+ if(!adminUser){toast("Admin login required.");return;}
+
+ const id=$("editProductId").value;
+ const existing=id?products[id]:null;
+ const name=$("productName").value.trim();
+ const category=$("productCategory").value;
+ const type=$("productType").value;
+ const active=$("productActive").value==="true";
+ const description=$("productDescription").value.trim();
+
+ if(!name||!category||!description){toast("Please complete required fields.");return;}
+
+ const btn=$("saveProductButton");
+ btn.disabled=true;
+ btn.textContent="SAVING PRODUCT...";
+
+ try{
+  const productRef=id?ref(db,"products/"+id):push(ref(db,"products"));
+  const productId=id||productRef.key;
+  let imageUrl=existing?.imageUrl||"";
+  let downloadUrl=existing?.downloadUrl||"";
+  let storagePath=existing?.storagePath||"";
+
+  const imageFile=$("productImageFile").files[0];
+  const downloadFile=$("productDownloadFile").files[0];
+
+  if(imageFile){
+   imageUrl=await uploadSelectedFile(
+    imageFile,"product-images/"+productId+"/"+Date.now()+"_"+imageFile.name
+   );
+  }
+  if(downloadFile){
+   storagePath="product-files/"+productId+"/"+Date.now()+"_"+downloadFile.name;
+   downloadUrl=await uploadSelectedFile(downloadFile,storagePath);
+  }
+
+  const data={
+   name,category,type,active,description,
+   setupGuide:$("productGuide").value.trim(),
+   videoUrl:$("productVideo").value.trim(),
+   imageUrl,downloadUrl,storagePath,
+   featured:$("productFeatured").checked,
+   updatedAt:Date.now(),
+   createdAt:existing?.createdAt||Date.now()
+  };
+
+  await set(productRef,data);
+  toast(id?"Product updated successfully.":"Product added successfully.");
+  resetProductForm();
+  await loadProducts();
+  await loadDashboard();
+  showAdminPage("products");
+ }catch(error){
+  console.error(error);
+  toast("Save failed: "+(error.message||"Check Database and Storage Rules."));
+ }finally{
+  btn.disabled=false;
+  btn.textContent=id?"UPDATE PRODUCT":"SAVE PRODUCT";
+ }
+}
+window.saveProduct=saveProduct;
+
+async function deleteProduct(id){
+ if(!confirm("Are you sure you want to delete this product?"))return;
+ try{
+  await remove(ref(db,"products/"+id));
+  delete products[id];
+  renderProducts();
+  toast("Product deleted.");
+  loadDashboard();
+ }catch(error){
+  console.error(error);
+  toast("Delete failed. Check Database Rules.");
+ }
+}
+window.deleteProduct=deleteProduct;
+
+async function loadCategories(){
+ try{
+  const snap=await get(ref(db,"categories"));
+  categories=snap.val()||{};
+  renderCategories();
+  populateCategorySelect();
+ }catch(error){
+  console.error(error);
+  toast("Unable to load categories.");
+ }
+}
+function renderCategories(){
+ const box=$("categoryList");
+ if(!box)return;
+ const entries=Object.entries(categories);
+ if(!entries.length){
+  box.innerHTML='<div class="empty"><i class="fa-solid fa-layer-group"></i>No categories yet.</div>';
+  return;
+ }
+ box.innerHTML=entries.map(([id,c])=>{
+  const name=typeof c==="string"?c:c.name||c.title||"Category";
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px;border-bottom:1px solid #ffffff10">
+   <strong style="font-size:11px">${esc(name)}</strong>
+   <button class="action-btn red" onclick="deleteCategory('${id}')">DELETE</button>
+  </div>`;
+ }).join("");
+}
+async function addCategory(){
+ const name=$("newCategoryName").value.trim();
+ if(!name){toast("Enter a category name.");return;}
+ const duplicate=Object.values(categories).some(c=>
+  (typeof c==="string"?c:c.name||c.title||"").toLowerCase()===name.toLowerCase()
+ );
+ if(duplicate){toast("This category already exists.");return;}
+ try{
+  const item=push(ref(db,"categories"));
+  await set(item,{name,createdAt:Date.now()});
+  $("newCategoryName").value="";
+  await loadCategories();
+  toast("Category added.");
+ }catch(error){console.error(error);toast("Could not add category. Check Database Rules.");}
+}
+window.addCategory=addCategory;
+
+async function deleteCategory(id){
+ if(!confirm("Delete this category? Products using it will not be deleted."))return;
+ try{
+  await remove(ref(db,"categories/"+id));
+  await loadCategories();
+  toast("Category deleted.");
+ }catch(error){console.error(error);toast("Delete failed.");}
+}
+window.deleteCategory=deleteCategory;
+
+async function loadRequests(){
+ $("requestsTable").innerHTML='<tr><td colspan="4">Loading requests...</td></tr>';
+ try{
+  const snap=await get(ref(db,"orders"));
+  const data=snap.val()||{};
+  allRequests=[];
+  Object.entries(data).forEach(([uid,userOrders])=>{
+   Object.entries(userOrders||{}).forEach(([orderId,order])=>{
+    allRequests.push({uid,orderId,...order});
+   });
+  });
+  allRequests.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+  renderRequests();
+ }catch(error){
+  console.error(error);
+  $("requestsTable").innerHTML='<tr><td colspan="4">Unable to read requests. Check admin Database Rules.</td></tr>';
+  toast("Request loading failed.");
+ }
+}
+function renderRequests(){
+ const tbody=$("requestsTable");
+ if(!allRequests.length){
+  tbody.innerHTML='<tr><td colspan="4"><div class="empty"><i class="fa-solid fa-inbox"></i>No product requests found.</div></td></tr>';
+  return;
+ }
+ tbody.innerHTML=allRequests.map(r=>{
+  const status=String(r.status||"pending").toLowerCase();
+  return `<tr>
+   <td><strong>${esc(r.productName||"Product")}</strong><br><small style="color:#8196b4">${esc(r.uid.slice(0,12))}...</small></td>
+   <td>${esc(formatDate(r.requestedAt))}</td>
+   <td><span class="status ${["pending","approved","rejected"].includes(status)?status:"pending"}">${esc(status.toUpperCase())}</span></td>
+   <td><div class="table-actions">
+    <button class="action-btn green" onclick="updateRequest('${r.uid}','${r.orderId}','approved')">APPROVE</button>
+    <button class="action-btn red" onclick="updateRequest('${r.uid}','${r.orderId}','rejected')">REJECT</button>
+    <button class="action-btn gray" onclick="viewRequest('${r.uid}','${r.orderId}')">VIEW</button>
+   </div></td>
+  </tr>`;
+ }).join("");
+}
+async function updateRequest(uid,orderId,status){
+ const action=status==="approved"?"approve":"reject";
+ if(!confirm("Are you sure you want to "+action+" this request?"))return;
+ try{
+  await update(ref(db,"orders/"+uid+"/"+orderId),{
+   status,reviewedAt:Date.now(),reviewedBy:adminUser.uid
+  });
+  toast("Request "+status+".");
+  await loadRequests();
+  await loadDashboard();
+ }catch(error){
+  console.error(error);
+  toast("Could not update request. Check Database Rules.");
+ }
+}
+window.updateRequest=updateRequest;
+
+function viewRequest(uid,orderId){
+ const r=allRequests.find(x=>x.uid===uid&&x.orderId===orderId);
+ if(!r)return;
+ $("modalTitle").textContent="Request Details";
+ $("modalContent").innerHTML=`
+  <div class="field"><label>PRODUCT</label><div>${esc(r.productName)}</div></div>
+  <div class="field"><label>USER UID</label><div style="overflow-wrap:anywhere">${esc(uid)}</div></div>
+  <div class="field"><label>REQUEST ID</label><div style="overflow-wrap:anywhere">${esc(orderId)}</div></div>
+  <div class="field"><label>REQUESTED AT</label><div>${esc(formatDate(r.requestedAt))}</div></div>
+  <div class="field"><label>STATUS</label><div>${esc(String(r.status||"pending").toUpperCase())}</div></div>
+  <div style="display:flex;gap:8px;margin-top:15px">
+   <button class="btn success" onclick="updateRequest('${uid}','${orderId}','approved');closeAdminModal()">APPROVE</button>
+   <button class="btn danger" onclick="updateRequest('${uid}','${orderId}','rejected');closeAdminModal()">REJECT</button>
+  </div>`;
+ $("modalBg").classList.add("show");
+}
+window.viewRequest=viewRequest;
+function closeAdminModal(){$("modalBg").classList.remove("show");}
+window.closeAdminModal=closeAdminModal;
+
+async function loadUsers(){
+ $("usersTable").innerHTML='<tr><td colspan="3">Loading...</td></tr>';
+ try{
+  const snap=await get(ref(db,"users"));
+  allUsers=snap.val()||{};
+  const entries=Object.entries(allUsers);
+  if(!entries.length){
+   $("usersTable").innerHTML='<tr><td colspan="3">No user profiles found.</td></tr>';
+   return;
+  }
+  $("usersTable").innerHTML=entries.map(([uid,u])=>`
+   <tr>
+    <td><strong>${esc(u.name||"User")}</strong></td>
+    <td>${esc(u.email||"—")}</td>
+    <td>${esc(uid.slice(0,14))}...</td>
+   </tr>`).join("");
+ }catch(error){
+  console.error(error);
+  $("usersTable").innerHTML='<tr><td colspan="3">Unable to load users. Check Database Rules.</td></tr>';
+ }
+}
+window.loadUsers=loadUsers;
+
+async function loadDashboard(){
+ try{
+  const [pSnap,uSnap,oSnap]=await Promise.all([
+   get(ref(db,"products")),
+   get(ref(db,"users")),
+   get(ref(db,"orders"))
+  ]);
+  products=pSnap.val()||{};
+  allUsers=uSnap.val()||{};
+  const orders=oSnap.val()||{};
+  let total=0,pending=0;
+  allRequests=[];
+  Object.entries(orders).forEach(([uid,userOrders])=>{
+   Object.entries(userOrders||{}).forEach(([orderId,order])=>{
+    total++;
+    if(order.status==="pending"||!order.status)pending++;
+    allRequests.push({uid,orderId,...order});
+   });
+  });
+  allRequests.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+  $("statProducts").textContent=Object.keys(products).length;
+  $("statUsers").textContent=Object.keys(allUsers).length;
+  $("statRequests").textContent=total;
+  $("statPending").textContent=pending;
+  renderRecentRequests();
+ }catch(error){
+  console.error(error);
+  toast("Dashboard data could not load. Check Database Rules.");
+ }
+}
+window.loadDashboard=loadDashboard;
+
+function renderRecentRequests(){
+ const box=$("recentRequests");
+ const recent=allRequests.slice(0,5);
+ if(!recent.length){
+  box.innerHTML='<div class="empty"><i class="fa-solid fa-inbox"></i>No recent requests.</div>';
+  return;
+ }
+ box.innerHTML=recent.map(r=>`
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #ffffff10">
+   <div><strong style="font-size:11px">${esc(r.productName||"Product")}</strong><br><small style="color:#8196b4">${esc(r.uid.slice(0,12))}...</small></div>
+   <span class="status ${r.status==="approved"?"approved":r.status==="rejected"?"rejected":"pending"}">${esc((r.status||"pending").toUpperCase())}</span>
+  </div>`).join("");
+}
+
+async function loadHomeSettings(){
+ try{
+  const [homeSnap,noticeSnap]=await Promise.all([
+   get(ref(db,"settings/home")),get(ref(db,"settings/notice"))
+  ]);
+  const home=homeSnap.val()||{};
+  $("homeTitle").value=home.title||"";
+  $("homeSubtitle").value=home.subtitle||"";
+  const notice=noticeSnap.val();
+  $("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
+ }catch(error){console.error(error);toast("Could not load home settings.");}
+}
+
+async function saveHomeSettings(){
+ try{
+  await Promise.all([
+   update(ref(db,"settings/home"),{
+    title:$("homeTitle").value.trim(),
+    subtitle:$("homeSubtitle").value.trim(),
+    updatedAt:Date.now()
+   }),
+   set(ref(db,"settings/notice"),$("homeNotice").value.trim())
+  ]);
+  toast("Home settings saved successfully.");
+ }catch(error){
+  console.error(error);
+  toast("Save failed. Check Database Rules.");
+ }
+}
+window.saveHomeSettings=saveHomeSettings;
+</script>
+</body>
+</html>
