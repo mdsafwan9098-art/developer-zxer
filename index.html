@@ -3,200 +3,804 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#080e1c">
-<title>Developer ZXER</title>
+<title>Developer ZXER | Premium Digital Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+:root{
+ --bg:#080e1c;--surface:#101a2c;--surface2:#14233b;--line:#233754;
+ --blue:#247cff;--cyan:#22d3f5;--text:#f0f6ff;--muted:#91a5c2;
+ --green:#20cb8a;--red:#ff5c75;--yellow:#ffc45b;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#080e1c;color:#eef5ff;font-family:Arial,sans-serif;padding-bottom:100px}
-header{padding:20px;background:#101c33;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:22px;font-weight:900;color:#38aaff}
-button{border:0;border-radius:12px;padding:12px;background:#168cff;color:white;font-weight:bold}
-input{width:100%;padding:14px;margin:7px 0;background:#101c33;color:white;border:1px solid #294568;border-radius:10px}
-section{padding:16px}
-.card{background:#111e35;border:1px solid #203b60;border-radius:18px;padding:14px;margin:12px 0}
-.product{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.product .card{margin:0}
-.product img{width:100%;height:120px;object-fit:cover;border-radius:12px}
-.price{color:#45b6ff;font-size:19px;font-weight:bold}
-nav{position:fixed;bottom:12px;left:12px;right:12px;background:#142744;border:1px solid #31547c;border-radius:35px;padding:12px;display:flex;justify-content:space-around;box-shadow:0 5px 25px #000}
-nav button{background:transparent;padding:9px;font-size:12px}
-.hidden{display:none}
-h2{color:#58baff}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+button:disabled{opacity:.5;cursor:not-allowed}
+#app{max-width:850px;min-height:100vh;margin:auto;padding-bottom:110px}
+.header{
+ position:sticky;top:0;z-index:20;height:65px;padding:0 17px;
+ display:flex;align-items:center;justify-content:space-between;
+ background:#0a1425ed;backdrop-filter:blur(16px);border-bottom:1px solid #1b2c46
+}
+.brand{font-weight:900;font-size:17px;letter-spacing:.3px}
+.brand span{color:var(--cyan)}
+.header-actions{display:flex;gap:9px;align-items:center}
+.icon-btn{
+ width:39px;height:39px;border-radius:13px;border:1px solid var(--line);
+ background:var(--surface2);color:white;display:grid;place-items:center;font-size:17px
+}
+.avatar-mini{width:35px;height:35px;border-radius:50%;background:#193b68;display:grid;place-items:center;font-size:20px}
+main{padding:17px}
+.page{display:none;animation:fade .2s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+h1,h2,h3,p{margin-top:0}
+.page-title{font-size:22px;font-weight:850;margin:7px 0 5px}
+.page-sub{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:19px}
+.hero{
+ border:1px solid #24466e;border-radius:22px;overflow:hidden;
+ background:linear-gradient(120deg,#10294b,#0b1830 65%,#12345b);
+ padding:23px;position:relative;min-height:190px
+}
+.hero:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-65px;top:-70px;background:#168aff20;filter:blur(2px)}
+.hero-content{position:relative;z-index:2;max-width:75%}
+.hero-kicker{color:#75dff9;font-size:10px;font-weight:800;letter-spacing:1.8px}
+.hero h1{font-size:25px;line-height:1.2;margin:12px 0 8px;font-weight:900}
+.hero p{font-size:12px;color:#b5cce9;line-height:1.6;margin:0}
+.hero-banner{width:100%;max-height:190px;object-fit:cover;border-radius:14px;margin-top:15px;display:none}
+.hero-art{position:absolute;right:15px;bottom:10px;font-size:76px;opacity:.18}
+.notice{
+ margin:13px 0 19px;padding:12px 14px;border:1px solid #25456b;
+ border-radius:13px;background:#10213a;display:flex;gap:10px;align-items:center;
+ color:#c6d9f2;font-size:11px;line-height:1.5
+}
+.notice b{color:var(--cyan);white-space:nowrap}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+.section-head h3{font-size:15px;margin:0;font-weight:800}
+.link-btn{border:0;background:none;color:var(--cyan);font-size:11px;font-weight:800}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.quick{
+ min-height:88px;padding:12px 5px;border-radius:15px;
+ border:1px solid var(--line);background:linear-gradient(145deg,#142642,#101a2c);
+ color:white;text-align:center
+}
+.quick .qicon{font-size:24px;display:block;margin-bottom:8px}
+.quick span:last-child{font-size:10px;font-weight:750}
+.category-row{display:flex;gap:8px;overflow-x:auto;padding:2px 0 9px;scrollbar-width:none}
+.category-row::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;border:1px solid var(--line);background:var(--surface);color:#aebfd8;padding:9px 14px;border-radius:30px;font-size:11px;font-weight:750}
+.chip.active{background:#1d5db1;border-color:#3288f7;color:white}
+.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.product{
+ background:var(--surface);border:1px solid var(--line);border-radius:16px;
+ overflow:hidden;min-width:0
+}
+.product-img{width:100%;aspect-ratio:1.35;object-fit:cover;background:#172944;display:block}
+.product-body{padding:12px}
+.product-name{font-size:12px;font-weight:800;line-height:1.45;min-height:34px;overflow-wrap:anywhere}
+.product-cat{font-size:10px;color:var(--muted);margin:5px 0 11px}
+.product-foot{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.price{font-size:12px;font-weight:850;color:#7ce4ff}
+.buy-btn{border:0;border-radius:9px;background:linear-gradient(100deg,#1769e8,#168ee8);color:white;font-size:10px;font-weight:850;padding:9px 12px}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);font-size:12px;background:var(--surface);border:1px dashed var(--line);border-radius:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:13px}
+.card-title{font-size:14px;font-weight:850;margin-bottom:13px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;color:#b5c7e0;font-weight:750;margin-bottom:7px}
+.field input,.field textarea,.field select{
+ width:100%;padding:13px;border-radius:11px;border:1px solid #2a4160;
+ outline:none;background:#091426;color:white;font-size:13px
+}
+.field textarea{min-height:80px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue)}
+.primary,.secondary,.danger,.success{
+ border:0;border-radius:11px;padding:12px 15px;color:white;font-weight:850;font-size:12px
+}
+.primary{background:linear-gradient(100deg,#1769e8,#159de9)}
+.secondary{background:#1a2e4b;border:1px solid #2b4568}
+.danger{background:#873044}
+.success{background:#087d56}
+.full{width:100%}
+.balance-card{
+ background:linear-gradient(120deg,#1559a5,#10305b 65%,#0c2444);
+ border:1px solid #3175b9;border-radius:19px;padding:20px;margin-bottom:15px
+}
+.balance-label{font-size:11px;color:#c4defc}
+.balance-value{font-size:30px;font-weight:900;margin-top:8px}
+.balance-caption{font-size:10px;color:#b8d2f2;margin-top:7px}
+.action-row{display:flex;gap:9px;margin-top:17px}
+.action-row button{flex:1}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.method{
+ background:#101d31;border:1px solid var(--line);border-radius:13px;
+ padding:14px;text-align:center;color:white;font-weight:800;font-size:12px
+}
+.method.selected{border-color:#2b91ff;background:#142d4e}
+.method strong{display:block;font-size:21px;margin-bottom:6px}
+.list-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.list-item:last-child{border:0}
+.list-icon{width:42px;height:42px;border-radius:13px;background:#1a2d49;display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.list-info{flex:1;min-width:0}
+.list-info b{display:block;font-size:12px;overflow-wrap:anywhere}
+.list-info small{display:block;color:var(--muted);font-size:10px;margin-top:5px;line-height:1.5}
+.amount{font-size:12px;font-weight:850;white-space:nowrap}
+.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:9px;font-weight:850;text-transform:uppercase}
+.pending{background:#604713;color:#ffdc88}
+.approved{background:#104c39;color:#6be8b2}
+.rejected{background:#642638;color:#ff9cad}
+.processing{background:#263f69;color:#9bc5ff}
+.profile-top{display:flex;align-items:center;gap:14px;padding:17px;background:linear-gradient(120deg,#153b68,#101a2c);border:1px solid #294d73;border-radius:17px;margin-bottom:15px}
+.profile-avatar{width:62px;height:62px;border-radius:20px;background:#1b4b7e;display:grid;place-items:center;font-size:33px}
+.profile-top b{font-size:15px}
+.profile-top small{display:block;color:#b5cbe5;margin-top:5px;font-size:11px}
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.avatar-option{height:47px;border:1px solid var(--line);border-radius:12px;background:#101d31;font-size:23px}
+.avatar-option.selected{border-color:var(--cyan);background:#16385a}
+.action-links{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.action-link{
+ display:flex;align-items:center;gap:11px;text-decoration:none;color:white;
+ padding:14px 12px;background:linear-gradient(145deg,#142642,#101a2c);
+ border:1px solid var(--line);border-radius:15px;min-width:0
+}
+.action-link .link-icon{width:39px;height:39px;border-radius:12px;background:#1b3658;display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.action-link b{font-size:11px;display:block;line-height:1.4}
+.action-link small{font-size:9px;color:var(--muted);display:block;margin-top:4px}
+.bottom-nav{
+ position:fixed;z-index:30;bottom:9px;left:50%;transform:translateX(-50%);
+ width:min(94%,520px);padding:9px 8px;background:#101d31f2;
+ backdrop-filter:blur(20px);border:1px solid #304967;border-radius:25px;
+ display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 10px 40px #0008
+}
+.nav-item{border:0;background:transparent;color:#879bb8;font-size:9px;font-weight:750;padding:5px 1px}
+.nav-item .nav-icon{display:block;font-size:19px;margin-bottom:5px}
+.nav-item.active{color:#5edcff}
+.modal-backdrop{
+ position:fixed;inset:0;z-index:60;background:#000a;display:flex;
+ align-items:flex-end;justify-content:center;padding:12px
+}
+.modal{
+ width:min(100%,520px);max-height:88vh;overflow:auto;
+ background:#101a2c;border:1px solid #2b4261;border-radius:22px 22px 17px 17px;padding:19px
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.modal-head h3{font-size:16px;margin:0}
+.close{border:0;background:#20314b;color:white;border-radius:10px;width:34px;height:34px}
+.detail-img{width:100%;max-height:210px;object-fit:cover;border-radius:13px;margin-bottom:14px}
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 10%,#173b6c,#080e1c 60%)}
+.login-card{width:100%;max-width:390px;background:#101b2e;border:1px solid #294361;border-radius:22px;padding:25px;box-shadow:0 20px 70px #0008}
+.login-logo{text-align:center;font-size:23px;font-weight:950;margin-bottom:8px}
+.login-logo span{color:var(--cyan)}
+.login-sub{text-align:center;color:var(--muted);font-size:11px;margin-bottom:23px}
+.password-wrap{position:relative}
+.password-wrap input{padding-right:48px}
+.eye{position:absolute;right:9px;top:7px;height:33px;width:34px;border:0;border-radius:8px;background:#1b2d48;color:white}
+.toast{position:fixed;z-index:100;bottom:90px;left:50%;transform:translateX(-50%);background:#1c304d;border:1px solid #3b5c80;border-radius:12px;padding:12px 16px;color:white;font-size:11px;max-width:90%;text-align:center;box-shadow:0 8px 30px #0008}
+.loading{color:var(--muted);text-align:center;padding:22px;font-size:12px}
+@media(min-width:700px){
+ main{padding:22px 26px}
+ .hero{padding:30px;min-height:215px}
+ .hero h1{font-size:30px}
+ .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:390px){
+ main{padding:13px}
+ .quick-grid{gap:6px}
+ .quick{min-height:81px}
+ .quick span:last-child{font-size:9px}
+ .action-links{gap:8px}
+ .action-link{padding:11px 8px}
+}
 </style>
 </head>
 <body>
-<header>
-<div class="logo">DEVELOPER ZXER</div>
-<div id="walletTop">৳0.00</div>
-</header>
 
-<section id="auth">
-<div class="card">
-<h2>Welcome Back</h2>
-<input id="email" type="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-<button onclick="signup()">Create Account</button>
-<button onclick="forgot()">Forgot Password?</button>
-<p id="authMsg"></p>
+<section id="authScreen" class="login-screen">
+ <div class="login-card">
+  <div class="login-logo">DEVELOPER <span>ZXER</span></div>
+  <div class="login-sub">PREMIUM DIGITAL STORE</div>
+
+  <div id="authHeading" class="card-title">Welcome Back</div>
+  <form id="authForm">
+   <div class="field">
+    <label>Email Address</label>
+    <input id="authEmail" type="email" placeholder="Enter your email" required>
+   </div>
+   <div class="field">
+    <label>Password</label>
+    <div class="password-wrap">
+     <input id="authPassword" type="password" placeholder="Enter password" required minlength="6">
+     <button class="eye" type="button" onclick="togglePassword('authPassword',this)">◉</button>
+    </div>
+   </div>
+   <button class="primary full" id="authSubmit" type="submit">LOGIN TO ACCOUNT</button>
+  </form>
+  <button class="link-btn" style="width:100%;margin-top:15px" onclick="forgotPassword()">Forgot Password?</button>
+  <div style="height:1px;background:var(--line);margin:18px 0"></div>
+  <button class="secondary full" id="switchAuth" onclick="switchAuthMode()">CREATE NEW ACCOUNT</button>
+ </div>
+</section>
+
+<div id="app" class="hidden">
+ <header class="header">
+  <div class="brand">DEVELOPER <span>ZXER</span></div>
+  <div class="header-actions">
+   <button class="icon-btn" onclick="navigate('wallet')" title="Wallet">◈</button>
+   <button class="icon-btn" onclick="navigate('profile')" title="Profile"><span id="headerAvatar">👤</span></button>
+  </div>
+ </header>
+
+ <main>
+  <!-- HOME -->
+  <section id="page-home" class="page active">
+   <div class="hero">
+    <div class="hero-content">
+     <div class="hero-kicker">WELCOME TO DEVELOPER ZXER</div>
+     <h1 id="heroTitle">Premium Digital Products</h1>
+     <p id="heroSubtitle">Discover premium digital products in one place.</p>
+     <img id="heroBanner" class="hero-banner" alt="Home banner">
+    </div>
+    <div class="hero-art">✦</div>
+   </div>
+
+   <div class="notice"><b>📢 NOTICE</b><span id="noticeText">Welcome to our digital store.</span></div>
+
+   <div class="section-head"><h3>Quick Actions</h3></div>
+   <div class="quick-grid">
+    <button class="quick" onclick="navigate('addfund')"><span class="qicon">💳</span><span>Add Fund</span></button>
+    <button class="quick" onclick="navigate('orders')"><span class="qicon">📦</span><span>My Orders</span></button>
+    <button class="quick" onclick="navigate('wallet')"><span class="qicon">💎</span><span>My Wallet</span></button>
+    <button class="quick" onclick="navigate('actionflow')"><span class="qicon">🎁</span><span>All Update & Give</span></button>
+   </div>
+
+   <div class="section-head"><h3>Explore Categories</h3></div>
+   <div id="categoryList" class="category-row">
+    <button class="chip active" onclick="selectCategory('all',this)">All Products</button>
+   </div>
+
+   <div class="section-head"><h3>Premium Products</h3><button class="link-btn" onclick="selectCategory('all')">VIEW ALL</button></div>
+   <div id="productGrid" class="product-grid"><div class="loading">Loading products...</div></div>
+  </section>
+
+  <!-- WALLET -->
+  <section id="page-wallet" class="page">
+   <h2 class="page-title">My Wallet</h2>
+   <p class="page-sub">View your available balance and wallet activity.</p>
+   <div class="balance-card">
+    <div class="balance-label">AVAILABLE BALANCE</div>
+    <div class="balance-value">৳ <span id="walletBalance">0.00</span></div>
+    <div class="balance-caption">Your account wallet balance</div>
+    <div class="action-row"><button class="primary" onclick="navigate('addfund')">＋ Add Fund</button><button class="secondary" onclick="loadWalletHistory()">History</button></div>
+   </div>
+   <div class="card"><div class="card-title">Recent Wallet Transactions</div><div id="walletHistory"><div class="empty">No transactions yet.</div></div></div>
+  </section>
+
+  <!-- ADD FUND -->
+  <section id="page-addfund" class="page">
+   <h2 class="page-title">Add Fund</h2>
+   <p class="page-sub">Send money using bKash or Nagad and submit your transaction details.</p>
+   <div class="card">
+    <div class="card-title">Select Payment Method</div>
+    <div class="method-grid">
+     <button class="method selected" data-method="bKash" onclick="chooseMethod('bKash',this)"><strong>🩷</strong>bKash</button>
+     <button class="method" data-method="Nagad" onclick="chooseMethod('Nagad',this)"><strong>🟠</strong>Nagad</button>
+    </div>
+    <div class="field" style="margin-top:16px">
+     <label>Send Money Number</label>
+     <div style="display:flex;gap:8px">
+      <input id="paymentNumber" value="01747737267" readonly>
+      <button class="secondary" onclick="copyPaymentNumber()">COPY</button>
+     </div>
+     <small style="display:block;color:var(--muted);margin-top:7px;font-size:10px">Send Money only. This is a manual verification process.</small>
+    </div>
+   </div>
+   <div class="card">
+    <div class="card-title">Submit Add Fund Request</div>
+    <div class="field"><label>Amount (BDT)</label><input id="fundAmount" type="number" min="1" step="1" placeholder="Enter amount"></div>
+    <div class="field"><label>Transaction ID</label><input id="fundTrx" placeholder="Enter your transaction ID"></div>
+    <button class="primary full" onclick="submitFundRequest()">SUBMIT FUND REQUEST</button>
+   </div>
+   <div class="card">
+    <div class="card-title">🎟 Enter Referral Code</div>
+    <p style="font-size:11px;color:var(--muted);line-height:1.6">Have a referral code? Enter it here. Your code request will be checked according to the code's reward and usage limit.</p>
+    <div class="field"><label>Referral Code</label><input id="referralInput" placeholder="ENTER REFERRAL CODE" autocapitalize="characters"></div>
+    <button class="primary full" onclick="submitReferral()">SUBMIT REFERRAL CODE</button>
+    <p style="font-size:10px;color:var(--muted);margin:10px 0 0">Reward is added only after the referral request is verified and approved.</p>
+   </div>
+   <div class="card"><div class="card-title">My Fund Requests</div><div id="fundHistory"><div class="empty">No requests yet.</div></div></div>
+  </section>
+
+  <!-- ORDERS -->
+  <section id="page-orders" class="page">
+   <h2 class="page-title">My Orders</h2>
+   <p class="page-sub">Track your purchases and access approved downloads.</p>
+   <div class="card"><div id="ordersList"><div class="empty">No orders found.</div></div></div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="page-profile" class="page">
+   <h2 class="page-title">My Profile</h2>
+   <p class="page-sub">Manage your account information and avatar.</p>
+   <div class="profile-top">
+    <div class="profile-avatar" id="profileAvatar">👤</div>
+    <div><b id="profileName">User</b><small id="profileEmail">user@email.com</small></div>
+   </div>
+   <div class="card">
+    <div class="card-title">Choose Your Avatar</div>
+    <div id="avatarGrid" class="avatar-grid"></div>
+   </div>
+   <div class="card">
+    <div class="card-title">Edit Profile</div>
+    <div class="field"><label>Display Name</label><input id="displayName" maxlength="35" placeholder="Your name"></div>
+    <button class="primary full" onclick="saveProfile()">SAVE PROFILE</button>
+   </div>
+   <div class="card">
+    <div class="card-title">Account</div>
+    <div class="list-item"><div class="list-icon">🔐</div><div class="list-info"><b>Account Security</b><small>Your account is protected by Firebase Authentication.</small></div></div>
+    <button class="danger full" onclick="logout()">LOG OUT</button>
+   </div>
+  </section>
+
+  <!-- ACTION FLOW -->
+  <section id="page-actionflow" class="page">
+   <h2 class="page-title">All Update & Give 🎁</h2>
+   <p class="page-sub">Explore our official channels, giveaway announcements, updates and free referral codes.</p>
+
+   <div class="hero" style="min-height:145px;margin-bottom:17px">
+    <div class="hero-content" style="max-width:90%">
+     <div class="hero-kicker">OFFICIAL COMMUNITY</div>
+     <h1 style="font-size:22px">Stay Connected</h1>
+     <p>Follow our official accounts and never miss an update or giveaway.</p>
+    </div>
+    <div class="hero-art">🎁</div>
+   </div>
+
+   <div class="section-head"><h3>Giveaway & Community</h3></div>
+   <div class="action-links">
+    <a id="link-giveawayChannel" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">🎁</span><span><b>Giveaway Channel</b><small>Join our giveaway channel</small></span></a>
+    <a id="link-giveawayAccount" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">📣</span><span><b>Giveaway Account</b><small>Visit giveaway account</small></span></a>
+    <a id="link-freeReferral" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">🎟</span><span><b>Free Referral Codes</b><small>Find available codes</small></span></a>
+   </div>
+
+   <div class="section-head"><h3>Follow Our Socials</h3></div>
+   <div class="action-links">
+    <a id="link-tiktok" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">♪</span><span><b>TikTok ID</b><small>Follow us on TikTok</small></span></a>
+    <a id="link-youtube" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">▶</span><span><b>YouTube</b><small>Subscribe to our channel</small></span></a>
+    <a id="link-updates" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">✈</span><span><b>All Updates</b><small>Join our update channel</small></span></a>
+   </div>
+   <div class="card" style="margin-top:17px">
+    <div class="card-title">Official Links</div>
+    <p style="font-size:11px;color:var(--muted);line-height:1.7;margin:0">Only use the links published in this page. Link names and destinations can be updated by the administrator.</p>
+   </div>
+  </section>
+ </main>
+
+ <nav class="bottom-nav">
+  <button class="nav-item active" data-page="home" onclick="navigate('home')"><span class="nav-icon">⌂</span>Home</button>
+  <button class="nav-item" data-page="orders" onclick="navigate('orders')"><span class="nav-icon">▣</span>Orders</button>
+  <button class="nav-item" data-page="wallet" onclick="navigate('wallet')"><span class="nav-icon">◈</span>Wallet</button>
+  <button class="nav-item" data-page="actionflow" onclick="navigate('actionflow')"><span class="nav-icon">🎁</span>Updates</button>
+  <button class="nav-item" data-page="profile" onclick="navigate('profile')"><span class="nav-icon">♙</span>Profile</button>
+ </nav>
 </div>
-</section>
 
-<section id="home" class="hidden">
-<div class="card">
-<h2 id="homeTitle">Premium Digital Store</h2>
-<p id="homeSubtitle">Welcome to Developer ZXER</p>
-<p id="notice"></p>
-</div>
-<h2>Products</h2>
-<div id="products" class="product"></div>
-</section>
-
-<section id="fund" class="hidden">
-<div class="card">
-<h2>Add Fund</h2>
-<p>Choose payment method and send money.</p>
-<select id="fundMethod">
-<option value="bKash">bKash</option>
-<option value="Nagad">Nagad</option>
-</select>
-<p id="fundNumber"></p>
-<input id="fundAmount" type="number" placeholder="Amount">
-<input id="fundTrx" placeholder="Transaction ID">
-<button onclick="requestFund()">Submit Fund Request</button>
-<hr>
-<h2>Referral Code</h2>
-<input id="refCode" placeholder="Enter Referral Code">
-<button onclick="submitReferral()">Submit Code</button>
-<p id="refMsg"></p>
-</div>
-</section>
-
-<section id="profile" class="hidden">
-<div class="card">
-<h2>My Profile</h2>
-<input id="displayName" placeholder="Your Name">
-<input id="avatar" type="text" placeholder="Avatar emoji (e.g. 🚀)">
-<button onclick="saveProfile()">Save Profile</button>
-<button onclick="logout()">Logout</button>
-</div>
-</section>
-
-<section id="orders" class="hidden">
-<h2>My Orders</h2>
-<div id="orderList"></div>
-</section>
-
-<nav>
-<button onclick="page('home')">⌂<br>Home</button>
-<button onclick="page('fund')">＋<br>Add Fund</button>
-<button onclick="page('orders')">▣<br>Orders</button>
-<button onclick="page('profile')">●<br>Profile</button>
-</nav>
+<div id="modalRoot"></div>
+<div id="toast" class="toast hidden"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import {getDatabase,ref,get,set,push,update} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import {
+ getAuth,onAuthStateChanged,createUserWithEmailAndPassword,
+ signInWithEmailAndPassword,sendPasswordResetEmail,signOut,updateProfile
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+ getDatabase,ref,onValue,get,set,update,push,query,orderByChild,limitToLast
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+/* FIREBASE CONFIG */
 const firebaseConfig={
-apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
-authDomain:"devzxer-9d8e9.firebaseapp.com",
-databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId:"devzxer-9d8e9",
-storageBucket:"devzxer-9d8e9.firebasestorage.app",
-messagingSenderId:"101740085617",
-appId:"1:101740085617:web:86d08757e668d4b897b6d0"
+ apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+ authDomain:"devzxer-9d8e9.firebaseapp.com",
+ databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+ projectId:"devzxer-9d8e9",
+ storageBucket:"devzxer-9d8e9.firebasestorage.app",
+ messagingSenderId:"101740085617",
+ appId:"1:101740085617:web:86d08757e668d4b897b6d0",
+ measurementId:"G-1635XV6SKV"
 };
 
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
-let user=null,productsData={};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
 
-window.login=async()=>{try{await signInWithEmailAndPassword(auth,email.value,password.value)}catch(e){authMsg.textContent=e.message}};
-window.signup=async()=>{try{await createUserWithEmailAndPassword(auth,email.value,password.value)}catch(e){authMsg.textContent=e.message}};
-window.forgot=async()=>{try{await sendPasswordResetEmail(auth,email.value);authMsg.textContent="Reset email sent"}catch(e){authMsg.textContent=e.message}};
-window.logout=()=>signOut(auth);
-window.page=(p)=>{["home","fund","profile","orders"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==p))};
+let currentUser=null;
+let authMode="login";
+let selectedMethod="bKash";
+let selectedCategory="all";
+let productsData={};
+let categoriesData={};
+let selectedAvatar="👤";
+let userData={};
+let walletValue=0;
+let walletUnsub=null;
+let profileUnsub=null;
+let productsUnsub=null;
+let categoriesUnsub=null;
+let settingsUnsub=null;
+let ordersUnsub=null;
+let fundsUnsub=null;
+let transactionsUnsub=null;
 
-onAuthStateChanged(auth,async u=>{
-user=u;
-auth.classList.toggle("hidden",!!u);
-home.classList.toggle("hidden",!u);
-if(!u)return;
-await set(ref(db,"users/"+u.uid+"/email"),u.email);
-loadData();
-});
+const $=id=>document.getElementById(id);
+const money=n=>"৳"+Number(n||0).toFixed(2);
+const safeText=v=>String(v??"");
+const avatars=["👤","🦊","🐼","🐯","🦁","🐺","🐸","🐲","🤖","👑","💎","🚀","🎮","🦅","🐻","🐱","🐵","🦄"];
 
-async function loadData(){
-let [p,w,s,o]=await Promise.all([
-get(ref(db,"products")),get(ref(db,"wallets/"+user.uid)),
-get(ref(db,"settings")),get(ref(db,"orders/"+user.uid))
-]);
-productsData=p.val()||{};
-walletTop.textContent="৳"+((w.val()||{}).balance||0);
-let settings=s.val()||{};
-homeTitle.textContent=settings.home?.title||"Developer ZXER";
-homeSubtitle.textContent=settings.home?.subtitle||"Premium Digital Store";
-notice.textContent=settings.notice||"";
-fundNumber.textContent="bKash: 01747737267 | Nagad: 01718316646";
-products.innerHTML="";
-Object.entries(productsData).forEach(([id,p])=>{
-if(p.active===false)return;
-let d=document.createElement("div");d.className="card";
-let img=document.createElement("img");img.src=p.imageData||"";
-let name=document.createElement("h3");name.textContent=p.name||"Product";
-let price=document.createElement("div");price.className="price";price.textContent="৳"+(p.price||0);
-let buy=document.createElement("button");buy.textContent="Buy Now";buy.onclick=()=>buyProduct(id,p);
-d.append(img,name,price,buy);products.append(d);
-});
-let orders=o.val()||{};orderList.innerHTML="";
-Object.entries(orders).forEach(([id,o])=>{
-let d=document.createElement("div");d.className="card";
-d.textContent=(o.productName||"Product")+" — "+(o.status||"pending");
-if(o.status==="approved"&&o.downloadUrl){
-let a=document.createElement("a");a.href=o.downloadUrl;a.textContent="Download";a.target="_blank";d.append(a);
+function toast(message){
+ const t=$("toast");t.textContent=message;t.classList.remove("hidden");
+ clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.add("hidden"),2800);
 }
-orderList.append(d);
-});
+function statusClass(s){
+ s=String(s||"pending").toLowerCase();
+ return ["approved","rejected","processing"].includes(s)?s:"pending";
 }
-
-async function buyProduct(id,p){
-let method=prompt("Type WALLET or INSTANT");
-if(!method)return;
-if(method.toUpperCase()==="WALLET"){
-alert("Wallet payment requires secure server-side transaction processing. It is not enabled in this client-only version.");
-return;
+function escapeHTML(s){
+ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-let m=prompt("Payment method: bKash or Nagad");
-let trx=prompt("Enter Transaction ID");
-if(!m||!trx)return;
-await push(ref(db,"orders/"+user.uid),{
-productId:id,productName:p.name,price:Number(p.price)||0,
-paymentMethod:m,trxId:trx,status:"pending",
-downloadUrl:p.downloadUrl||"",createdAt:Date.now()
-});
-alert("Order submitted for admin approval.");
-loadData();
-}
-
-window.requestFund=async()=>{
-let amount=Number(fundAmount.value),trx=fundTrx.value.trim();
-if(amount<=0||!trx)return alert("Enter valid amount and transaction ID");
-await push(ref(db,"walletRequests/"+user.uid),{
-amount,method:fundMethod.value,trxId:trx,status:"pending",requestedAt:Date.now()
-});
-alert("Fund request submitted.");
+window.togglePassword=(id,btn)=>{
+ const el=$(id);el.type=el.type==="password"?"text":"password";btn.textContent=el.type==="password"?"◉":"◎";
 };
 
+window.switchAuthMode=()=>{
+ authMode=authMode==="login"?"signup":"login";
+ $("authHeading").textContent=authMode==="login"?"Welcome Back":"Create Your Account";
+ $("authSubmit").textContent=authMode==="login"?"LOGIN TO ACCOUNT":"CREATE ACCOUNT";
+ $("switchAuth").textContent=authMode==="login"?"CREATE NEW ACCOUNT":"BACK TO LOGIN";
+ $("authPassword").autocomplete=authMode==="login"?"current-password":"new-password";
+};
+window.forgotPassword=async()=>{
+ const email=$("authEmail").value.trim();
+ if(!email)return toast("Enter your email address first.");
+ try{await sendPasswordResetEmail(auth,email);toast("Password reset email sent.");}
+ catch(e){toast(e.message);}
+};
+$("authForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const email=$("authEmail").value.trim();
+ const password=$("authPassword").value;
+ $("authSubmit").disabled=true;
+ try{
+  if(authMode==="signup"){
+   const cred=await createUserWithEmailAndPassword(auth,email,password);
+   await set(ref(db,`users/${cred.user.uid}`),{
+    email,displayName:email.split("@")[0],avatar:"👤",createdAt:Date.now()
+   });
+  }else await signInWithEmailAndPassword(auth,email,password);
+ }catch(err){toast(err.message);}
+ finally{$("authSubmit").disabled=false;}
+});
+
+onAuthStateChanged(auth,async user=>{
+ currentUser=user;
+ if(!user){
+  cleanupListeners();
+  $("authScreen").classList.remove("hidden");$("app").classList.add("hidden");
+  return;
+ }
+ $("authScreen").classList.add("hidden");$("app").classList.remove("hidden");
+ startUserListeners();
+});
+
+function cleanupListeners(){
+ [walletUnsub,profileUnsub,productsUnsub,categoriesUnsub,settingsUnsub,ordersUnsub,fundsUnsub,transactionsUnsub]
+ .forEach(fn=>{if(typeof fn==="function")fn();});
+ walletUnsub=profileUnsub=productsUnsub=categoriesUnsub=settingsUnsub=ordersUnsub=fundsUnsub=transactionsUnsub=null;
+}
+function startUserListeners(){
+ cleanupListeners();
+ const uid=currentUser.uid;
+
+ walletUnsub=onValue(ref(db,`wallets/${uid}/balance`),snap=>{
+  walletValue=Number(snap.val()||0);$("walletBalance").textContent=walletValue.toFixed(2);
+ },err=>toast("Wallet read failed: "+err.message));
+
+ profileUnsub=onValue(ref(db,`users/${uid}`),snap=>{
+  userData=snap.val()||{};
+  selectedAvatar=userData.avatar||"👤";
+  $("profileName").textContent=userData.displayName||"User";
+  $("profileEmail").textContent=currentUser.email||"";
+  $("displayName").value=userData.displayName||"";
+  $("profileAvatar").textContent=selectedAvatar;
+  $("headerAvatar").textContent=selectedAvatar;
+  renderAvatars();
+ },err=>toast("Profile read failed: "+err.message));
+
+ productsUnsub=onValue(ref(db,"products"),snap=>{
+  productsData=snap.val()||{};renderProducts();
+ },err=>toast("Products could not load: "+err.message));
+
+ categoriesUnsub=onValue(ref(db,"categories"),snap=>{
+  categoriesData=snap.val()||{};renderCategories();
+ },err=>toast("Categories could not load: "+err.message));
+
+ settingsUnsub=onValue(ref(db,"settings"),snap=>{
+  const settings=snap.val()||{};
+  const home=settings.home||{};
+  $("heroTitle").textContent=home.title||"Premium Digital Products";
+  $("heroSubtitle").textContent=home.subtitle||"Discover premium digital products in one place.";
+  $("noticeText").textContent=settings.notice||"Welcome to our digital store.";
+  const banner=$("heroBanner");
+  if(home.bannerImage){
+   banner.src=home.bannerImage;banner.style.display="block";
+  }else{banner.removeAttribute("src");banner.style.display="none";}
+  renderActionLinks(settings.actionLinks||{});
+ },err=>toast("Settings could not load: "+err.message));
+
+ ordersUnsub=onValue(ref(db,`orders/${uid}`),snap=>renderOrders(snap.val()||{}),err=>toast("Orders read failed."));
+ fundsUnsub=onValue(ref(db,`walletRequests/${uid}`),snap=>renderFundHistory(snap.val()||{}),err=>toast("Fund requests read failed."));
+ transactionsUnsub=onValue(ref(db,`walletTransactions/${uid}`),snap=>renderWalletHistory(snap.val()||{}),err=>toast("Wallet history read failed."));
+}
+
+/* NAVIGATION */
+window.navigate=page=>{
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ const target=$("page-"+page);if(target)target.classList.add("active");
+ document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ window.scrollTo({top:0,behavior:"smooth"});
+ if(page==="wallet")loadWalletHistory();
+};
+window.selectCategory=(category,button)=>{
+ selectedCategory=category;
+ document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+ if(button)button.classList.add("active");
+ renderProducts();
+};
+
+/* CATEGORIES */
+function renderCategories(){
+ const wrap=$("categoryList");
+ wrap.innerHTML=`<button class="chip ${selectedCategory==="all"?"active":""}" onclick="selectCategory('all',this)">All Products</button>`;
+ Object.entries(categoriesData).forEach(([id,value])=>{
+  const name=typeof value==="string"?value:(value?.name||id);
+  const b=document.createElement("button");
+  b.className="chip"+(selectedCategory===id?" active":"");
+  b.textContent=name;
+  b.onclick=()=>selectCategory(id,b);
+  wrap.appendChild(b);
+ });
+}
+function categoryMatches(product){
+ if(selectedCategory==="all")return true;
+ const c=String(product.category||"").trim().toLowerCase();
+ const selected=String(selectedCategory).trim().toLowerCase();
+ const categoryValue=categoriesData[selectedCategory];
+ const categoryName=(typeof categoryValue==="string"?categoryValue:categoryValue?.name||selectedCategory).toLowerCase();
+ return c===selected||c===categoryName;
+}
+
+/* PRODUCTS */
+function renderProducts(){
+ const grid=$("productGrid");
+ const entries=Object.entries(productsData).filter(([id,p])=>p&&p.active!==false&&categoryMatches(p));
+ if(!entries.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1">No products available in this category.</div>';return;}
+ grid.innerHTML="";
+ entries.forEach(([id,p])=>{
+  const div=document.createElement("article");div.className="product";
+  const img=p.imageData||p.imageUrl||"";
+  div.innerHTML=`
+   <img class="product-img" src="${escapeHTML(img)}" alt="${escapeHTML(p.name||"Product")}" onerror="this.style.display='none'">
+   <div class="product-body">
+    <div class="product-name">${escapeHTML(p.name||"Unnamed Product")}</div>
+    <div class="product-cat">${escapeHTML(p.category||"Digital Product")}</div>
+    <div class="product-foot">
+     <span class="price">${Number(p.price||0)===0?"FREE":money(p.price)}</span>
+     <button class="buy-btn" onclick="openProduct('${id}')">VIEW</button>
+    </div>
+   </div>`;
+  grid.appendChild(div);
+ });
+}
+window.openProduct=id=>{
+ const p=productsData[id];if(!p)return;
+ const image=p.imageData||p.imageUrl||"";
+ $("modalRoot").innerHTML=`
+ <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+   <div class="modal-head"><h3>Product Details</h3><button class="close" onclick="closeModal()">✕</button></div>
+   ${image?`<img class="detail-img" src="${escapeHTML(image)}">`:""}
+   <h2 style="font-size:18px">${escapeHTML(p.name||"Product")}</h2>
+   <p style="font-size:12px;color:var(--muted);line-height:1.7">${escapeHTML(p.description||"No description available.")}</p>
+   <div class="list-item"><div class="list-info"><b>Price</b></div><strong class="amount">${Number(p.price||0)===0?"FREE":money(p.price)}</strong></div>
+   ${p.setupVideoUrl?`<a href="${escapeHTML(p.setupVideoUrl)}" target="_blank" rel="noopener" class="secondary full" style="display:block;text-align:center;text-decoration:none;margin:12px 0">▶ WATCH SETUP VIDEO</a>`:""}
+   <button class="primary full" style="margin-top:14px" onclick="purchaseProduct('${id}')">${Number(p.price||0)===0?"GET FREE PRODUCT":"CONTINUE TO BUY"}</button>
+  </div>
+ </div>`;
+};
+window.closeModal=()=>{$("modalRoot").innerHTML="";};
+
+window.purchaseProduct=async id=>{
+ const p=productsData[id];if(!p)return;
+ const price=Number(p.price||0);
+ if(price===0){
+  if(!p.downloadUrl)return toast("Download link is not available.");
+  window.open(p.downloadUrl,"_blank","noopener");
+  closeModal();return;
+ }
+ $("modalRoot").innerHTML=`
+ <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+   <div class="modal-head"><h3>Choose Purchase Method</h3><button class="close" onclick="closeModal()">✕</button></div>
+   <div class="balance-card"><div class="balance-label">PRODUCT PRICE</div><div class="balance-value">${money(price)}</div><div class="balance-caption">Wallet balance: ${money(walletValue)}</div></div>
+   <button class="primary full" onclick="buyWithWallet('${id}')">BUY WITH WALLET</button>
+   <button class="secondary full" style="margin-top:10px" onclick="showInstantPayment('${id}')">INSTANT PAYMENT (bKash / Nagad)</button>
+  </div>
+ </div>`;
+};
+
+window.buyWithWallet=async id=>{
+ const p=productsData[id];if(!p)return;
+ const price=Number(p.price||0);
+ if(walletValue<price)return toast("Insufficient wallet balance. Please add funds.");
+ toast("Wallet purchase needs trusted server-side processing. Please use manual payment request for now.");
+};
+
+window.showInstantPayment=id=>{
+ const p=productsData[id];if(!p)return;
+ $("modalRoot").innerHTML=`
+ <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+   <div class="modal-head"><h3>Instant Payment Request</h3><button class="close" onclick="closeModal()">✕</button></div>
+   <div class="balance-card"><div class="balance-label">${escapeHTML(p.name)}</div><div class="balance-value">${money(p.price)}</div><div class="balance-caption">Send Money only. Admin verification required.</div></div>
+   <div class="field"><label>Payment Method</label><select id="orderMethod"><option>bKash</option><option>Nagad</option></select></div>
+   <div class="field"><label>Transaction ID</label><input id="orderTrx" placeholder="Enter transaction ID"></div>
+   <button class="primary full" onclick="submitProductOrder('${id}')">SUBMIT ORDER REQUEST</button>
+  </div>
+ </div>`;
+};
+window.submitProductOrder=async id=>{
+ const p=productsData[id];if(!p)return;
+ const trx=$("orderTrx").value.trim();
+ const method=$("orderMethod").value;
+ if(!trx)return toast("Enter your transaction ID.");
+ try{
+  const orderRef=push(ref(db,`orders/${currentUser.uid}`));
+  await set(orderRef,{
+   productId:id,productName:p.name||"Product",price:Number(p.price||0),
+   paymentMethod:method,trxId:trx,status:"pending",createdAt:Date.now()
+  });
+  closeModal();toast("Order request submitted. Waiting for admin verification.");
+ }catch(e){toast("Order failed: "+e.message);}
+};
+
+/* ADD FUND */
+window.chooseMethod=(method,button)=>{
+ selectedMethod=method;
+ document.querySelectorAll(".method").forEach(x=>x.classList.remove("selected"));
+ button.classList.add("selected");
+ const settings=window.latestSettings||{};
+ $("paymentNumber").value=method==="bKash"?(settings.bkashNumber||"01747737267"):(settings.nagadNumber||"01718316646");
+};
+window.copyPaymentNumber=async()=>{
+ try{await navigator.clipboard.writeText($("paymentNumber").value);toast("Number copied.");}
+ catch(e){toast("Please copy the number manually.");}
+};
+window.submitFundRequest=async()=>{
+ const amount=Number($("fundAmount").value);
+ const trx=$("fundTrx").value.trim();
+ if(!Number.isFinite(amount)||amount<=0)return toast("Enter a valid amount.");
+ if(!trx)return toast("Enter your transaction ID.");
+ try{
+  const r=push(ref(db,`walletRequests/${currentUser.uid}`));
+  await set(r,{amount,method:selectedMethod,trxId:trx,status:"pending",requestedAt:Date.now()});
+  $("fundAmount").value="";$("fundTrx").value="";
+  toast("Fund request submitted. Waiting for admin verification.");
+ }catch(e){toast("Request failed: "+e.message);}
+};
+
+/* REFERRAL */
 window.submitReferral=async()=>{
-alert("Referral rewards require a secure one-time claim process. It is not enabled in this client-only version.");
+ const code=$("referralInput").value.trim().toUpperCase();
+ if(!code)return toast("Enter a referral code.");
+ try{
+  const existing=await get(ref(db,`referralClaims/${currentUser.uid}`));
+  const claims=existing.val()||{};
+  if(Object.values(claims).some(x=>String(x.code||"").toUpperCase()===code&&x.status!=="rejected")){
+   return toast("You have already submitted this referral code.");
+  }
+  const codeSnap=await get(ref(db,`referralCodes/${code}`));
+  if(!codeSnap.exists())return toast("Referral code not found.");
+  const info=codeSnap.val();
+  if(info.active===false)return toast("This referral code is inactive.");
+  const max=Number(info.maxUses||0),used=Number(info.usedCount||0);
+  if(max>0&&used>=max)return toast("This referral code has reached its usage limit.");
+  const claim=push(ref(db,`referralClaims/${currentUser.uid}`));
+  await set(claim,{
+   code,uid:currentUser.uid,email:currentUser.email||"",
+   status:"pending",submittedAt:Date.now()
+  });
+  $("referralInput").value="";
+  toast("Referral request submitted for admin verification.");
+ }catch(e){toast("Referral request failed: "+e.message);}
+};
+
+/* ORDERS / REQUEST HISTORY */
+function renderOrders(data){
+ const wrap=$("ordersList"),items=Object.entries(data).sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+ if(!items.length){wrap.innerHTML='<div class="empty">You have not placed any orders yet.</div>';return;}
+ wrap.innerHTML=items.map(([id,o])=>`
+  <div class="list-item">
+   <div class="list-icon">📦</div>
+   <div class="list-info"><b>${escapeHTML(o.productName||"Product")}</b>
+    <small>${new Date(o.createdAt||Date.now()).toLocaleString()} · ${escapeHTML(o.paymentMethod||"")}</small>
+    <small>TRX: ${escapeHTML(o.trxId||"—")}</small>
+    <small><span class="status ${statusClass(o.status)}">${escapeHTML(o.status||"pending")}</span></small>
+    ${o.status==="approved"&&o.downloadUrl?`<a href="${escapeHTML(o.downloadUrl)}" target="_blank" rel="noopener" class="link-btn" style="display:inline-block;margin-top:8px">OPEN DOWNLOAD ↗</a>`:""}
+   </div><strong class="amount">${money(o.price)}</strong>
+  </div>`).join("");
+}
+function renderFundHistory(data){
+ const wrap=$("fundHistory"),items=Object.entries(data).sort((a,b)=>(b[1]?.requestedAt||0)-(a[1]?.requestedAt||0));
+ if(!items.length){wrap.innerHTML='<div class="empty">No fund requests yet.</div>';return;}
+ wrap.innerHTML=items.map(([id,x])=>`
+  <div class="list-item"><div class="list-icon">💳</div><div class="list-info">
+   <b>${escapeHTML(x.method)} · ${escapeHTML(x.trxId)}</b>
+   <small>${new Date(x.requestedAt||Date.now()).toLocaleString()}</small>
+   <small><span class="status ${statusClass(x.status)}">${escapeHTML(x.status||"pending")}</span></small>
+  </div><strong class="amount">${money(x.amount)}</strong></div>`).join("");
+}
+function renderWalletHistory(data){
+ const wrap=$("walletHistory"),items=Object.entries(data).sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0)).slice(0,20);
+ if(!items.length){wrap.innerHTML='<div class="empty">No wallet transactions yet.</div>';return;}
+ wrap.innerHTML=items.map(([id,x])=>`
+  <div class="list-item"><div class="list-icon">${Number(x.amount||0)>=0?"＋":"−"}</div>
+   <div class="list-info"><b>${escapeHTML(x.title||x.type||"Wallet transaction")}</b><small>${new Date(x.createdAt||Date.now()).toLocaleString()}</small></div>
+   <strong class="amount">${money(x.amount)}</strong>
+  </div>`).join("");
+}
+window.loadWalletHistory=()=>{};
+
+/* PROFILE */
+function renderAvatars(){
+ $("avatarGrid").innerHTML=avatars.map(a=>`<button class="avatar-option ${a===selectedAvatar?"selected":""}" onclick="chooseAvatar('${a}')">${a}</button>`).join("");
+}
+window.chooseAvatar=a=>{
+ selectedAvatar=a;$("profileAvatar").textContent=a;$("headerAvatar").textContent=a;renderAvatars();
 };
 window.saveProfile=async()=>{
-await update(ref(db,"users/"+user.uid),{
-displayName:displayName.value,avatar:avatar.value
-});alert("Profile saved");
+ const name=$("displayName").value.trim();
+ if(!name)return toast("Enter your display name.");
+ try{
+  await update(ref(db,`users/${currentUser.uid}`),{displayName:name,avatar:selectedAvatar,updatedAt:Date.now()});
+  await updateProfile(currentUser,{displayName:name});
+  toast("Profile updated successfully.");
+ }catch(e){toast("Profile update failed: "+e.message);}
 };
+window.logout=async()=>{try{await signOut(auth);}catch(e){toast(e.message);}};
+
+/* ACTION FLOW LINKS */
+window.latestSettings={};
+function renderActionLinks(links){
+ window.latestSettings=links||{};
+ const map={
+  "link-giveawayChannel":links.giveawayChannel,
+  "link-giveawayAccount":links.giveawayAccount,
+  "link-freeReferral":links.freeReferralUrl,
+  "link-tiktok":links.tiktokUrl,
+  "link-youtube":links.youtubeUrl,
+  "link-updates":links.updatesTelegram
+ };
+ Object.entries(map).forEach(([id,url])=>{
+  const a=$(id);
+  if(url&&/^https?:\/\//i.test(url)){a.href=url;a.style.opacity="1";a.style.pointerEvents="auto";}
+  else{a.href="#";a.style.opacity=".55";a.style.pointerEvents="none";}
+ });
+ const method=selectedMethod;
+ $("paymentNumber").value=method==="bKash"?(links.bkashNumber||"01747737267"):(links.nagadNumber||"01718316646");
+}
 </script>
 </body>
 </html>
