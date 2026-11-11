@@ -3,997 +3,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080e1c">
-<title>Developer ZXER | Premium Digital Store</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<title>Developer ZXER</title>
 <style>
-:root{
-  --bg:#080e1c;
-  --panel:#101b30;
-  --panel2:#142440;
-  --line:#263c5c;
-  --blue:#168cff;
-  --cyan:#20d5ff;
-  --text:#f4f8ff;
-  --muted:#91a5c2;
-  --green:#24d69a;
-  --red:#ff627c;
-}
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:radial-gradient(ellipse at top,#142d55 0%,transparent 45%),var(--bg);
-  color:var(--text);
-  font-family:Inter,"Hind Siliguri",sans-serif;
-  min-height:100vh;
-}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-.container{max-width:850px;margin:auto;padding:16px 14px 100px}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:8px 2px 20px}
-.logo{font-size:19px;font-weight:800;letter-spacing:.5px}
-.logo span{color:var(--cyan)}
-.icon-btn{
-  width:42px;height:42px;border-radius:13px;
-  background:var(--panel2);border:1px solid var(--line);
-  color:white;font-size:19px;
-}
-.hero,.card{
-  background:linear-gradient(145deg,#142746,#0d1729);
-  border:1px solid var(--line);
-  border-radius:21px;padding:18px;
-  box-shadow:0 12px 30px #0003;
-}
-.hero h1{font-size:25px;margin:8px 0}
-.muted{color:var(--muted);font-size:13px;line-height:1.7}
-.banner{
-  display:none;width:100%;max-height:190px;
-  object-fit:cover;border-radius:14px;margin-top:14px;
-}
-.notice{
-  margin:13px 0;padding:12px 14px;
-  background:#102b49;border:1px solid #1e5684;
-  border-radius:13px;color:#bdeaff;font-size:13px;
-}
-.heading{
-  display:flex;justify-content:space-between;
-  align-items:center;margin:24px 2px 13px;
-}
-.heading h2{font-size:17px;margin:0}
-.small{font-size:12px;color:var(--muted)}
-.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
-.action{
-  padding:13px 4px;background:var(--panel);
-  color:white;border:1px solid var(--line);
-  border-radius:15px;font-size:11px;
-}
-.action b{display:block;font-size:22px;margin-bottom:6px;color:var(--cyan)}
-.chips{display:flex;gap:8px;overflow:auto;padding-bottom:10px}
-.chip{
-  border:1px solid var(--line);background:var(--panel);
-  color:#b9cce5;border-radius:30px;padding:8px 15px;
-  white-space:nowrap;font-size:12px;
-}
-.chip.active{background:#12457b;border-color:var(--blue);color:white}
-.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.product{
-  overflow:hidden;background:var(--panel);
-  border:1px solid var(--line);border-radius:17px;
-}
-.product img{width:100%;height:130px;object-fit:cover;background:#14243d}
-.product-body{padding:12px}
-.product h3{font-size:14px;margin:0 0 7px;line-height:1.5}
-.price{font-size:15px;font-weight:800;color:var(--cyan);margin:9px 0}
-.btn{
-  width:100%;border:0;border-radius:12px;padding:12px;
-  color:white;font-weight:700;
-  background:linear-gradient(100deg,#0878ef,#12b9f3);
-}
-.btn.secondary{background:#172944;border:1px solid var(--line)}
-.btn.danger{background:#6a2638}
-.btn:disabled{opacity:.5}
-.field{margin:13px 0}
-.field label{display:block;font-size:12px;color:#b9cce5;margin-bottom:7px}
-.field input,.field select{
-  width:100%;padding:13px;border-radius:12px;
-  background:#081326;color:white;border:1px solid #2a4263;
-  outline:none;
-}
-.field input:focus,.field select:focus{border-color:var(--cyan)}
-.page{display:none}
-.page.active{display:block}
-.balance{font-size:31px;font-weight:800;color:var(--cyan);margin:10px 0}
-.bottom{
-  position:fixed;bottom:0;left:0;right:0;z-index:10;
-  background:#081326ed;border-top:1px solid var(--line);
-  backdrop-filter:blur(15px);
-}
-.nav{
-  max-width:850px;margin:auto;display:grid;
-  grid-template-columns:repeat(5,1fr);
-  padding:8px 4px calc(8px + env(safe-area-inset-bottom));
-}
-.nav button{background:none;color:#8fa6c4;font-size:10px}
-.nav button b{display:block;font-size:19px;margin-bottom:4px}
-.nav button.active{color:var(--cyan)}
-.modal{
-  display:none;position:fixed;inset:0;z-index:20;
-  background:#000a;align-items:flex-end;justify-content:center;
-}
-.modal.show{display:flex}
-.sheet{
-  width:min(100%,600px);max-height:90vh;overflow:auto;
-  background:#0d192d;border:1px solid var(--line);
-  border-radius:23px 23px 0 0;padding:20px;
-}
-.sheet-head{display:flex;justify-content:space-between;align-items:center}
-.sheet-head h2{font-size:18px}
-.close{background:#1c304d;color:white;border:0;border-radius:10px;padding:9px 12px}
-.status{
-  background:#112741;border:1px solid #234668;
-  padding:12px;border-radius:12px;color:#cceaff;
-  font-size:13px;margin:10px 0;line-height:1.7;
-}
-.item{
-  background:#0d192c;border:1px solid var(--line);
-  border-radius:14px;padding:14px;margin:10px 0;font-size:13px;
-}
-.pill{background:#183c60;color:#bceaff;border-radius:20px;padding:4px 9px;font-size:11px}
-.empty{text-align:center;padding:25px 10px;color:var(--muted);font-size:13px}
-.auth{max-width:450px;margin:6vh auto}
-.auth .hero{padding:23px}
-.toast{
-  display:none;position:fixed;z-index:40;bottom:90px;left:50%;
-  transform:translateX(-50%);max-width:90%;
-  background:#173654;border:1px solid #3475a5;
-  border-radius:12px;padding:12px 17px;color:white;font-size:13px;
-}
-.toast.show{display:block}
-@media(min-width:600px){
-  .product img{height:165px}
-}
+body{margin:0;background:#080e1c;color:#eef5ff;font-family:Arial,sans-serif;padding-bottom:100px}
+header{padding:20px;background:#101c33;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:900;color:#38aaff}
+button{border:0;border-radius:12px;padding:12px;background:#168cff;color:white;font-weight:bold}
+input{width:100%;padding:14px;margin:7px 0;background:#101c33;color:white;border:1px solid #294568;border-radius:10px}
+section{padding:16px}
+.card{background:#111e35;border:1px solid #203b60;border-radius:18px;padding:14px;margin:12px 0}
+.product{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.product .card{margin:0}
+.product img{width:100%;height:120px;object-fit:cover;border-radius:12px}
+.price{color:#45b6ff;font-size:19px;font-weight:bold}
+nav{position:fixed;bottom:12px;left:12px;right:12px;background:#142744;border:1px solid #31547c;border-radius:35px;padding:12px;display:flex;justify-content:space-around;box-shadow:0 5px 25px #000}
+nav button{background:transparent;padding:9px;font-size:12px}
+.hidden{display:none}
+h2{color:#58baff}
 </style>
 </head>
-
 <body>
-<div class="container">
-
-<header class="topbar">
-  <div class="logo">DEVELOPER <span>ZXER</span></div>
-  <button class="icon-btn" id="menuButton">☰</button>
+<header>
+<div class="logo">DEVELOPER ZXER</div>
+<div id="walletTop">৳0.00</div>
 </header>
 
-<!-- LOGIN -->
-<section id="authScreen" class="auth">
-  <div class="hero">
-    <div class="small">WELCOME TO</div>
-    <h1>Premium Digital Store</h1>
-    <p class="muted">Discover premium websites, applications and digital products.</p>
-
-    <div id="authError" class="status hidden"></div>
-
-    <div class="field">
-      <label>Email Address</label>
-      <input id="email" type="email" placeholder="Enter your email">
-    </div>
-
-    <div class="field">
-      <label>Password</label>
-      <input id="password" type="password" placeholder="Enter password">
-    </div>
-
-    <button class="btn" id="loginButton">LOGIN</button>
-    <button class="btn secondary" id="signupButton" style="margin-top:10px">CREATE ACCOUNT</button>
-    <button class="btn secondary" id="forgotButton" style="margin-top:10px">FORGOT PASSWORD?</button>
-  </div>
-</section>
-
-<!-- USER PANEL -->
-<main id="appScreen" class="hidden">
-
-<section id="homePage" class="page active">
-
-  <div class="hero">
-    <div class="small">DIGITAL PRODUCTS • PREMIUM EXPERIENCE</div>
-    <h1 id="heroTitle">Build Something Amazing</h1>
-    <p class="muted" id="heroSubtitle">Your trusted digital marketplace.</p>
-    <img id="heroBanner" class="banner" alt="Store banner">
-  </div>
-
-  <div class="notice" id="notice">Welcome to Developer ZXER Store</div>
-
-  <div class="heading"><h2>Quick Actions</h2></div>
-
-  <div class="actions">
-    <button class="action" data-page="wallet"><b>＋</b>Add Fund</button>
-    <button class="action" data-page="orders"><b>▣</b>My Orders</button>
-    <button class="action" data-page="downloads"><b>⇩</b>Downloads</button>
-    <button class="action" data-page="profile"><b>♙</b>Profile</button>
-  </div>
-
-  <div class="heading">
-    <h2>Explore Products</h2>
-    <span class="small" id="productCount">0 Products</span>
-  </div>
-
-  <div class="chips" id="categoryList">
-    <button class="chip active" data-category="all">All</button>
-  </div>
-
-  <div class="products" id="productGrid">
-    <div class="empty">Loading products...</div>
-  </div>
-
-</section>
-
-<!-- WALLET -->
-<section id="walletPage" class="page">
-  <div class="heading"><h2>My Wallet</h2></div>
-  <div class="hero">
-    <div class="small">AVAILABLE BALANCE</div>
-    <div class="balance" id="walletBalance">৳0.00</div>
-    <p class="muted">Your available wallet balance</p>
-    <button class="btn" id="addFundButton">＋ ADD FUND</button>
-  </div>
-  <div class="heading"><h2>Transactions</h2></div>
-  <div id="transactionsList"></div>
-</section>
-
-<!-- ORDERS -->
-<section id="ordersPage" class="page">
-  <div class="heading"><h2>My Orders</h2></div>
-  <div id="ordersList"></div>
-</section>
-
-<!-- DOWNLOADS -->
-<section id="downloadsPage" class="page">
-  <div class="heading"><h2>My Downloads</h2></div>
-  <div id="downloadsList"></div>
-</section>
-
-<!-- PROFILE -->
-<section id="profilePage" class="page">
-  <div class="heading"><h2>My Profile</h2></div>
-  <div class="card">
-    <div class="small">ACCOUNT EMAIL</div>
-    <p id="profileEmail"></p>
-    <div class="status" id="profileUid"></div>
-    <button class="btn secondary" id="resetPasswordButton">RESET PASSWORD</button>
-    <button class="btn danger" id="logoutButton" style="margin-top:12px">LOGOUT</button>
-  </div>
-</section>
-
-</main>
+<section id="auth">
+<div class="card">
+<h2>Welcome Back</h2>
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<button onclick="signup()">Create Account</button>
+<button onclick="forgot()">Forgot Password?</button>
+<p id="authMsg"></p>
 </div>
+</section>
 
-<!-- BOTTOM NAVIGATION -->
-<div class="bottom hidden" id="bottomNavigation">
-<nav class="nav">
-  <button class="active" data-page="home"><b>⌂</b>Home</button>
-  <button data-page="wallet"><b>◈</b>Wallet</button>
-  <button data-page="orders"><b>▣</b>Orders</button>
-  <button data-page="downloads"><b>⇩</b>Downloads</button>
-  <button data-page="profile"><b>♙</b>Profile</button>
+<section id="home" class="hidden">
+<div class="card">
+<h2 id="homeTitle">Premium Digital Store</h2>
+<p id="homeSubtitle">Welcome to Developer ZXER</p>
+<p id="notice"></p>
+</div>
+<h2>Products</h2>
+<div id="products" class="product"></div>
+</section>
+
+<section id="fund" class="hidden">
+<div class="card">
+<h2>Add Fund</h2>
+<p>Choose payment method and send money.</p>
+<select id="fundMethod">
+<option value="bKash">bKash</option>
+<option value="Nagad">Nagad</option>
+</select>
+<p id="fundNumber"></p>
+<input id="fundAmount" type="number" placeholder="Amount">
+<input id="fundTrx" placeholder="Transaction ID">
+<button onclick="requestFund()">Submit Fund Request</button>
+<hr>
+<h2>Referral Code</h2>
+<input id="refCode" placeholder="Enter Referral Code">
+<button onclick="submitReferral()">Submit Code</button>
+<p id="refMsg"></p>
+</div>
+</section>
+
+<section id="profile" class="hidden">
+<div class="card">
+<h2>My Profile</h2>
+<input id="displayName" placeholder="Your Name">
+<input id="avatar" type="text" placeholder="Avatar emoji (e.g. 🚀)">
+<button onclick="saveProfile()">Save Profile</button>
+<button onclick="logout()">Logout</button>
+</div>
+</section>
+
+<section id="orders" class="hidden">
+<h2>My Orders</h2>
+<div id="orderList"></div>
+</section>
+
+<nav>
+<button onclick="page('home')">⌂<br>Home</button>
+<button onclick="page('fund')">＋<br>Add Fund</button>
+<button onclick="page('orders')">▣<br>Orders</button>
+<button onclick="page('profile')">●<br>Profile</button>
 </nav>
-</div>
-
-<!-- ADD FUND MODAL -->
-<div class="modal" id="fundModal">
-<div class="sheet">
-  <div class="sheet-head">
-    <h2>Add Fund</h2>
-    <button class="close" data-close="fundModal">✕</button>
-  </div>
-
-  <p class="muted">Send Money করে নিচের তথ্য জমা দিন। Admin যাচাই করার পর আপনার Wallet-এ টাকা যোগ করবেন।</p>
-
-  <div class="status">
-    <b>bKash:</b> 01747737267<br>
-    <b>Nagad:</b> 01718316646<br>
-    <span class="small">শুধুমাত্র Send Money গ্রহণযোগ্য।</span>
-  </div>
-
-  <div class="field">
-    <label>Payment Method</label>
-    <select id="fundMethod">
-      <option value="bkash">bKash</option>
-      <option value="nagad">Nagad</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label>Amount (৳)</label>
-    <input id="fundAmount" type="number" min="1" placeholder="Enter amount">
-  </div>
-
-  <div class="field">
-    <label>Transaction ID</label>
-    <input id="fundTrx" placeholder="Enter Transaction ID">
-  </div>
-
-  <button class="btn" id="submitFundButton">SUBMIT REQUEST</button>
-</div>
-</div>
-
-<!-- PRODUCT BUY MODAL -->
-<div class="modal" id="buyModal">
-<div class="sheet">
-  <div class="sheet-head">
-    <h2 id="buyTitle">Product Details</h2>
-    <button class="close" data-close="buyModal">✕</button>
-  </div>
-
-  <div class="status" id="buyDetails"></div>
-
-  <div id="freeBuyArea" class="hidden">
-    <button class="btn" id="freeDownloadButton">DOWNLOAD FREE PRODUCT</button>
-  </div>
-
-  <div id="paidBuyArea" class="hidden">
-    <button class="btn" id="walletBuyButton">◈ WALLET PAYMENT</button>
-    <button class="btn secondary" id="instantBuyButton" style="margin-top:10px">৳ INSTANT PAYMENT</button>
-  </div>
-
-  <div id="instantArea" class="hidden">
-    <div class="field">
-      <label>Payment Method</label>
-      <select id="orderMethod">
-        <option value="bkash">bKash</option>
-        <option value="nagad">Nagad</option>
-      </select>
-    </div>
-    <div class="status" id="orderNumber">
-      bKash Send Money: 01747737267
-    </div>
-    <div class="field">
-      <label>Transaction ID</label>
-      <input id="orderTrx" placeholder="Enter Transaction ID">
-    </div>
-    <button class="btn" id="submitOrderButton">SUBMIT ORDER</button>
-  </div>
-</div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {getDatabase,ref,get,set,push,update} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-import {
-  getAuth,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-
-import {
-  getDatabase,
-  ref,
-  get,
-  set,
-  push,
-  onValue,
-  runTransaction
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
-  authDomain: "devzxer-9d8e9.firebaseapp.com",
-  databaseURL: "https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "devzxer-9d8e9",
-  storageBucket: "devzxer-9d8e9.firebasestorage.app",
-  messagingSenderId: "101740085617",
-  appId: "1:101740085617:web:86d08757e668d4b897b6d0",
-  measurementId: "G-1635XV6SKV"
+const firebaseConfig={
+apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+authDomain:"devzxer-9d8e9.firebaseapp.com",
+databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"devzxer-9d8e9",
+storageBucket:"devzxer-9d8e9.firebasestorage.app",
+messagingSenderId:"101740085617",
+appId:"1:101740085617:web:86d08757e668d4b897b6d0"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+let user=null,productsData={};
 
-const $ = id => document.getElementById(id);
+window.login=async()=>{try{await signInWithEmailAndPassword(auth,email.value,password.value)}catch(e){authMsg.textContent=e.message}};
+window.signup=async()=>{try{await createUserWithEmailAndPassword(auth,email.value,password.value)}catch(e){authMsg.textContent=e.message}};
+window.forgot=async()=>{try{await sendPasswordResetEmail(auth,email.value);authMsg.textContent="Reset email sent"}catch(e){authMsg.textContent=e.message}};
+window.logout=()=>signOut(auth);
+window.page=(p)=>{["home","fund","profile","orders"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==p))};
 
-let currentUser = null;
-let products = {};
-let selectedProduct = null;
-let selectedCategory = "all";
-let walletListener = null;
-
-function money(amount){
-  return "৳" + Number(amount || 0).toLocaleString("en-US");
-}
-
-function safe(value){
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[char]);
-}
-
-function notify(message){
-  const box = $("toast");
-  box.textContent = message;
-  box.classList.add("show");
-  setTimeout(() => box.classList.remove("show"), 3500);
-}
-
-function openModal(id){
-  $(id).classList.add("show");
-}
-
-function closeModal(id){
-  $(id).classList.remove("show");
-}
-
-function showAuthError(message){
-  $("authError").textContent = message;
-  $("authError").classList.remove("hidden");
-}
-
-function changePage(name){
-  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-  const target = $(name + "Page");
-  if(target) target.classList.add("active");
-
-  document.querySelectorAll("[data-page]").forEach(button => {
-    button.classList.toggle("active", button.dataset.page === name);
-  });
-
-  window.scrollTo({top:0,behavior:"smooth"});
-
-  if(name === "wallet") loadTransactions();
-  if(name === "orders") loadOrders();
-  if(name === "downloads") loadDownloads();
-}
-
-/* AUTHENTICATION */
-
-$("loginButton").onclick = async () => {
-  try{
-    await signInWithEmailAndPassword(
-      auth,
-      $("email").value.trim(),
-      $("password").value
-    );
-    notify("Login successful");
-  }catch(error){
-    showAuthError(error.message);
-  }
-};
-
-$("signupButton").onclick = async () => {
-  try{
-    const credential = await createUserWithEmailAndPassword(
-      auth,
-      $("email").value.trim(),
-      $("password").value
-    );
-
-    await set(ref(db,"users/" + credential.user.uid),{
-      email:credential.user.email,
-      createdAt:Date.now()
-    });
-
-    notify("Account created successfully");
-  }catch(error){
-    showAuthError(error.message);
-  }
-};
-
-$("forgotButton").onclick = async () => {
-  try{
-    const email = $("email").value.trim();
-    if(!email) throw new Error("আগে Email লিখুন");
-
-    await sendPasswordResetEmail(auth,email);
-    notify("Password reset email sent");
-  }catch(error){
-    showAuthError(error.message);
-  }
-};
-
-$("logoutButton").onclick = () => signOut(auth);
-
-$("resetPasswordButton").onclick = async () => {
-  try{
-    await sendPasswordResetEmail(auth,currentUser.email);
-    notify("Reset email sent");
-  }catch(error){
-    notify(error.message);
-  }
-};
-
-/* HOME SETTINGS */
-
-async function loadHomeSettings(){
-  try{
-    const homeSnap = await get(ref(db,"settings/home"));
-
-    if(homeSnap.exists()){
-      const data = homeSnap.val();
-
-      if(data.title) $("heroTitle").textContent = data.title;
-      if(data.subtitle) $("heroSubtitle").textContent = data.subtitle;
-
-      if(data.bannerUrl){
-        $("heroBanner").src = data.bannerUrl;
-        $("heroBanner").style.display = "block";
-      }
-    }
-
-    const noticeSnap = await get(ref(db,"settings/notice"));
-
-    if(noticeSnap.exists()){
-      const notice = noticeSnap.val();
-      $("notice").textContent =
-        typeof notice === "string"
-          ? notice
-          : (notice.text || "Welcome to Developer ZXER");
-    }
-  }catch(error){
-    console.warn("Home settings:",error.message);
-  }
-}
-
-/* PRODUCTS */
-
-function renderCategories(){
-  const categories = [
-    "All",
-    ...new Set(
-      Object.values(products)
-        .map(product => product.category)
-        .filter(Boolean)
-    )
-  ];
-
-  $("categoryList").innerHTML = categories.map((category,index) => {
-    const value = index === 0 ? "all" : category;
-    const active = selectedCategory === value ? "active" : "";
-
-    return `<button class="chip ${active}" data-category="${safe(value)}">${safe(category)}</button>`;
-  }).join("");
-
-  $("categoryList").querySelectorAll("button").forEach(button => {
-    button.onclick = () => {
-      selectedCategory = button.dataset.category;
-      renderCategories();
-      renderProducts();
-    };
-  });
-}
-
-function renderProducts(){
-  const list = Object.entries(products).filter(([id,product]) => {
-    return selectedCategory === "all" ||
-      product.category === selectedCategory;
-  });
-
-  $("productCount").textContent = list.length + " Products";
-
-  if(!list.length){
-    $("productGrid").innerHTML =
-      '<div class="empty" style="grid-column:1/-1">No products available yet.</div>';
-    return;
-  }
-
-  $("productGrid").innerHTML = list.map(([id,product]) => {
-    const free = product.isFree === true || Number(product.price || 0) === 0;
-    const image = product.imageUrl || product.image || "";
-
-    return `
-      <article class="product">
-        <img src="${safe(image)}" alt="${safe(product.name || "Product")}"
-             onerror="this.style.display='none'">
-        <div class="product-body">
-          <h3>${safe(product.name || product.title || "Digital Product")}</h3>
-          <div class="small">${safe(product.category || "Digital Product")}</div>
-          <div class="price">${free ? "FREE" : money(product.price)}</div>
-          <button class="btn" data-buy="${safe(id)}">
-            ${free ? "GET FREE" : "BUY NOW"}
-          </button>
-        </div>
-      </article>
-    `;
-  }).join("");
-
-  $("productGrid").querySelectorAll("[data-buy]").forEach(button => {
-    button.onclick = () => openBuy(button.dataset.buy);
-  });
-}
-
-onValue(ref(db,"products"),snapshot => {
-  products = snapshot.exists() ? snapshot.val() : {};
-  renderCategories();
-  renderProducts();
-},error => {
-  $("productGrid").innerHTML =
-    '<div class="status" style="grid-column:1/-1">Product loading failed: ' +
-    safe(error.message) + '</div>';
+onAuthStateChanged(auth,async u=>{
+user=u;
+auth.classList.toggle("hidden",!!u);
+home.classList.toggle("hidden",!u);
+if(!u)return;
+await set(ref(db,"users/"+u.uid+"/email"),u.email);
+loadData();
 });
 
-/* WALLET BALANCE */
-
-function watchWallet(){
-  if(walletListener) walletListener();
-
-  walletListener = onValue(
-    ref(db,"wallets/" + currentUser.uid + "/balance"),
-    snapshot => {
-      $("walletBalance").textContent = money(snapshot.val() || 0);
-    },
-    error => notify("Wallet error: " + error.message)
-  );
-}
-
-/* ADD FUND */
-
-$("addFundButton").onclick = () => openModal("fundModal");
-
-$("submitFundButton").onclick = async () => {
-  const amount = Number($("fundAmount").value);
-  const trxId = $("fundTrx").value.trim();
-  const method = $("fundMethod").value;
-
-  if(!Number.isFinite(amount) || amount <= 0 || !trxId){
-    notify("সঠিক Amount এবং Transaction ID দিন");
-    return;
-  }
-
-  try{
-    const requestId = push(
-      ref(db,"walletRequests/" + currentUser.uid)
-    ).key;
-
-    await set(
-      ref(db,"walletRequests/" + currentUser.uid + "/" + requestId),
-      {
-        amount,
-        method,
-        trxId,
-        status:"pending",
-        requestedAt:Date.now()
-      }
-    );
-
-    closeModal("fundModal");
-    $("fundAmount").value = "";
-    $("fundTrx").value = "";
-
-    notify("Wallet request submitted successfully");
-  }catch(error){
-    notify("Request failed: " + error.message);
-  }
-};
-
-/* PRODUCT BUY */
-
-function openBuy(id){
-  selectedProduct = {id,...products[id]};
-
-  const product = selectedProduct;
-  const free = product.isFree === true || Number(product.price || 0) === 0;
-
-  $("buyTitle").textContent = product.name || product.title || "Product";
-
-  $("buyDetails").innerHTML = `
-    <b>${safe(product.name || product.title || "Product")}</b><br>
-    ${free ? "Free Product" : "Price: " + money(product.price)}<br>
-    ${safe(product.description || "")}
-  `;
-
-  $("freeBuyArea").classList.toggle("hidden",!free);
-  $("paidBuyArea").classList.toggle("hidden",free);
-  $("instantArea").classList.add("hidden");
-
-  openModal("buyModal");
-}
-
-/*
-  A wallet purchase is submitted as a request.
-  The Admin Panel must verify the balance and perform
-  the debit exactly once before approving the order.
-*/
-
-async function submitOrder(paymentMethod,extra = {}){
-  if(!selectedProduct || !currentUser) return;
-
-  const product = selectedProduct;
-  const orderId = push(
-    ref(db,"orders/" + currentUser.uid)
-  ).key;
-
-  const order = {
-    productId:product.id,
-    productName:product.name || product.title || "Product",
-    price:Number(product.price || 0),
-    paymentMethod,
-    status:"pending",
-    createdAt:Date.now(),
-    downloadUrl:product.downloadUrl || product.fileUrl || "",
-    setupVideoUrl:product.setupVideoUrl || "",
-    ...extra
-  };
-
-  await set(
-    ref(db,"orders/" + currentUser.uid + "/" + orderId),
-    order
-  );
-
-  closeModal("buyModal");
-  notify("Order submitted. Waiting for Admin review.");
-  changePage("orders");
-}
-
-$("walletBuyButton").onclick = async () => {
-  if(!selectedProduct) return;
-
-  const price = Number(selectedProduct.price || 0);
-
-  try{
-    const balanceSnap = await get(
-      ref(db,"wallets/" + currentUser.uid + "/balance")
-    );
-
-    const balance = Number(balanceSnap.val() || 0);
-
-    if(balance < price){
-      notify(
-        "Insufficient wallet balance. Required: " +
-        money(price) + " | Available: " + money(balance)
-      );
-      return;
-    }
-
-    await submitOrder("wallet",{
-      status:"pending_wallet_review"
-    });
-
-  }catch(error){
-    notify("Wallet check failed: " + error.message);
-  }
-};
-
-$("instantBuyButton").onclick = () => {
-  $("instantArea").classList.remove("hidden");
-  $("orderTrx").focus();
-};
-
-$("orderMethod").onchange = () => {
-  const method = $("orderMethod").value;
-
-  $("orderNumber").textContent =
-    (method === "bkash" ? "bKash" : "Nagad") +
-    " Send Money: " +
-    (method === "bkash" ? "01747737267" : "01718316646");
-};
-
-$("submitOrderButton").onclick = async () => {
-  const trxId = $("orderTrx").value.trim();
-
-  if(!trxId){
-    notify("Transaction ID লিখুন");
-    return;
-  }
-
-  try{
-    await submitOrder(
-      $("orderMethod").value,
-      {trxId}
-    );
-
-    $("orderTrx").value = "";
-  }catch(error){
-    notify("Order failed: " + error.message);
-  }
-};
-
-/* FREE PRODUCT */
-
-$("freeDownloadButton").onclick = async () => {
-  if(!selectedProduct) return;
-
-  const url = selectedProduct.downloadUrl ||
-              selectedProduct.fileUrl;
-
-  if(!url){
-    notify("এই Product-এর Download URL দেওয়া হয়নি");
-    return;
-  }
-
-  try{
-    await submitOrder("free",{
-      status:"approved"
-    });
-
-    window.open(url,"_blank","noopener");
-  }catch(error){
-    notify("Download failed: " + error.message);
-  }
-};
-
-/* ORDERS */
-
-async function loadOrders(){
-  const box = $("ordersList");
-  box.innerHTML = '<div class="empty">Loading orders...</div>';
-
-  try{
-    const snapshot = await get(
-      ref(db,"orders/" + currentUser.uid)
-    );
-
-    if(!snapshot.exists()){
-      box.innerHTML = '<div class="empty">No orders found.</div>';
-      return;
-    }
-
-    const rows = Object.entries(snapshot.val()).reverse();
-
-    box.innerHTML = rows.map(([id,order]) => `
-      <div class="item">
-        <b>${safe(order.productName || "Product")}</b>
-        <div class="small">${new Date(order.createdAt || Date.now()).toLocaleString()}</div>
-        <p>${money(order.price)} · <span class="pill">${safe(order.status || "pending")}</span></p>
-        ${
-          order.status === "approved" && order.downloadUrl
-          ? `<a class="btn" style="display:block;text-align:center;text-decoration:none"
-               href="${safe(order.downloadUrl)}" target="_blank" rel="noopener">
-               DOWNLOAD FILE
-             </a>`
-          : ""
-        }
-        ${
-          order.setupVideoUrl
-          ? `<p><a href="${safe(order.setupVideoUrl)}" target="_blank" rel="noopener">Setup Video / Guide</a></p>`
-          : ""
-        }
-      </div>
-    `).join("");
-
-  }catch(error){
-    box.innerHTML = '<div class="status">' + safe(error.message) + '</div>';
-  }
-}
-
-/* DOWNLOADS */
-
-async function loadDownloads(){
-  const box = $("downloadsList");
-  box.innerHTML = '<div class="empty">Loading downloads...</div>';
-
-  try{
-    const snapshot = await get(
-      ref(db,"orders/" + currentUser.uid)
-    );
-
-    const rows = snapshot.exists()
-      ? Object.values(snapshot.val()).filter(order =>
-          order.status === "approved" && order.downloadUrl
-        )
-      : [];
-
-    if(!rows.length){
-      box.innerHTML = '<div class="empty">No approved downloads yet.</div>';
-      return;
-    }
-
-    box.innerHTML = rows.map(order => `
-      <div class="item">
-        <b>${safe(order.productName)}</b>
-        <p>
-          <a class="btn" style="display:block;text-align:center;text-decoration:none"
-             href="${safe(order.downloadUrl)}" target="_blank" rel="noopener">
-             ⇩ DOWNLOAD FILE
-          </a>
-        </p>
-        ${
-          order.setupVideoUrl
-          ? `<a href="${safe(order.setupVideoUrl)}" target="_blank" rel="noopener">Watch Setup Video</a>`
-          : ""
-        }
-      </div>
-    `).join("");
-
-  }catch(error){
-    box.innerHTML = '<div class="status">' + safe(error.message) + '</div>';
-  }
-}
-
-/* TRANSACTIONS */
-
-async function loadTransactions(){
-  const box = $("transactionsList");
-  box.innerHTML = '<div class="empty">Loading transactions...</div>';
-
-  try{
-    const snapshot = await get(
-      ref(db,"walletTransactions/" + currentUser.uid)
-    );
-
-    if(!snapshot.exists()){
-      box.innerHTML = '<div class="empty">No transactions found.</div>';
-      return;
-    }
-
-    box.innerHTML = Object.values(snapshot.val()).reverse().map(item => `
-      <div class="item">
-        <b>${safe(item.type || "Wallet Transaction")}</b>
-        <div class="small">${new Date(item.createdAt || Date.now()).toLocaleString()}</div>
-        <div class="price">${money(item.amount)}</div>
-      </div>
-    `).join("");
-
-  }catch(error){
-    box.innerHTML = '<div class="status">' + safe(error.message) + '</div>';
-  }
-}
-
-/* NAVIGATION */
-
-document.querySelectorAll("[data-page]").forEach(button => {
-  button.addEventListener("click",() => {
-    changePage(button.dataset.page);
-  });
+async function loadData(){
+let [p,w,s,o]=await Promise.all([
+get(ref(db,"products")),get(ref(db,"wallets/"+user.uid)),
+get(ref(db,"settings")),get(ref(db,"orders/"+user.uid))
+]);
+productsData=p.val()||{};
+walletTop.textContent="৳"+((w.val()||{}).balance||0);
+let settings=s.val()||{};
+homeTitle.textContent=settings.home?.title||"Developer ZXER";
+homeSubtitle.textContent=settings.home?.subtitle||"Premium Digital Store";
+notice.textContent=settings.notice||"";
+fundNumber.textContent="bKash: 01747737267 | Nagad: 01718316646";
+products.innerHTML="";
+Object.entries(productsData).forEach(([id,p])=>{
+if(p.active===false)return;
+let d=document.createElement("div");d.className="card";
+let img=document.createElement("img");img.src=p.imageData||"";
+let name=document.createElement("h3");name.textContent=p.name||"Product";
+let price=document.createElement("div");price.className="price";price.textContent="৳"+(p.price||0);
+let buy=document.createElement("button");buy.textContent="Buy Now";buy.onclick=()=>buyProduct(id,p);
+d.append(img,name,price,buy);products.append(d);
 });
-
-$("menuButton").onclick = () => changePage("profile");
-
-document.querySelectorAll("[data-close]").forEach(button => {
-  button.onclick = () => closeModal(button.dataset.close);
+let orders=o.val()||{};orderList.innerHTML="";
+Object.entries(orders).forEach(([id,o])=>{
+let d=document.createElement("div");d.className="card";
+d.textContent=(o.productName||"Product")+" — "+(o.status||"pending");
+if(o.status==="approved"&&o.downloadUrl){
+let a=document.createElement("a");a.href=o.downloadUrl;a.textContent="Download";a.target="_blank";d.append(a);
+}
+orderList.append(d);
 });
+}
 
-["fundModal","buyModal"].forEach(id => {
-  $(id).addEventListener("click",event => {
-    if(event.target.id === id) closeModal(id);
-  });
+async function buyProduct(id,p){
+let method=prompt("Type WALLET or INSTANT");
+if(!method)return;
+if(method.toUpperCase()==="WALLET"){
+alert("Wallet payment requires secure server-side transaction processing. It is not enabled in this client-only version.");
+return;
+}
+let m=prompt("Payment method: bKash or Nagad");
+let trx=prompt("Enter Transaction ID");
+if(!m||!trx)return;
+await push(ref(db,"orders/"+user.uid),{
+productId:id,productName:p.name,price:Number(p.price)||0,
+paymentMethod:m,trxId:trx,status:"pending",
+downloadUrl:p.downloadUrl||"",createdAt:Date.now()
 });
+alert("Order submitted for admin approval.");
+loadData();
+}
 
-/* AUTH STATE */
-
-onAuthStateChanged(auth,async user => {
-  currentUser = user;
-
-  if(!user){
-    $("authScreen").classList.remove("hidden");
-    $("appScreen").classList.add("hidden");
-    $("bottomNavigation").classList.add("hidden");
-
-    if(walletListener){
-      walletListener();
-      walletListener = null;
-    }
-    return;
-  }
-
-  $("authScreen").classList.add("hidden");
-  $("appScreen").classList.remove("hidden");
-  $("bottomNavigation").classList.remove("hidden");
-
-  $("profileEmail").textContent = user.email || "";
-  $("profileUid").textContent = "UID: " + user.uid;
-
-  try{
-    await set(ref(db,"users/" + user.uid + "/email"),user.email || "");
-    await set(ref(db,"users/" + user.uid + "/lastLoginAt"),Date.now());
-  }catch(error){
-    console.warn("Profile sync:",error.message);
-  }
-
-  watchWallet();
-  loadHomeSettings();
+window.requestFund=async()=>{
+let amount=Number(fundAmount.value),trx=fundTrx.value.trim();
+if(amount<=0||!trx)return alert("Enter valid amount and transaction ID");
+await push(ref(db,"walletRequests/"+user.uid),{
+amount,method:fundMethod.value,trxId:trx,status:"pending",requestedAt:Date.now()
 });
+alert("Fund request submitted.");
+};
+
+window.submitReferral=async()=>{
+alert("Referral rewards require a secure one-time claim process. It is not enabled in this client-only version.");
+};
+window.saveProfile=async()=>{
+await update(ref(db,"users/"+user.uid),{
+displayName:displayName.value,avatar:avatar.value
+});alert("Profile saved");
+};
 </script>
 </body>
 </html>
