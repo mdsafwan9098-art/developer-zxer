@@ -1,192 +1,832 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#080d19">
 <title>Developer ZXER Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#080e1c;color:white;font-family:Arial;padding:18px}
-h1,h2{color:#45b4ff}
-.card{background:#111e35;border:1px solid #294568;border-radius:16px;padding:16px;margin:14px 0}
-input,textarea{width:100%;padding:12px;margin:7px 0;background:#080e1c;color:white;border:1px solid #345477;border-radius:9px;box-sizing:border-box}
-button{background:#168cff;color:white;border:0;padding:12px;border-radius:10px;margin:4px}
-img{max-width:100%;max-height:150px;object-fit:contain}
-.hidden{display:none}
+:root{
+--bg:#080d19;--panel:#101a2d;--panel2:#14223a;--blue:#1688ff;
+--cyan:#00d5ff;--text:#f2f7ff;--muted:#91a4c2;--line:#223653;
+--green:#20d69a;--red:#ff5572;--yellow:#ffc857
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+#loginScreen{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login-card{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:25px;padding:26px;box-shadow:0 20px 60px #0007}
+.logo{font-size:24px;font-weight:800;letter-spacing:.5px}
+.logo span{color:var(--cyan)}
+.muted{color:var(--muted);font-size:12px;line-height:1.6}
+label{display:block;font-size:11px;color:#b9cbe4;font-weight:700;margin:13px 0 7px}
+input,select,textarea{
+width:100%;background:#091426;color:white;border:1px solid var(--line);
+border-radius:13px;padding:12px;outline:none;min-width:0
+}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:85px;resize:vertical}
+.btn{border:0;border-radius:13px;padding:11px 14px;background:linear-gradient(100deg,var(--blue),#0757c9);color:white;font-weight:700}
+.btn.secondary{background:#1b2b45;border:1px solid var(--line)}
+.btn.green{background:#087d60}
+.btn.red{background:#a92e49}
+.btn.yellow{background:#876019}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.full{width:100%;margin-top:15px}
+#app{display:none;min-height:100vh}
+.topbar{height:66px;position:sticky;top:0;z-index:20;background:#0b1424f5;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.topbar .logo{font-size:19px}
+.tag{color:var(--cyan);border:1px solid #087dbb;border-radius:30px;padding:6px 9px;font-size:10px}
+.layout{display:flex;max-width:1500px;margin:auto}
+.sidebar{width:245px;flex-shrink:0;padding:15px 12px;border-right:1px solid var(--line);min-height:calc(100vh - 66px)}
+.nav-title{font-size:10px;color:#69809f;font-weight:800;letter-spacing:1px;padding:14px 10px 6px}
+.nav{width:100%;display:block;text-align:left;border:0;background:transparent;color:#a9bad3;padding:12px;border-radius:13px;margin:3px 0;font-size:12px;font-weight:700}
+.nav.active,.nav:hover{background:#142c4c;color:white}
+.main{width:100%;max-width:1200px;min-width:0;padding:22px}
+.page{display:none}.page.active{display:block}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:23px;margin:0 0 5px}
+h2{font-size:16px;margin:0 0 13px}
+.card,.stat{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:14px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat .num{font-size:25px;font-weight:800;margin:10px 0 3px}
+.stat .name{font-size:11px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1;min-width:0}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item-title{font-size:13px;font-weight:700;overflow-wrap:anywhere;margin-bottom:5px}
+.small{font-size:11px;color:var(--muted);overflow-wrap:anywhere;line-height:1.6}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.actions .btn{font-size:11px;padding:9px 11px}
+.pill{display:inline-block;padding:5px 9px;border-radius:30px;font-size:10px;font-weight:800;background:#263650}
+.pending{background:#463515;color:#ffd477}
+.approved,.active{background:#103d35;color:#62e8bb}
+.rejected,.inactive{background:#4a2030;color:#ff9aab}
+.notice{padding:12px;background:#102a45;border:1px solid #15558a;border-radius:13px;color:#b9dcff;font-size:12px;line-height:1.6;margin-bottom:13px}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+.mobile-nav{display:none}
+#toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a2c45;border:1px solid #315477;padding:12px 18px;border-radius:13px;z-index:99;font-size:12px;max-width:90%;text-align:center}
+.preview{width:100%;max-height:180px;object-fit:cover;border-radius:13px;margin-top:10px}
+@media(max-width:850px){
+.sidebar{display:none}
+.main{padding:15px 12px 95px}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.two{grid-template-columns:1fr}
+.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:#0b1424f5;border-top:1px solid var(--line);overflow-x:auto;padding:7px;gap:5px}
+.mobile-nav button{flex:0 0 auto;border:0;background:transparent;color:#9db1ce;padding:9px 11px;border-radius:11px;font-size:10px;font-weight:700}
+.mobile-nav button.active{background:#17365b;color:white}
+}
 </style>
 </head>
 <body>
-<h1>DEVELOPER ZXER</h1>
-<div id="login" class="card">
-<h2>Admin Login</h2>
-<input id="email" placeholder="Admin Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="loginAdmin()">Login</button>
-<p id="msg"></p>
-</div>
 
-<main id="panel" class="hidden">
-<div class="card">
-<h2>Add / Edit Product</h2>
-<input id="pid" placeholder="Product ID (blank for new)">
-<input id="name" placeholder="Product Name">
-<textarea id="description" placeholder="Description"></textarea>
-<input id="price" type="number" placeholder="Price">
-<input id="category" placeholder="Category">
-<label>Product Image Upload</label>
-<input id="imageFile" type="file" accept="image/*">
-<img id="preview">
-<input id="downloadUrl" placeholder="Download URL">
-<input id="videoUrl" placeholder="Setup Video URL">
-<label><input id="active" type="checkbox" checked> Active</label>
-<button onclick="saveProduct()">Save Product</button>
-</div>
+<section id="loginScreen">
+ <div class="login-card">
+  <div class="logo">DEVELOPER <span>ZXER</span></div>
+  <p class="muted">SECURE ADMIN CONTROL PANEL</p>
+  <h2 style="margin-top:25px">Admin Login</h2>
+  <label>ADMIN EMAIL</label>
+  <input id="email" type="email" placeholder="Enter admin email" autocomplete="username">
+  <label>PASSWORD</label>
+  <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
+  <button class="btn full" id="loginBtn">LOGIN TO DASHBOARD</button>
+  <p class="muted" id="loginMsg"></p>
+ </div>
+</section>
 
-<div class="card">
-<h2>Products</h2><div id="productList"></div>
-</div>
+<div id="app">
+<header class="topbar">
+ <div class="logo">ZXER <span>ADMIN</span></div>
+ <div class="row" style="flex:initial;align-items:center">
+  <span class="tag">ADMIN VERIFIED</span>
+  <button class="btn secondary" id="logoutBtn">Logout</button>
+ </div>
+</header>
 
-<div class="card">
-<h2>Wallet Requests</h2><div id="fundList"></div>
-</div>
+<div class="layout">
+<aside class="sidebar">
+ <div class="nav-title">MAIN MENU</div>
+ <button class="nav active" data-page="dashboard">📊 Dashboard</button>
+ <button class="nav" data-page="productOrders">📦 Product Orders</button>
+ <button class="nav" data-page="walletRequests">💳 Wallet Requests</button>
+ <button class="nav" data-page="transactions">💰 Wallet Transactions</button>
+ <button class="nav" data-page="users">👥 Manage Users</button>
+ <div class="nav-title">STORE MANAGEMENT</div>
+ <button class="nav" data-page="products">🛍 Products</button>
+ <button class="nav" data-page="categories">🗂 Categories</button>
+ <button class="nav" data-page="referrals">🎁 Referral Codes</button>
+ <div class="nav-title">WEBSITE SETTINGS</div>
+ <button class="nav" data-page="home">🏠 Home & Banner</button>
+ <button class="nav" data-page="action">⚡ Action Flow</button>
+ <button class="nav" data-page="payments">💵 Payment Settings</button>
+ <button class="nav" data-page="maintenance">🛠 Maintenance & Update</button>
+ <button class="nav" data-page="toolbox">🧰 Toolbox</button>
+</aside>
 
-<div class="card">
-<h2>Product Orders</h2><div id="orderList"></div>
-</div>
+<main class="main">
 
-<div class="card">
-<h2>Create Custom Referral</h2>
-<input id="refText" placeholder="Your Referral Code">
-<input id="refAmount" type="number" placeholder="Reward Amount">
-<input id="refLimit" type="number" value="3" min="1" max="3">
-<button onclick="createReferral()">Create Referral</button>
-<div id="refList"></div>
-</div>
+<section class="page active" id="page-dashboard">
+ <div class="head"><div><h1>Dashboard</h1><div class="muted">Store overview and activity</div></div><button class="btn secondary" onclick="refreshAll()">↻ Refresh</button></div>
+ <div class="grid">
+  <div class="stat"><div>👥</div><div class="num" id="sUsers">0</div><div class="name">Registered Users</div></div>
+  <div class="stat"><div>🛍️</div><div class="num" id="sProducts">0</div><div class="name">Products</div></div>
+  <div class="stat"><div>📦</div><div class="num" id="sOrders">0</div><div class="name">Pending Instant Orders</div></div>
+  <div class="stat"><div>💳</div><div class="num" id="sWallet">0</div><div class="name">Pending Wallet Requests</div></div>
+ </div>
+ <div class="card">
+  <h2>Quick Overview</h2>
+  <div class="notice">Wallet Request এবং Instant Payment Order আলাদা। Wallet Payment অটোমেটিক অর্ডার হিসেবে সম্পন্ন হবে; Admin Approval লাগবে না।</div>
+  <div class="row">
+   <button class="btn" onclick="showPage('walletRequests')">Wallet Requests</button>
+   <button class="btn secondary" onclick="showPage('productOrders')">Product Orders</button>
+  </div>
+ </div>
+ <div class="card"><h2>Recent Activity</h2><div id="recentActivity" class="empty">Loading...</div></div>
+</section>
 
-<div class="card">
-<h2>Home Settings</h2>
-<input id="homeTitle" placeholder="Home Title">
-<input id="homeSubtitle" placeholder="Subtitle">
-<textarea id="notice" placeholder="Notice"></textarea>
-<button onclick="saveSettings()">Save Settings</button>
-</div>
-<button onclick="logoutAdmin()">Logout</button>
+<section class="page" id="page-productOrders">
+ <div class="head"><div><h1>Product Orders</h1><div class="muted">Instant payment orders only</div></div><button class="btn secondary" onclick="loadOrders()">Refresh</button></div>
+ <div class="notice">Wallet Payment-এর অর্ডার এখানে Approval-এর জন্য আসবে না। শুধু Instant Payment-এর pending order Approve/Reject হবে।</div>
+ <div class="card"><div id="ordersList" class="empty">Loading orders...</div></div>
+</section>
+
+<section class="page" id="page-walletRequests">
+ <div class="head"><div><h1>Wallet Requests</h1><div class="muted">Approve or reject Add Fund requests</div></div><button class="btn secondary" onclick="loadWalletRequests()">Refresh</button></div>
+ <div class="card"><div id="walletRequestsList" class="empty">Loading requests...</div></div>
+</section>
+
+<section class="page" id="page-transactions">
+ <div class="head"><div><h1>Wallet Transactions</h1><div class="muted">Wallet credit and debit history</div></div><button class="btn secondary" onclick="loadTransactions()">Refresh</button></div>
+ <div class="card"><div id="transactionsList" class="empty">Loading transactions...</div></div>
+</section>
+
+<section class="page" id="page-users">
+ <div class="head"><div><h1>Manage Users</h1><div class="muted">Search any user by Firebase UID</div></div></div>
+ <div class="card">
+  <h2>Find User</h2>
+  <label>USER FIREBASE UID</label>
+  <input id="searchUid" placeholder="Paste user UID">
+  <button class="btn full" onclick="searchUser()">Search User</button>
+  <div id="userResult"></div>
+ </div>
+ <div class="card">
+  <h2>Manual Wallet Credit</h2>
+  <div class="notice">শুধু যাচাই করা User UID-তে টাকা যোগ করবে। প্রতিটি Credit-এর Transaction Record তৈরি হবে।</div>
+  <label>USER UID</label><input id="creditUid" placeholder="User UID">
+  <label>AMOUNT (BDT)</label><input id="creditAmount" type="number" min="1" step="0.01" placeholder="Enter amount">
+  <label>NOTE</label><input id="creditNote" placeholder="Credit reason">
+  <button class="btn green full" onclick="creditWallet()">Add Wallet Balance</button>
+ </div>
+</section>
+
+<section class="page" id="page-products">
+ <div class="head"><div><h1>Products</h1><div class="muted">Add, edit and manage store products</div></div><button class="btn secondary" onclick="loadProducts()">Refresh</button></div>
+ <div class="card">
+  <h2 id="productFormTitle">Add New Product</h2>
+  <input id="editProductId" type="hidden">
+  <label>PRODUCT NAME</label><input id="pName" placeholder="Product name">
+  <label>CATEGORY</label><select id="pCategory"><option value="">Select category</option></select>
+  <div class="row">
+   <div><label>PRICE (BDT)</label><input id="pPrice" type="number" min="0" placeholder="Price"></div>
+   <div><label>STATUS</label><select id="pActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+  </div>
+  <label>DESCRIPTION</label><textarea id="pDescription" placeholder="Product details"></textarea>
+  <label>PRODUCT IMAGE URL</label><input id="pImage" placeholder="https://image-url">
+  <label>DOWNLOAD URL</label><input id="pDownload" placeholder="https://download-url">
+  <label>SETUP VIDEO URL</label><input id="pVideo" placeholder="https://video-url">
+  <label>EXPIRY DATE (OPTIONAL)</label><input id="pExpiry" type="datetime-local">
+  <div class="row">
+   <button class="btn full" onclick="saveProduct()">Save Product</button>
+   <button class="btn secondary full" onclick="clearProductForm()">Clear Form</button>
+  </div>
+ </div>
+ <div class="card"><h2>Product List</h2><div id="productsList" class="empty">Loading products...</div></div>
+</section>
+
+<section class="page" id="page-categories">
+ <div class="head"><div><h1>Categories</h1><div class="muted">Manage product categories</div></div></div>
+ <div class="card">
+  <h2>Add Category</h2>
+  <input id="categoryName" placeholder="Category name">
+  <button class="btn full" onclick="addCategory()">Create Category</button>
+ </div>
+ <div class="card"><h2>Category List</h2><div id="categoriesList" class="empty">Loading...</div></div>
+</section>
+
+<section class="page" id="page-referrals">
+ <div class="head"><div><h1>Referral Codes</h1><div class="muted">Create and manage referral codes</div></div><button class="btn secondary" onclick="loadReferrals()">Refresh</button></div>
+ <div class="card">
+  <h2>Create New Referral Code</h2>
+  <label>CUSTOM REFERRAL CODE</label><input id="refCode" placeholder="Example: ZXER100">
+  <div class="row">
+   <div><label>REWARD AMOUNT (BDT)</label><input id="refReward" type="number" min="0" placeholder="Reward"></div>
+   <div><label>MAX USES</label><input id="refMax" type="number" min="1" placeholder="Example: 3"></div>
+  </div>
+  <label>STATUS</label><select id="refActive"><option value="true">Active</option><option value="false">Inactive</option></select>
+  <button class="btn full" onclick="createReferral()">Create Referral Code</button>
+ </div>
+ <div class="card"><h2>Referral Code List</h2><div id="referralsList" class="empty">Loading...</div></div>
+ <div class="card"><h2>Referral Claims</h2><div class="notice">Referral claim-এর Approve/Reject নেই। এই তালিকা শুধু claim status ও ব্যবহার দেখাবে।</div><div id="claimsList" class="empty">Loading...</div></div>
+</section>
+
+<section class="page" id="page-home">
+ <div class="head"><div><h1>Home & Banner</h1><div class="muted">Edit user panel homepage</div></div></div>
+ <div class="card">
+  <label>HOME TITLE</label><input id="homeTitle" placeholder="Home title">
+  <label>HOME SUBTITLE</label><textarea id="homeSubtitle" placeholder="Home subtitle"></textarea>
+  <label>BANNER IMAGE URL</label><input id="homeBanner" placeholder="https://image-url">
+  <label>NOTICE TEXT</label><textarea id="homeNotice" placeholder="Scrolling notice"></textarea>
+  <button class="btn full" onclick="saveHome()">Save Home Settings</button>
+ </div>
+</section>
+
+<section class="page" id="page-action">
+ <div class="head"><div><h1>Action Flow</h1><div class="muted">Manage all action buttons and links</div></div></div>
+ <div class="card">
+  <label>GIVEAWAY CHANNEL</label><input id="aGiveawayChannel" placeholder="https://t.me/...">
+  <label>GIVEAWAY ACCOUNT</label><input id="aGiveawayAccount" placeholder="https://...">
+  <label>TIKTOK ID</label><input id="aTiktok" placeholder="https://tiktok.com/...">
+  <label>YOUTUBE ID</label><input id="aYoutube" placeholder="https://youtube.com/...">
+  <label>ALL UPDATES (TELEGRAM)</label><input id="aUpdates" placeholder="https://t.me/...">
+  <label>FREE REFERRAL CODES</label><input id="aFreeReferral" placeholder="https://...">
+  <button class="btn full" onclick="saveActionLinks()">Save Action Flow Links</button>
+ </div>
+</section>
+
+<section class="page" id="page-payments">
+ <div class="head"><div><h1>Payment Settings</h1><div class="muted">Configure Send Money details</div></div></div>
+ <div class="card">
+  <label>bKASH NUMBER</label><input id="bkashNumber" placeholder="01XXXXXXXXX">
+  <label>NAGAD NUMBER</label><input id="nagadNumber" placeholder="01XXXXXXXXX">
+  <label>PAYMENT INSTRUCTIONS</label><textarea id="paymentInstructions" placeholder="Send Money instructions"></textarea>
+  <button class="btn full" onclick="savePayments()">Save Payment Settings</button>
+ </div>
+</section>
+
+<section class="page" id="page-maintenance">
+ <div class="head"><div><h1>Maintenance & Update</h1><div class="muted">Control website and product availability</div></div></div>
+ <div class="card">
+  <h2>Website Maintenance</h2>
+  <label>MAINTENANCE MODE</label><select id="siteMaintenance"><option value="false">OFF</option><option value="true">ON</option></select>
+  <label>MAINTENANCE MESSAGE</label><textarea id="maintenanceMessage" placeholder="We are updating the website..."></textarea>
+  <button class="btn yellow full" onclick="saveMaintenance()">Save Website Maintenance</button>
+ </div>
+ <div class="card">
+  <h2>Product Maintenance & Expiry</h2>
+  <label>SELECT PRODUCT</label><select id="maintenanceProduct"><option value="">Select product</option></select>
+  <label>PRODUCT MAINTENANCE</label><select id="productMaintenance"><option value="false">OFF</option><option value="true">ON</option></select>
+  <label>MAINTENANCE MESSAGE</label><input id="productMaintenanceMessage" placeholder="Product maintenance message">
+  <label>EXPIRY DATE</label><input id="maintenanceExpiry" type="datetime-local">
+  <button class="btn full" onclick="saveProductMaintenance()">Save Product Settings</button>
+ </div>
+</section>
+
+<section class="page" id="page-toolbox">
+ <div class="head"><div><h1>Toolbox</h1><div class="muted">Quick access to Action Flow links</div></div></div>
+ <div class="card">
+  <h2>Action Flow Toolbox</h2>
+  <div class="notice">এখানের লিংকগুলো Action Flow পেজের একই Settings থেকে আসবে।</div>
+  <div id="toolboxLinks" class="empty">Loading links...</div>
+ </div>
+</section>
+
 </main>
+</div>
+</div>
+
+<nav class="mobile-nav" id="mobileNav">
+ <button class="active" data-page="dashboard">📊 Home</button>
+ <button data-page="productOrders">📦 Orders</button>
+ <button data-page="walletRequests">💳 Wallet</button>
+ <button data-page="users">👥 Users</button>
+ <button data-page="products">🛍 Products</button>
+ <button data-page="referrals">🎁 Referral</button>
+ <button data-page="toolbox">🧰 Toolbox</button>
+</nav>
+<div id="toast"></div>
 
 <script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import{getDatabase,ref,get,set,push,update,remove}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {
+ getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+ getDatabase,ref,get,set,update,push,remove,runTransaction,onValue
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-const config={
-apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
-authDomain:"devzxer-9d8e9.firebaseapp.com",
-databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId:"devzxer-9d8e9",
-storageBucket:"devzxer-9d8e9.firebasestorage.app",
-messagingSenderId:"101740085617",
-appId:"1:101740085617:web:86d08757e668d4b897b6d0"
+const firebaseConfig={
+ apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+ authDomain:"devzxer-9d8e9.firebaseapp.com",
+ databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+ projectId:"devzxer-9d8e9",
+ storageBucket:"devzxer-9d8e9.firebasestorage.app",
+ messagingSenderId:"101740085617",
+ appId:"1:101740085617:web:86d08757e668d4b897b6d0",
+ measurementId:"G-1635XV6SKV"
 };
-const app=initializeApp(config),auth=getAuth(app),db=getDatabase(app);
-let admin=false,imageData="";
 
-window.loginAdmin=async()=>{
-try{await signInWithEmailAndPassword(auth,email.value,password.value)}
-catch(e){msg.textContent=e.message}
-};
-onAuthStateChanged(auth,async u=>{
-if(!u)return;
-let a=await get(ref(db,"admins/"+u.uid));
-if(a.val()!==true){msg.textContent="Access denied";await signOut(auth);return}
-admin=true;login.classList.add("hidden");panel.classList.remove("hidden");load();
+const appFirebase=initializeApp(firebaseConfig);
+const auth=getAuth(appFirebase);
+const db=getDatabase(appFirebase);
+
+let currentAdmin=null;
+let productsCache={};
+let categoriesCache={};
+let linksCache={};
+let busy=false;
+
+const $=id=>document.getElementById(id);
+const safeText=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=v=>"৳"+Number(v||0).toLocaleString("en-US");
+const dateText=v=>v?new Date(v).toLocaleString():"—";
+const statusPill=s=>`<span class="pill ${safeText(s||"pending")}">${safeText(s||"pending")}</span>`;
+const path=(...p)=>ref(db,p.filter(Boolean).join("/"));
+
+function toast(message){
+ const t=$("toast");t.textContent=message;t.style.display="block";
+ clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display="none",3000);
+}
+function errorMessage(e){
+ console.error(e);
+ return e?.code==="PERMISSION_DENIED"?"Database permission denied. Rules check করুন।":(e?.message||"Something went wrong");
+}
+async function read(p){
+ const s=await get(path(p));return s.exists()?s.val():null;
+}
+async function write(p,v){await set(path(p),v)}
+async function patch(p,v){await update(path(p),v)}
+function obj(v){return v&&typeof v==="object"?v:{}}
+function entries(v){return Object.entries(obj(v))}
+function makeId(){return push(ref(db,"_ids")).key}
+function setList(id,html){$(id).innerHTML=html||'<div class="empty">No data found</div>'}
+function statusOf(x){return String(x?.status||"pending").toLowerCase()}
+
+function showPage(name){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ $("page-"+name)?.classList.add("active");
+ document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+ const loaders={
+ dashboard:loadDashboard,productOrders:loadOrders,walletRequests:loadWalletRequests,
+ transactions:loadTransactions,users:()=>{},products:loadProducts,categories:loadCategories,
+ referrals:loadReferrals,home:loadHome,action:loadActionLinks,payments:loadPayments,
+ maintenance:loadMaintenance,toolbox:loadToolbox
+ };
+ loaders[name]?.();
+}
+window.showPage=showPage;
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+$("loginBtn").addEventListener("click",async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){$("loginMsg").textContent="Email and password required.";return}
+ $("loginBtn").disabled=true;$("loginMsg").textContent="Checking admin access...";
+ try{await signInWithEmailAndPassword(auth,email,password)}
+ catch(e){$("loginMsg").textContent=errorMessage(e)}
+ finally{$("loginBtn").disabled=false}
 });
-window.logoutAdmin=()=>signOut(auth);
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+$("logoutBtn").addEventListener("click",()=>signOut(auth));
 
-imageFile.onchange=()=>{
-let f=imageFile.files[0];if(!f)return;
-if(f.size>300000) return alert("Image must be under 300 KB");
-let r=new FileReader();r.onload=()=>{imageData=r.result;preview.src=imageData};r.readAsDataURL(f);
-};
-
-window.saveProduct=async()=>{
-if(!admin)return;
-let id=pid.value.trim()||push(ref(db,"products")).key;
-let old=await get(ref(db,"products/"+id));
-await set(ref(db,"products/"+id),{
-name:name.value,description:description.value,
-price:Number(price.value)||0,category:category.value,
-imageData:imageData||old.val()?.imageData||"",
-downloadUrl:downloadUrl.value.trim(),setupVideoUrl:videoUrl.value.trim(),
-active:active.checked,updatedAt:Date.now()
-});
-alert("Product saved");load();
-};
-
-async function load(){
-let p=(await get(ref(db,"products"))).val()||{};
-productList.innerHTML="";
-Object.entries(p).forEach(([id,x])=>{
-let d=document.createElement("div");d.className="card";
-d.textContent=x.name+" — ৳"+x.price;
-let edit=document.createElement("button");edit.textContent="Edit";edit.onclick=()=>{
-pid.value=id;name.value=x.name;description.value=x.description;
-price.value=x.price;category.value=x.category;
-downloadUrl.value=x.downloadUrl;videoUrl.value=x.setupVideoUrl;
-active.checked=x.active;imageData=x.imageData||"";preview.src=imageData;
-};
-let del=document.createElement("button");del.textContent="Delete";del.onclick=async()=>{
-if(confirm("Delete product?")){await remove(ref(db,"products/"+id));load()}
-};
-d.append(edit,del);productList.append(d);
+onAuthStateChanged(auth,async user=>{
+ if(!user){currentAdmin=null;$("app").style.display="none";$("loginScreen").style.display="grid";return}
+ try{
+  const admin=await read("admins/"+user.uid);
+  if(admin!==true){
+   await signOut(auth);
+   $("loginMsg").textContent="Access denied: this UID is not an admin.";
+   return;
+  }
+  currentAdmin=user;
+  $("loginScreen").style.display="none";
+  $("app").style.display="block";
+  showPage("dashboard");
+ }catch(e){
+  $("loginMsg").textContent=errorMessage(e);
+  await signOut(auth);
+ }
 });
 
-let w=(await get(ref(db,"walletRequests"))).val()||{};
-fundList.innerHTML="";
-Object.entries(w).forEach(([uid,items])=>Object.entries(items||{}).forEach(([id,x])=>{
-let d=document.createElement("div");d.className="card";
-d.textContent=uid+" | ৳"+x.amount+" | "+x.method+" | "+x.trxId+" | "+x.status;
-let ok=document.createElement("button");ok.textContent="Approve";
-ok.onclick=()=>alert("Wallet credit requires a secure atomic server-side process. Do not manually approve from this demo.");
-let no=document.createElement("button");no.textContent="Reject";
-no.onclick=async()=>{await update(ref(db,"walletRequests/"+uid+"/"+id),{status:"rejected",reviewedAt:Date.now()});load()};
-d.append(ok,no);fundList.append(d);
-}));
-
-let o=(await get(ref(db,"orders"))).val()||{};
-orderList.innerHTML="";
-Object.entries(o).forEach(([uid,items])=>Object.entries(items||{}).forEach(([id,x])=>{
-let d=document.createElement("div");d.className="card";
-d.textContent=x.productName+" | "+uid+" | "+x.status+" | "+x.trxId;
-let ok=document.createElement("button");ok.textContent="Approve";
-ok.onclick=async()=>{await update(ref(db,"orders/"+uid+"/"+id),{status:"approved",reviewedAt:Date.now()});load()};
-let no=document.createElement("button");no.textContent="Reject";
-no.onclick=async()=>{await update(ref(db,"orders/"+uid+"/"+id),{status:"rejected",reviewedAt:Date.now()});load()};
-d.append(ok,no);orderList.append(d);
-}));
-
-let refs=(await get(ref(db,"referralCodes"))).val()||{};
-refList.innerHTML="";
-Object.entries(refs).forEach(([id,x])=>{
-let d=document.createElement("div");d.className="card";
-d.textContent=id+" | ৳"+x.amount+" | "+x.limit+" uses";
-refList.append(d);
-});
+function adminRequired(){
+ if(!currentAdmin)throw new Error("Admin login required");
+}
+async function logTransaction(uid,data){
+ adminRequired();
+ const id=makeId();
+ await write(`walletTransactions/${uid}/${id}`,{
+  ...data,id,uid,createdAt:Date.now(),createdBy:currentAdmin.uid
+ });
 }
 
-window.createReferral=async()=>{
-let code=refText.value.trim().toUpperCase(),amount=Number(refAmount.value),limit=Number(refLimit.value);
-if(!code||amount<=0||limit<1||limit>3)return alert("Enter valid code, amount and limit (1–3)");
-let exists=await get(ref(db,"referralCodes/"+code));
-if(exists.exists())return alert("Code already exists");
-await set(ref(db,"referralCodes/"+code),{amount,limit,used:0,active:true,createdAt:Date.now()});
-alert("Referral created");load();
+async function loadDashboard(){
+ try{
+  const [users,products,orders,wallets]=await Promise.all([
+   read("users"),read("products"),read("orders"),read("walletRequests")
+  ]);
+  $("sUsers").textContent=entries(users).length;
+  $("sProducts").textContent=entries(products).length;
+  let pendingOrders=0,pendingWallet=0,recent=[];
+  for(const [uid,list] of entries(orders))for(const [id,o] of entries(list)){
+   if(statusOf(o)==="pending" && String(o.paymentMethod||"").toLowerCase()!=="wallet")pendingOrders++;
+   recent.push({kind:"Order",uid,id,...o});
+  }
+  for(const [uid,list] of entries(wallets))for(const [id,o] of entries(list)){
+   if(statusOf(o)==="pending")pendingWallet++;
+   recent.push({kind:"Wallet Request",uid,id,...o});
+  }
+  $("sOrders").textContent=pendingOrders;
+  $("sWallet").textContent=pendingWallet;
+  recent.sort((a,b)=>(b.createdAt||b.requestedAt||0)-(a.createdAt||a.requestedAt||0));
+  setList("recentActivity",recent.slice(0,8).map(x=>`
+   <div class="item"><div class="item-title">${safeText(x.kind)} · ${safeText(x.productName||money(x.amount))}</div>
+   <div class="small">UID: ${safeText(x.uid)} · ${dateText(x.createdAt||x.requestedAt)}</div></div>`).join(""));
+ }catch(e){toast(errorMessage(e))}
+}
+
+async function refreshAll(){await loadDashboard();toast("Dashboard refreshed")}
+window.refreshAll=refreshAll;
+
+async function loadOrders(){
+ try{
+  const all=await read("orders");let html="";
+  for(const [uid,list] of entries(all)){
+   for(const [id,o] of entries(list)){
+    if(String(o.paymentMethod||"").toLowerCase()==="wallet")continue;
+    html+=`<div class="item">
+     <div class="item-title">${safeText(o.productName||"Product Order")}</div>
+     <div class="small">UID: ${safeText(uid)}<br>Order: ${safeText(id)}<br>Amount: ${money(o.price)}<br>Method: ${safeText(o.paymentMethod||"—")}<br>TrxID: ${safeText(o.trxId||"—")}<br>Date: ${dateText(o.createdAt)}</div>
+     <p>${statusPill(statusOf(o))}</p>
+     ${statusOf(o)==="pending"?`<label>DELIVERY KEY / DOWNLOAD URL</label><input id="key_${safeText(id)}" placeholder="Enter delivery key or URL">
+     <div class="actions"><button class="btn green" onclick="orderAction('${safeText(uid)}','${safeText(id)}','approved')">Approve</button><button class="btn red" onclick="orderAction('${safeText(uid)}','${safeText(id)}','rejected')">Reject</button></div>`:""}
+    </div>`;
+   }
+  }
+  setList("ordersList",html);
+ }catch(e){setList("ordersList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+}
+window.loadOrders=loadOrders;
+
+window.orderAction=async(uid,id,status)=>{
+ if(!confirm(status==="approved"?"Approve this order?":"Reject this order?"))return;
+ try{
+  const o=await read(`orders/${uid}/${id}`);
+  if(!o||statusOf(o)!=="pending")throw new Error("Order is no longer pending");
+  const key=$("key_"+id)?.value.trim()||"";
+  const product=o.productId?await read("products/"+o.productId):null;
+  const delivery=key||product?.downloadUrl||"";
+  if(status==="approved"&&!delivery)throw new Error("Delivery key or product download URL required");
+  await patch(`orders/${uid}/${id}`,{
+   status,downloadUrl:status==="approved"?delivery:"",
+   approvedAt:status==="approved"?Date.now():null,
+   rejectedAt:status==="rejected"?Date.now():null,
+   processedBy:currentAdmin.uid
+  });
+  toast("Order "+status);await loadOrders();await loadDashboard();
+ }catch(e){toast(errorMessage(e))}
 };
 
-window.saveSettings=async()=>{
-await set(ref(db,"settings/home"),{title:homeTitle.value,subtitle:homeSubtitle.value});
-await set(ref(db,"settings/notice"),notice.value);
-alert("Settings saved");
+async function loadWalletRequests(){
+ try{
+  const all=await read("walletRequests");let html="";
+  for(const [uid,list] of entries(all))for(const [id,r] of entries(list)){
+   html+=`<div class="item">
+    <div class="item-title">${money(r.amount)} · ${safeText(r.method||"")}</div>
+    <div class="small">UID: ${safeText(uid)}<br>Request: ${safeText(id)}<br>TrxID: ${safeText(r.trxId||"—")}<br>Date: ${dateText(r.requestedAt)}</div>
+    <p>${statusPill(statusOf(r))}</p>
+    ${statusOf(r)==="pending"?`<div class="actions"><button class="btn green" onclick="walletRequestAction('${safeText(uid)}','${safeText(id)}','approved')">Approve</button><button class="btn red" onclick="walletRequestAction('${safeText(uid)}','${safeText(id)}','rejected')">Reject</button></div>`:""}
+   </div>`;
+  }
+  setList("walletRequestsList",html);
+ }catch(e){setList("walletRequestsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+}
+window.loadWalletRequests=loadWalletRequests;
+
+window.walletRequestAction=async(uid,id,status)=>{
+ if(!confirm(status==="approved"?"Approve and add balance?":"Reject this request?"))return;
+ try{
+  const requestRef=path(`walletRequests/${uid}/${id}`);
+  const claim=await runTransaction(requestRef,current=>{
+   if(!current||statusOf(current)!=="pending")return;
+   current.status=status;current.processedAt=Date.now();current.processedBy=currentAdmin.uid;
+   return current;
+  });
+  if(!claim.committed)throw new Error("Request already processed");
+  const req=claim.snapshot.val();
+  if(status==="approved"){
+   const amount=Number(req.amount);
+   if(!Number.isFinite(amount)||amount<=0)throw new Error("Invalid request amount");
+   const bal=await runTransaction(path(`wallets/${uid}/balance`),v=>(Number(v)||0)+amount);
+   if(!bal.committed)throw new Error("Wallet balance update failed");
+   await logTransaction(uid,{type:"credit",amount,reason:"Wallet request approved",requestId:id});
+  }
+  toast("Wallet request "+status);await loadWalletRequests();await loadDashboard();
+ }catch(e){toast(errorMessage(e))}
 };
+
+async function loadTransactions(){
+ try{
+  const all=await read("walletTransactions");let html="";
+  for(const [uid,list] of entries(all))for(const [id,t] of entries(list)){
+   html+=`<div class="item"><div class="item-title">${safeText(t.type||"transaction")} · ${money(t.amount)}</div>
+   <div class="small">UID: ${safeText(uid)}<br>Reason: ${safeText(t.reason||"—")}<br>ID: ${safeText(id)}<br>Date: ${dateText(t.createdAt)}</div></div>`;
+  }
+  setList("transactionsList",html);
+ }catch(e){setList("transactionsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+}
+window.loadTransactions=loadTransactions;
+
+window.searchUser=async()=>{
+ const uid=$("searchUid").value.trim();
+ if(!uid){toast("Enter user UID");return}
+ $("userResult").innerHTML='<div class="empty">Searching...</div>';
+ try{
+  const [user,wallet]=await Promise.all([read("users/"+uid),read("wallets/"+uid)]);
+  if(!user&&!wallet){$("userResult").innerHTML='<div class="empty">User not found</div>';return}
+  const balance=Number(wallet?.balance)||0;
+  $("userResult").innerHTML=`<div class="item">
+   <div class="item-title">${safeText(user?.name||user?.displayName||"User")}</div>
+   <div class="small">UID: ${safeText(uid)}<br>Email: ${safeText(user?.email||"—")}<br>Wallet Balance: ${money(balance)}</div>
+   <span class="pill active">User found</span></div>`;
+  $("creditUid").value=uid;
+ }catch(e){$("userResult").innerHTML=`<div class="empty">${safeText(errorMessage(e))}</div>`}
+};
+
+window.creditWallet=async()=>{
+ if(busy)return;
+ const uid=$("creditUid").value.trim(),amount=Number($("creditAmount").value),note=$("creditNote").value.trim();
+ if(!uid||!Number.isFinite(amount)||amount<=0){toast("Valid UID and amount required");return}
+ if(!confirm(`Add ${money(amount)} to this user's wallet?`))return;
+ busy=true;
+ try{
+  const bal=await runTransaction(path(`wallets/${uid}/balance`),v=>(Number(v)||0)+amount);
+  if(!bal.committed)throw new Error("Wallet update failed");
+  await logTransaction(uid,{type:"credit",amount,reason:note||"Admin manual credit"});
+  toast("Wallet credited successfully");
+  $("creditAmount").value="";$("creditNote").value="";
+  if($("searchUid").value.trim()===uid)await searchUser();
+  await loadTransactions();
+ }catch(e){toast(errorMessage(e))}
+ finally{busy=false}
+};
+
+function clearProductForm(){
+ ["editProductId","pName","pPrice","pDescription","pImage","pDownload","pVideo","pExpiry"].forEach(id=>$(id).value="");
+ $("pActive").value="true";$("productFormTitle").textContent="Add New Product";
+}
+window.clearProductForm=clearProductForm;
+
+async function loadProducts(){
+ try{
+  productsCache=obj(await read("products"));
+  const options=Object.entries(productsCache).map(([id,p])=>`<option value="${safeText(id)}">${safeText(p.name||id)}</option>`).join("");
+  $("maintenanceProduct").innerHTML='<option value="">Select product</option>'+options;
+  setList("productsList",entries(productsCache).map(([id,p])=>`
+   <div class="item"><div class="item-title">${safeText(p.name||"Unnamed Product")}</div>
+   <div class="small">ID: ${safeText(id)}<br>Category: ${safeText(p.category||"—")}<br>Price: ${money(p.price)}<br>Expiry: ${safeText(p.expiry||"Not set")}<br>Maintenance: ${p.maintenance?"ON":"OFF"}</div>
+   <p>${p.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
+   <div class="actions"><button class="btn" onclick="editProduct('${safeText(id)}')">Edit</button><button class="btn secondary" onclick="toggleProduct('${safeText(id)}')">${p.active===false?"Activate":"Deactivate"}</button><button class="btn red" onclick="deleteProduct('${safeText(id)}')">Delete</button></div></div>`).join(""));
+  await fillCategorySelect();
+ }catch(e){setList("productsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+}
+window.loadProducts=loadProducts;
+
+window.editProduct=id=>{
+ const p=productsCache[id];if(!p)return;
+ $("editProductId").value=id;$("pName").value=p.name||"";
+ $("pCategory").value=p.category||"";$("pPrice").value=p.price??"";
+ $("pActive").value=String(p.active!==false);
+ $("pDescription").value=p.description||"";$("pImage").value=p.imageUrl||p.imageData||"";
+ $("pDownload").value=p.downloadUrl||"";$("pVideo").value=p.setupVideoUrl||"";
+ $("pExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
+ $("productFormTitle").textContent="Edit Product";
+ window.scrollTo({top:0,behavior:"smooth"});
+};
+window.saveProduct=async()=>{
+ const id=$("editProductId").value||makeId();
+ const name=$("pName").value.trim(),category=$("pCategory").value;
+ const price=Number($("pPrice").value);
+ if(!name||!category||!Number.isFinite(price)||price<0){toast("Name, category and valid price required");return}
+ const old=productsCache[id]||{};
+ const data={
+  ...old,name,category,price,active:$("pActive").value==="true",
+  description:$("pDescription").value.trim(),
+  imageUrl:$("pImage").value.trim(),downloadUrl:$("pDownload").value.trim(),
+  setupVideoUrl:$("pVideo").value.trim(),
+  expiry:$("pExpiry").value?new Date($("pExpiry").value).getTime():null,
+  updatedAt:Date.now()
+ };
+ try{
+  await write("products/"+id,data);toast("Product saved");clearProductForm();await loadProducts();await loadDashboard();
+ }catch(e){toast(errorMessage(e))}
+};
+window.toggleProduct=async id=>{
+ try{const p=productsCache[id];await patch("products/"+id,{active:p.active===false,updatedAt:Date.now()});await loadProducts()}
+ catch(e){toast(errorMessage(e))}
+};
+window.deleteProduct=async id=>{
+ if(!confirm("Delete this product?"))return;
+ try{await remove(path("products/"+id));toast("Product deleted");await loadProducts();await loadDashboard()}
+ catch(e){toast(errorMessage(e))}
+};
+
+async function loadCategories(){
+ try{
+  categoriesCache=obj(await read("categories"));
+  setList("categoriesList",entries(categoriesCache).map(([id,c])=>{
+   const name=typeof c==="string"?c:c.name||id;
+   return `<div class="item"><div class="item-title">${safeText(name)}</div><div class="small">ID: ${safeText(id)}</div><div class="actions"><button class="btn red" onclick="deleteCategory('${safeText(id)}')">Delete</button></div></div>`;
+  }).join(""));
+  await fillCategorySelect();
+ }catch(e){setList("categoriesList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+}
+async function fillCategorySelect(){
+ const cats=entries(categoriesCache);
+ $("pCategory").innerHTML='<option value="">Select category</option>'+cats.map(([id,c])=>`<option value="${safeText(typeof c==="string"?c:(c.name||id))}">${safeText(typeof c==="string"?c:(c.name||id))}</option>`).join("");
+}
+window.addCategory=async()=>{
+ const name=$("categoryName").value.trim();if(!name)return toast("Enter category name");
+ try{
+  const id=makeId();await write("categories/"+id,{name,createdAt:Date.now()});
+  $("categoryName").value="";toast("Category added");await loadCategories();
+ }catch(e){toast(errorMessage(e))}
+};
+window.deleteCategory=async id=>{
+ if(!confirm("Delete category? Products using it will not be deleted."))return;
+ try{await remove(path("categories/"+id));toast("Category deleted");await loadCategories()}
+ catch(e){toast(errorMessage(e))}
+};
+
+async function loadReferrals(){
+ try{
+  const [codes,claims]=await Promise.all([read("referralCodes"),read("referralClaims")]);
+  setList("referralsList",entries(codes).map(([code,c])=>`
+   <div class="item"><div class="item-title">${safeText(code)}</div>
+   <div class="small">Reward: ${money(c.rewardAmount??c.reward)}<br>Used: ${Number(c.usedCount)||0} / ${Number(c.maxUses)||0}</div>
+   <p>${c.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
+   <div class="actions"><button class="btn secondary" onclick="editReferral('${safeText(code)}')">Edit</button><button class="btn yellow" onclick="toggleReferral('${safeText(code)}')">${c.active===false?"Activate":"Disable"}</button><button class="btn red" onclick="deleteReferral('${safeText(code)}')">Delete</button></div></div>`).join(""));
+  let claimHtml="";
+  for(const [uid,list] of entries(claims))for(const [id,c] of entries(list)){
+   claimHtml+=`<div class="item"><div class="item-title">Code: ${safeText(c.code||"—")}</div><div class="small">UID: ${safeText(uid)}<br>Email: ${safeText(c.email||"—")}<br>Status: ${safeText(c.status||"submitted")}<br>Date: ${dateText(c.submittedAt)}</div></div>`;
+  }
+  setList("claimsList",claimHtml);
+ }catch(e){setList("referralsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+}
+window.loadReferrals=loadReferrals;
+
+window.createReferral=async()=>{
+ const code=$("refCode").value.trim().toUpperCase();
+ const reward=Number($("refReward").value),max=Number($("refMax").value);
+ if(!/^[A-Z0-9_-]{3,32}$/.test(code))return toast("Code must be 3–32 letters/numbers");
+ if(!Number.isFinite(reward)||reward<0||!Number.isInteger(max)||max<1)return toast("Enter valid reward and max uses");
+ try{
+  if(await read("referralCodes/"+code))return toast("This code already exists");
+  await write("referralCodes/"+code,{
+   code,rewardAmount:reward,maxUses:max,usedCount:0,
+   active:$("refActive").value==="true",createdAt:Date.now()
+  });
+  $("refCode").value="";$("refReward").value="";$("refMax").value="";
+  toast("Referral code created");await loadReferrals();
+ }catch(e){toast(errorMessage(e))}
+};
+window.editReferral=async code=>{
+ try{
+  const c=await read("referralCodes/"+code);if(!c)return;
+  const reward=prompt("Reward amount:",c.rewardAmount??c.reward??0);if(reward===null)return;
+  const max=prompt("Maximum uses:",c.maxUses??1);if(max===null)return;
+  if(!Number.isFinite(Number(reward))||Number(reward)<0||!Number.isInteger(Number(max))||Number(max)<1)return toast("Invalid values");
+  await patch("referralCodes/"+code,{rewardAmount:Number(reward),maxUses:Number(max),updatedAt:Date.now()});
+  toast("Referral updated");await loadReferrals();
+ }catch(e){toast(errorMessage(e))}
+};
+window.toggleReferral=async code=>{
+ try{const c=await read("referralCodes/"+code);await patch("referralCodes/"+code,{active:c.active===false,updatedAt:Date.now()});await loadReferrals()}
+ catch(e){toast(errorMessage(e))}
+};
+window.deleteReferral=async code=>{
+ if(!confirm("Delete this referral code?"))return;
+ try{await remove(path("referralCodes/"+code));toast("Referral deleted");await loadReferrals()}
+ catch(e){toast(errorMessage(e))}
+};
+
+async function loadHome(){
+ try{
+  const h=obj(await read("settings/home"));
+  $("homeTitle").value=h.title||"";$("homeSubtitle").value=h.subtitle||"";
+  $("homeBanner").value=h.bannerImage||"";
+  $("homeNotice").value=typeof await read("settings/notice")==="string"?await read("settings/notice"):(await read("settings/notice"))?.text||"";
+ }catch(e){toast(errorMessage(e))}
+}
+window.saveHome=async()=>{
+ try{
+  await write("settings/home",{
+   title:$("homeTitle").value.trim(),subtitle:$("homeSubtitle").value.trim(),
+   bannerImage:$("homeBanner").value.trim(),updatedAt:Date.now()
+  });
+  await write("settings/notice",{text:$("homeNotice").value.trim(),updatedAt:Date.now()});
+  toast("Home settings saved");
+ }catch(e){toast(errorMessage(e))}
+};
+
+const actionFields={
+ giveawayChannel:"aGiveawayChannel",giveawayAccount:"aGiveawayAccount",
+ tiktokUrl:"aTiktok",youtubeUrl:"aYoutube",updatesTelegram:"aUpdates",
+ freeReferralUrl:"aFreeReferral"
+};
+async function loadActionLinks(){
+ try{
+  linksCache=obj(await read("settings/actionLinks"));
+  for(const [key,id] of Object.entries(actionFields))$(id).value=linksCache[key]||"";
+  renderToolbox();
+ }catch(e){toast(errorMessage(e))}
+}
+window.saveActionLinks=async()=>{
+ const data={...linksCache};
+ for(const [key,id] of Object.entries(actionFields))data[key]=$(id).value.trim();
+ data.updatedAt=Date.now();
+ try{await write("settings/actionLinks",data);linksCache=data;renderToolbox();toast("Action Flow links saved")}
+ catch(e){toast(errorMessage(e))}
+};
+function renderToolbox(){
+ const items=[
+  ["Giveaway Channel","giveawayChannel"],["Giveaway Account","giveawayAccount"],
+  ["TikTok ID","tiktokUrl"],["YouTube ID","youtubeUrl"],
+  ["All Updates","updatesTelegram"],["Free Referral Codes","freeReferralUrl"]
+ ];
+ setList("toolboxLinks",items.map(([name,key])=>{
+  const url=linksCache[key]||"";
+  return `<div class="item"><div class="item-title">${safeText(name)}</div><div class="small">${safeText(url||"Link not set")}</div>
+  ${url?`<div class="actions"><button class="btn secondary" onclick="openLink('${encodeURIComponent(url)}')">Open Link</button></div>`:""}</div>`;
+ }).join(""));
+}
+window.openLink=encoded=>{
+ const url=decodeURIComponent(encoded);
+ try{const u=new URL(url);if(!["http:","https:"].includes(u.protocol))throw 0;window.open(u.href,"_blank","noopener")}
+ catch{toast("Invalid link")}
+};
+async function loadToolbox(){await loadActionLinks();renderToolbox()}
+
+async function loadPayments(){
+ try{
+  const a=obj(await read("settings/actionLinks"));
+  $("bkashNumber").value=a.bkashNumber||"";
+  $("nagadNumber").value=a.nagadNumber||"";
+  $("paymentInstructions").value=a.paymentInstructions||"";
+ }catch(e){toast(errorMessage(e))}
+}
+window.savePayments=async()=>{
+ try{
+  const old=obj(await read("settings/actionLinks"));
+  await write("settings/actionLinks",{
+   ...old,bkashNumber:$("bkashNumber").value.trim(),
+   nagadNumber:$("nagadNumber").value.trim(),
+   paymentInstructions:$("paymentInstructions").value.trim(),updatedAt:Date.now()
+  });
+  toast("Payment settings saved");
+ }catch(e){toast(errorMessage(e))}
+};
+
+async function loadMaintenance(){
+ try{
+  const m=obj(await read("settings/maintenance"));
+  $("siteMaintenance").value=String(m.enabled===true);
+  $("maintenanceMessage").value=m.message||"";
+  await loadProducts();
+ }catch(e){toast(errorMessage(e))}
+}
+window.saveMaintenance=async()=>{
+ try{
+  await write("settings/maintenance",{
+   enabled:$("siteMaintenance").value==="true",
+   message:$("maintenanceMessage").value.trim(),updatedAt:Date.now()
+  });
+  toast("Website maintenance settings saved");
+ }catch(e){toast(errorMessage(e))}
+};
+window.saveProductMaintenance=async()=>{
+ const id=$("maintenanceProduct").value;
+ if(!id)return toast("Select a product");
+ try{
+  const expiry=$("maintenanceExpiry").value;
+  await patch("products/"+id,{
+   maintenance:$("productMaintenance").value==="true",
+   maintenanceMessage:$("productMaintenanceMessage").value.trim(),
+   expiry:expiry?new Date(expiry).getTime():null,updatedAt:Date.now()
+  });
+  toast("Product settings saved");await loadProducts();
+ }catch(e){toast(errorMessage(e))}
+};
+
+async function loadAll(){
+ await Promise.allSettled([
+  loadDashboard(),loadOrders(),loadWalletRequests(),loadTransactions(),
+  loadProducts(),loadCategories(),loadReferrals(),loadHome(),
+  loadActionLinks(),loadPayments(),loadMaintenance()
+ ]);
+}
 </script>
 </body>
 </html>
