@@ -121,7 +121,8 @@ h1,h2,h3,p{margin-top:0}
  padding:14px;text-align:center;color:white;font-weight:800;font-size:12px
 }
 .method.selected{border-color:#2b91ff;background:#142d4e}
-.method strong{display:block;font-size:21px;margin-bottom:6px}
+.method strong{display:flex;align-items:center;justify-content:center;height:30px;margin-bottom:6px}
+.method-logo{width:76px;height:29px;display:block}
 .list-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
 .list-item:last-child{border:0}
 .list-icon{width:42px;height:42px;border-radius:13px;background:#1a2d49;display:grid;place-items:center;font-size:20px;flex-shrink:0}
@@ -147,7 +148,8 @@ h1,h2,h3,p{margin-top:0}
  padding:14px 12px;background:linear-gradient(145deg,#142642,#101a2c);
  border:1px solid var(--line);border-radius:15px;min-width:0
 }
-.action-link .link-icon{width:39px;height:39px;border-radius:12px;background:#1b3658;display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.action-link .link-icon{width:39px;height:39px;border-radius:12px;background:#1b3658;display:grid;place-items:center;flex-shrink:0}
+.action-link .link-icon svg{width:21px;height:21px;display:block;fill:none;stroke:#8edfff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .action-link b{font-size:11px;display:block;line-height:1.4}
 .action-link small{font-size:9px;color:var(--muted);display:block;margin-top:4px}
 .bottom-nav{
@@ -235,7 +237,6 @@ h1,h2,h3,p{margin-top:0}
  </header>
 
  <main>
-  <!-- HOME -->
   <section id="page-home" class="page active">
    <div class="hero">
     <div class="hero-content">
@@ -266,7 +267,6 @@ h1,h2,h3,p{margin-top:0}
    <div id="productGrid" class="product-grid"><div class="loading">Loading products...</div></div>
   </section>
 
-  <!-- WALLET -->
   <section id="page-wallet" class="page">
    <h2 class="page-title">My Wallet</h2>
    <p class="page-sub">View your available balance and wallet activity.</p>
@@ -279,15 +279,32 @@ h1,h2,h3,p{margin-top:0}
    <div class="card"><div class="card-title">Recent Wallet Transactions</div><div id="walletHistory"><div class="empty">No transactions yet.</div></div></div>
   </section>
 
-  <!-- ADD FUND -->
   <section id="page-addfund" class="page">
    <h2 class="page-title">Add Fund</h2>
    <p class="page-sub">Send money using bKash or Nagad and submit your transaction details.</p>
    <div class="card">
     <div class="card-title">Select Payment Method</div>
     <div class="method-grid">
-     <button class="method selected" data-method="bKash" onclick="chooseMethod('bKash',this)"><strong>🩷</strong>bKash</button>
-     <button class="method" data-method="Nagad" onclick="chooseMethod('Nagad',this)"><strong>🟠</strong>Nagad</button>
+     <button class="method selected" data-method="bKash" onclick="chooseMethod('bKash',this)">
+      <strong>
+       <svg class="method-logo" viewBox="0 0 110 38" role="img" aria-label="bKash">
+        <path d="M18 3L31 10L31 27L18 35L5 27L5 10Z" fill="#e2136e"/>
+        <path d="M13 12L23 12L18 23Z" fill="#fff"/>
+        <text x="37" y="25" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#e2136e">bKash</text>
+       </svg>
+      </strong>
+      bKash
+     </button>
+     <button class="method" data-method="Nagad" onclick="chooseMethod('Nagad',this)">
+      <strong>
+       <svg class="method-logo" viewBox="0 0 110 38" role="img" aria-label="Nagad">
+        <circle cx="18" cy="19" r="15" fill="#f58220"/>
+        <path d="M11 23L18 9L25 23L18 29Z" fill="#fff"/>
+        <text x="37" y="25" font-family="Arial,sans-serif" font-size="19" font-weight="bold" fill="#f58220">Nagad</text>
+       </svg>
+      </strong>
+      Nagad
+     </button>
     </div>
     <div class="field" style="margin-top:16px">
      <label>Send Money Number</label>
@@ -314,14 +331,12 @@ h1,h2,h3,p{margin-top:0}
    <div class="card"><div class="card-title">My Fund Requests</div><div id="fundHistory"><div class="empty">No requests yet.</div></div></div>
   </section>
 
-  <!-- ORDERS -->
   <section id="page-orders" class="page">
    <h2 class="page-title">My Orders</h2>
    <p class="page-sub">Track your purchases and access approved downloads.</p>
    <div class="card"><div id="ordersList"><div class="empty">No orders found.</div></div></div>
   </section>
 
-  <!-- PROFILE -->
   <section id="page-profile" class="page">
    <h2 class="page-title">My Profile</h2>
    <p class="page-sub">Manage your account information and avatar.</p>
@@ -345,7 +360,6 @@ h1,h2,h3,p{margin-top:0}
    </div>
   </section>
 
-  <!-- ACTION FLOW -->
   <section id="page-actionflow" class="page">
    <h2 class="page-title">All Update & Give 🎁</h2>
    <p class="page-sub">Explore our official channels, giveaway announcements, updates and free referral codes.</p>
@@ -361,16 +375,34 @@ h1,h2,h3,p{margin-top:0}
 
    <div class="section-head"><h3>Giveaway & Community</h3></div>
    <div class="action-links">
-    <a id="link-giveawayChannel" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">🎁</span><span><b>Giveaway Channel</b><small>Join our giveaway channel</small></span></a>
-    <a id="link-giveawayAccount" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">📣</span><span><b>Giveaway Account</b><small>Visit giveaway account</small></span></a>
-    <a id="link-freeReferral" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">🎟</span><span><b>Free Referral Codes</b><small>Find available codes</small></span></a>
+    <a id="link-giveawayChannel" class="action-link" href="#" target="_blank" rel="noopener">
+     <span class="link-icon"><svg viewBox="0 0 24 24"><path d="M20 8.5V20H4V8.5"/><path d="M2 4h20v4H2z"/><path d="M12 20V4"/><path d="M12 8c-5 0-6-4-3-5 2-1 3 5 3 5z"/><path d="M12 8c5 0 6-4 3-5-2-1-3 5-3 5z"/></svg></span>
+     <span><b>Giveaway Channel</b><small>Join our giveaway channel</small></span>
+    </a>
+    <a id="link-giveawayAccount" class="action-link" href="#" target="_blank" rel="noopener">
+     <span class="link-icon"><svg viewBox="0 0 24 24"><path d="M3 11l18-8-7 18-3-7-8-3z"/><path d="M11 14l5-5"/></svg></span>
+     <span><b>Giveaway Account</b><small>Visit giveaway account</small></span>
+    </a>
+    <a id="link-freeReferral" class="action-link" href="#" target="_blank" rel="noopener">
+     <span class="link-icon"><svg viewBox="0 0 24 24"><path d="M20 12l-8 9-9-9V3h9z"/><circle cx="8" cy="8" r="1.5"/><path d="M12 8l4 4-4 4"/></svg></span>
+     <span><b>Free Referral Codes</b><small>Find available codes</small></span>
+    </a>
    </div>
 
    <div class="section-head"><h3>Follow Our Socials</h3></div>
    <div class="action-links">
-    <a id="link-tiktok" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">♪</span><span><b>TikTok ID</b><small>Follow us on TikTok</small></span></a>
-    <a id="link-youtube" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">▶</span><span><b>YouTube</b><small>Subscribe to our channel</small></span></a>
-    <a id="link-updates" class="action-link" href="#" target="_blank" rel="noopener"><span class="link-icon">✈</span><span><b>All Updates</b><small>Join our update channel</small></span></a>
+    <a id="link-tiktok" class="action-link" href="#" target="_blank" rel="noopener">
+     <span class="link-icon"><svg viewBox="0 0 24 24"><path d="M14 3v11.2a4.3 4.3 0 1 1-4-4.3"/><path d="M14 3c.5 3.2 2.5 5.1 6 5.5"/></svg></span>
+     <span><b>TikTok ID</b><small>Follow us on TikTok</small></span>
+    </a>
+    <a id="link-youtube" class="action-link" href="#" target="_blank" rel="noopener">
+     <span class="link-icon"><svg viewBox="0 0 24 24"><path d="M22 12s0-4-1-5-3-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 3 1 9 1 8 0 9-1 1-5 1-5z"/><path d="M10 9l5 3-5 3z"/></svg></span>
+     <span><b>YouTube</b><small>Subscribe to our channel</small></span>
+    </a>
+    <a id="link-updates" class="action-link" href="#" target="_blank" rel="noopener">
+     <span class="link-icon"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></svg></span>
+     <span><b>All Updates</b><small>Join our update channel</small></span>
+    </a>
    </div>
    <div class="card" style="margin-top:17px">
     <div class="card-title">Official Links</div>
@@ -395,7 +427,8 @@ h1,h2,h3,p{margin-top:0}
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {
  getAuth,onAuthStateChanged,createUserWithEmailAndPassword,
- signInWithEmailAndPassword,sendPasswordResetEmail,signOut,updateProfile
+ signInWithEmailAndPassword,sendPasswordResetEmail,signOut,updateProfile,
+ setPersistence,browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
  getDatabase,ref,onValue,get,set,update,push,query,orderByChild,limitToLast
@@ -416,6 +449,12 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getDatabase(app);
+
+/* KEEP USER SIGNED IN */
+const authReady=setPersistence(auth,browserLocalPersistence).catch(error=>{
+ console.error("Auth persistence setup failed:",error);
+ throw error;
+});
 
 let currentUser=null;
 let authMode="login";
@@ -462,36 +501,63 @@ window.switchAuthMode=()=>{
  $("switchAuth").textContent=authMode==="login"?"CREATE NEW ACCOUNT":"BACK TO LOGIN";
  $("authPassword").autocomplete=authMode==="login"?"current-password":"new-password";
 };
+
 window.forgotPassword=async()=>{
  const email=$("authEmail").value.trim();
  if(!email)return toast("Enter your email address first.");
- try{await sendPasswordResetEmail(auth,email);toast("Password reset email sent.");}
- catch(e){toast(e.message);}
+ try{
+  await authReady;
+  await sendPasswordResetEmail(auth,email);
+  toast("Password reset email sent.");
+ }catch(e){toast(e.message);}
 };
+
 $("authForm").addEventListener("submit",async e=>{
  e.preventDefault();
  const email=$("authEmail").value.trim();
  const password=$("authPassword").value;
  $("authSubmit").disabled=true;
  try{
+  await authReady;
   if(authMode==="signup"){
    const cred=await createUserWithEmailAndPassword(auth,email,password);
-   await set(ref(db,`users/${cred.user.uid}`),{
-    email,displayName:email.split("@")[0],avatar:"👤",createdAt:Date.now()
-   });
-  }else await signInWithEmailAndPassword(auth,email,password);
- }catch(err){toast(err.message);}
- finally{$("authSubmit").disabled=false;}
+   try{
+    await set(ref(db,`users/${cred.user.uid}`),{
+     email,displayName:email.split("@")[0],avatar:"👤",createdAt:Date.now()
+    });
+   }catch(profileError){
+    console.error("Profile creation failed:",profileError);
+    toast("Account created. Profile setup could not finish; please check database access.");
+   }
+  }else{
+   await signInWithEmailAndPassword(auth,email,password);
+  }
+ }catch(err){
+  const messages={
+   "auth/invalid-email":"Please enter a valid email address.",
+   "auth/user-not-found":"No account found with this email.",
+   "auth/wrong-password":"Incorrect password.",
+   "auth/invalid-credential":"Incorrect email or password.",
+   "auth/email-already-in-use":"This email is already registered.",
+   "auth/weak-password":"Password must be at least 6 characters.",
+   "auth/network-request-failed":"Network error. Check your internet connection."
+  };
+  toast(messages[err.code]||err.message);
+ }finally{
+  $("authSubmit").disabled=false;
+ }
 });
 
 onAuthStateChanged(auth,async user=>{
  currentUser=user;
  if(!user){
   cleanupListeners();
-  $("authScreen").classList.remove("hidden");$("app").classList.add("hidden");
+  $("authScreen").classList.remove("hidden");
+  $("app").classList.add("hidden");
   return;
  }
- $("authScreen").classList.add("hidden");$("app").classList.remove("hidden");
+ $("authScreen").classList.add("hidden");
+ $("app").classList.remove("hidden");
  startUserListeners();
 });
 
@@ -505,7 +571,8 @@ function startUserListeners(){
  const uid=currentUser.uid;
 
  walletUnsub=onValue(ref(db,`wallets/${uid}/balance`),snap=>{
-  walletValue=Number(snap.val()||0);$("walletBalance").textContent=walletValue.toFixed(2);
+  walletValue=Number(snap.val()||0);
+  $("walletBalance").textContent=walletValue.toFixed(2);
  },err=>toast("Wallet read failed: "+err.message));
 
  profileUnsub=onValue(ref(db,`users/${uid}`),snap=>{
@@ -520,11 +587,13 @@ function startUserListeners(){
  },err=>toast("Profile read failed: "+err.message));
 
  productsUnsub=onValue(ref(db,"products"),snap=>{
-  productsData=snap.val()||{};renderProducts();
+  productsData=snap.val()||{};
+  renderProducts();
  },err=>toast("Products could not load: "+err.message));
 
  categoriesUnsub=onValue(ref(db,"categories"),snap=>{
-  categoriesData=snap.val()||{};renderCategories();
+  categoriesData=snap.val()||{};
+  renderCategories();
  },err=>toast("Categories could not load: "+err.message));
 
  settingsUnsub=onValue(ref(db,"settings"),snap=>{
@@ -532,11 +601,16 @@ function startUserListeners(){
   const home=settings.home||{};
   $("heroTitle").textContent=home.title||"Premium Digital Products";
   $("heroSubtitle").textContent=home.subtitle||"Discover premium digital products in one place.";
-  $("noticeText").textContent=settings.notice||"Welcome to our digital store.";
+  const notice=settings.notice;
+  $("noticeText").textContent=typeof notice==="object"&&notice!==null?(notice.text||"Welcome to our digital store."):(notice||"Welcome to our digital store.");
   const banner=$("heroBanner");
   if(home.bannerImage){
-   banner.src=home.bannerImage;banner.style.display="block";
-  }else{banner.removeAttribute("src");banner.style.display="none";}
+   banner.src=home.bannerImage;
+   banner.style.display="block";
+  }else{
+   banner.removeAttribute("src");
+   banner.style.display="none";
+  }
   renderActionLinks(settings.actionLinks||{});
  },err=>toast("Settings could not load: "+err.message));
 
@@ -548,7 +622,8 @@ function startUserListeners(){
 /* NAVIGATION */
 window.navigate=page=>{
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- const target=$("page-"+page);if(target)target.classList.add("active");
+ const target=$("page-"+page);
+ if(target)target.classList.add("active");
  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
  window.scrollTo({top:0,behavior:"smooth"});
  if(page==="wallet")loadWalletHistory();
@@ -586,10 +661,14 @@ function categoryMatches(product){
 function renderProducts(){
  const grid=$("productGrid");
  const entries=Object.entries(productsData).filter(([id,p])=>p&&p.active!==false&&categoryMatches(p));
- if(!entries.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1">No products available in this category.</div>';return;}
+ if(!entries.length){
+  grid.innerHTML='<div class="empty" style="grid-column:1/-1">No products available in this category.</div>';
+  return;
+ }
  grid.innerHTML="";
  entries.forEach(([id,p])=>{
-  const div=document.createElement("article");div.className="product";
+  const div=document.createElement("article");
+  div.className="product";
   const img=p.imageData||p.imageUrl||"";
   div.innerHTML=`
    <img class="product-img" src="${escapeHTML(img)}" alt="${escapeHTML(p.name||"Product")}" onerror="this.style.display='none'">
@@ -605,7 +684,8 @@ function renderProducts(){
  });
 }
 window.openProduct=id=>{
- const p=productsData[id];if(!p)return;
+ const p=productsData[id];
+ if(!p)return;
  const image=p.imageData||p.imageUrl||"";
  $("modalRoot").innerHTML=`
  <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
@@ -623,12 +703,14 @@ window.openProduct=id=>{
 window.closeModal=()=>{$("modalRoot").innerHTML="";};
 
 window.purchaseProduct=async id=>{
- const p=productsData[id];if(!p)return;
+ const p=productsData[id];
+ if(!p)return;
  const price=Number(p.price||0);
  if(price===0){
   if(!p.downloadUrl)return toast("Download link is not available.");
   window.open(p.downloadUrl,"_blank","noopener");
-  closeModal();return;
+  closeModal();
+  return;
  }
  $("modalRoot").innerHTML=`
  <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
@@ -642,14 +724,16 @@ window.purchaseProduct=async id=>{
 };
 
 window.buyWithWallet=async id=>{
- const p=productsData[id];if(!p)return;
+ const p=productsData[id];
+ if(!p)return;
  const price=Number(p.price||0);
  if(walletValue<price)return toast("Insufficient wallet balance. Please add funds.");
  toast("Wallet purchase needs trusted server-side processing. Please use manual payment request for now.");
 };
 
 window.showInstantPayment=id=>{
- const p=productsData[id];if(!p)return;
+ const p=productsData[id];
+ if(!p)return;
  $("modalRoot").innerHTML=`
  <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -662,7 +746,8 @@ window.showInstantPayment=id=>{
  </div>`;
 };
 window.submitProductOrder=async id=>{
- const p=productsData[id];if(!p)return;
+ const p=productsData[id];
+ if(!p)return;
  const trx=$("orderTrx").value.trim();
  const method=$("orderMethod").value;
  if(!trx)return toast("Enter your transaction ID.");
@@ -672,7 +757,8 @@ window.submitProductOrder=async id=>{
    productId:id,productName:p.name||"Product",price:Number(p.price||0),
    paymentMethod:method,trxId:trx,status:"pending",createdAt:Date.now()
   });
-  closeModal();toast("Order request submitted. Waiting for admin verification.");
+  closeModal();
+  toast("Order request submitted. Waiting for admin verification.");
  }catch(e){toast("Order failed: "+e.message);}
 };
 
@@ -685,8 +771,10 @@ window.chooseMethod=(method,button)=>{
  $("paymentNumber").value=method==="bKash"?(settings.bkashNumber||"01747737267"):(settings.nagadNumber||"01718316646");
 };
 window.copyPaymentNumber=async()=>{
- try{await navigator.clipboard.writeText($("paymentNumber").value);toast("Number copied.");}
- catch(e){toast("Please copy the number manually.");}
+ try{
+  await navigator.clipboard.writeText($("paymentNumber").value);
+  toast("Number copied.");
+ }catch(e){toast("Please copy the number manually.");}
 };
 window.submitFundRequest=async()=>{
  const amount=Number($("fundAmount").value);
@@ -696,7 +784,8 @@ window.submitFundRequest=async()=>{
  try{
   const r=push(ref(db,`walletRequests/${currentUser.uid}`));
   await set(r,{amount,method:selectedMethod,trxId:trx,status:"pending",requestedAt:Date.now()});
-  $("fundAmount").value="";$("fundTrx").value="";
+  $("fundAmount").value="";
+  $("fundTrx").value="";
   toast("Fund request submitted. Waiting for admin verification.");
  }catch(e){toast("Request failed: "+e.message);}
 };
@@ -768,7 +857,10 @@ function renderAvatars(){
  $("avatarGrid").innerHTML=avatars.map(a=>`<button class="avatar-option ${a===selectedAvatar?"selected":""}" onclick="chooseAvatar('${a}')">${a}</button>`).join("");
 }
 window.chooseAvatar=a=>{
- selectedAvatar=a;$("profileAvatar").textContent=a;$("headerAvatar").textContent=a;renderAvatars();
+ selectedAvatar=a;
+ $("profileAvatar").textContent=a;
+ $("headerAvatar").textContent=a;
+ renderAvatars();
 };
 window.saveProfile=async()=>{
  const name=$("displayName").value.trim();
@@ -779,7 +871,10 @@ window.saveProfile=async()=>{
   toast("Profile updated successfully.");
  }catch(e){toast("Profile update failed: "+e.message);}
 };
-window.logout=async()=>{try{await signOut(auth);}catch(e){toast(e.message);}};
+window.logout=async()=>{
+ try{await signOut(auth);}
+ catch(e){toast(e.message);}
+};
 
 /* ACTION FLOW LINKS */
 window.latestSettings={};
@@ -795,8 +890,15 @@ function renderActionLinks(links){
  };
  Object.entries(map).forEach(([id,url])=>{
   const a=$(id);
-  if(url&&/^https?:\/\//i.test(url)){a.href=url;a.style.opacity="1";a.style.pointerEvents="auto";}
-  else{a.href="#";a.style.opacity=".55";a.style.pointerEvents="none";}
+  if(url&&/^https?:\/\//i.test(url)){
+   a.href=url;
+   a.style.opacity="1";
+   a.style.pointerEvents="auto";
+  }else{
+   a.href="#";
+   a.style.opacity=".55";
+   a.style.pointerEvents="none";
+  }
  });
  const method=selectedMethod;
  $("paymentNumber").value=method==="bKash"?(links.bkashNumber||"01747737267"):(links.nagadNumber||"01718316646");
