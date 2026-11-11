@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,10 +24,7 @@ button{cursor:pointer}
 .logo span{color:var(--cyan)}
 .muted{color:var(--muted);font-size:12px;line-height:1.6}
 label{display:block;font-size:11px;color:#b9cbe4;font-weight:700;margin:13px 0 7px}
-input,select,textarea{
-width:100%;background:#091426;color:white;border:1px solid var(--line);
-border-radius:13px;padding:12px;outline:none;min-width:0
-}
+input,select,textarea{width:100%;background:#091426;color:white;border:1px solid var(--line);border-radius:13px;padding:12px;outline:none;min-width:0}
 input:focus,select:focus,textarea:focus{border-color:var(--blue)}
 textarea{min-height:85px;resize:vertical}
 .btn{border:0;border-radius:13px;padding:11px 14px;background:linear-gradient(100deg,var(--blue),#0757c9);color:white;font-weight:700}
@@ -95,7 +93,7 @@ h2{font-size:16px;margin:0 0 13px}
   <label>PASSWORD</label>
   <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
   <button class="btn full" id="loginBtn">LOGIN TO DASHBOARD</button>
-  <p class="muted" id="loginMsg"></p>
+  <p class="muted" id="loginMsg" role="status"></p>
  </div>
 </section>
 
@@ -316,7 +314,7 @@ import {
  getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
- getDatabase,ref,get,set,update,push,remove,runTransaction,onValue
+ getDatabase,ref,get,set,update,push,remove,runTransaction
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
 const firebaseConfig={
@@ -339,6 +337,7 @@ let productsCache={};
 let categoriesCache={};
 let linksCache={};
 let busy=false;
+let authCheckRunning=false;
 
 const $=id=>document.getElementById(id);
 const safeText=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -348,72 +347,174 @@ const statusPill=s=>`<span class="pill ${safeText(s||"pending")}">${safeText(s||
 const path=(...p)=>ref(db,p.filter(Boolean).join("/"));
 
 function toast(message){
- const t=$("toast");t.textContent=message;t.style.display="block";
- clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display="none",3000);
+ const t=$("toast");
+ t.textContent=message;
+ t.style.display="block";
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>t.style.display="none",3000);
 }
+
 function errorMessage(e){
- console.error(e);
- return e?.code==="PERMISSION_DENIED"?"Database permission denied. Rules check করুন।":(e?.message||"Something went wrong");
+ console.error("Firebase error:",e);
+ const code=String(e?.code||"");
+ const msg=String(e?.message||"");
+
+ if(code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/user-not-found")
+  return "Login failed: Email or password is incorrect. Firebase Authentication-এর Admin account যাচাই করুন।";
+ if(code==="auth/invalid-email")
+  return "Invalid email address.";
+ if(code==="auth/too-many-requests")
+  return "Too many login attempts. কিছুক্ষণ পরে চেষ্টা করুন।";
+ if(code==="auth/network-request-failed")
+  return "Network error. Internet connection যাচাই করুন।";
+ if(code==="auth/operation-not-allowed")
+  return "Email/Password sign-in Firebase Authentication-এ enabled নেই।";
+ if(code==="PERMISSION_DENIED"||code==="database/permission-denied"||msg.includes("PERMISSION_DENIED"))
+  return "Database permission denied. Firebase RTDB Rules যাচাই করুন।";
+ if(code==="app/duplicate-app")
+  return "Firebase app already initialized. Page reload করুন।";
+
+ return msg||"Something went wrong. Console error যাচাই করুন।";
 }
+
 async function read(p){
- const s=await get(path(p));return s.exists()?s.val():null;
+ const s=await get(path(p));
+ return s.exists()?s.val():null;
 }
 async function write(p,v){await set(path(p),v)}
 async function patch(p,v){await update(path(p),v)}
 function obj(v){return v&&typeof v==="object"?v:{}}
 function entries(v){return Object.entries(obj(v))}
-function makeId(){return push(ref(db,"_ids")).key}
-function setList(id,html){$(id).innerHTML=html||'<div class="empty">No data found</div>'}
+
+/* FIX: Generate a push ID without writing to a restricted _ids path. */
+function makeId(){return push(ref(db)).key}
+
+function setList(id,html){
+ $(id).innerHTML=html||'<div class="empty">No data found</div>';
+}
 function statusOf(x){return String(x?.status||"pending").toLowerCase()}
 
 function showPage(name){
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
  $("page-"+name)?.classList.add("active");
  document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+
  const loaders={
- dashboard:loadDashboard,productOrders:loadOrders,walletRequests:loadWalletRequests,
- transactions:loadTransactions,users:()=>{},products:loadProducts,categories:loadCategories,
- referrals:loadReferrals,home:loadHome,action:loadActionLinks,payments:loadPayments,
- maintenance:loadMaintenance,toolbox:loadToolbox
+  dashboard:loadDashboard,
+  productOrders:loadOrders,
+  walletRequests:loadWalletRequests,
+  transactions:loadTransactions,
+  users:()=>{},
+  products:loadProducts,
+  categories:loadCategories,
+  referrals:loadReferrals,
+  home:loadHome,
+  action:loadActionLinks,
+  payments:loadPayments,
+  maintenance:loadMaintenance,
+  toolbox:loadToolbox
  };
- loaders[name]?.();
+ if(currentAdmin)loaders[name]?.();
 }
 window.showPage=showPage;
-document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 
-$("loginBtn").addEventListener("click",async()=>{
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||!password){$("loginMsg").textContent="Email and password required.";return}
- $("loginBtn").disabled=true;$("loginMsg").textContent="Checking admin access...";
- try{await signInWithEmailAndPassword(auth,email,password)}
- catch(e){$("loginMsg").textContent=errorMessage(e)}
- finally{$("loginBtn").disabled=false}
+document.querySelectorAll("[data-page]").forEach(b=>{
+ b.addEventListener("click",()=>showPage(b.dataset.page));
 });
-$("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
-$("logoutBtn").addEventListener("click",()=>signOut(auth));
 
-onAuthStateChanged(auth,async user=>{
- if(!user){currentAdmin=null;$("app").style.display="none";$("loginScreen").style.display="grid";return}
+/* ADMIN LOGIN */
+$("loginBtn").addEventListener("click",async()=>{
+ const email=$("email").value.trim();
+ const password=$("password").value;
+
+ if(!email||!password){
+  $("loginMsg").textContent="Email and password required.";
+  return;
+ }
+
+ $("loginBtn").disabled=true;
+ $("loginMsg").textContent="Checking login details...";
+
  try{
-  const admin=await read("admins/"+user.uid);
-  if(admin!==true){
-   await signOut(auth);
-   $("loginMsg").textContent="Access denied: this UID is not an admin.";
+  await signInWithEmailAndPassword(auth,email,password);
+  $("loginMsg").textContent="Login successful. Verifying admin access...";
+ }catch(e){
+  $("loginMsg").textContent=errorMessage(e);
+ }finally{
+  $("loginBtn").disabled=false;
+ }
+});
+
+$("password").addEventListener("keydown",e=>{
+ if(e.key==="Enter")$("loginBtn").click();
+});
+
+$("logoutBtn").addEventListener("click",async()=>{
+ try{
+  await signOut(auth);
+  currentAdmin=null;
+  $("loginMsg").textContent="You have been logged out.";
+ }catch(e){toast(errorMessage(e))}
+});
+
+/* ADMIN UID VERIFICATION */
+onAuthStateChanged(auth,async user=>{
+ if(authCheckRunning)return;
+ authCheckRunning=true;
+
+ try{
+  if(!user){
+   currentAdmin=null;
+   $("app").style.display="none";
+   $("loginScreen").style.display="grid";
+   authCheckRunning=false;
    return;
   }
+
+  $("loginMsg").textContent="Verifying Admin UID...";
+
+  let adminValue;
+  try{
+   adminValue=await read("admins/"+user.uid);
+  }catch(e){
+   $("app").style.display="none";
+   $("loginScreen").style.display="grid";
+   $("loginMsg").textContent=errorMessage(e);
+   await signOut(auth);
+   authCheckRunning=false;
+   return;
+  }
+
+  if(adminValue!==true){
+   $("app").style.display="none";
+   $("loginScreen").style.display="grid";
+   $("loginMsg").textContent="Access denied: admins/"+user.uid+" must be Boolean true in Realtime Database.";
+   await signOut(auth);
+   authCheckRunning=false;
+   return;
+  }
+
   currentAdmin=user;
   $("loginScreen").style.display="none";
   $("app").style.display="block";
+  $("loginMsg").textContent="";
   showPage("dashboard");
+
  }catch(e){
+  currentAdmin=null;
+  $("app").style.display="none";
+  $("loginScreen").style.display="grid";
   $("loginMsg").textContent=errorMessage(e);
-  await signOut(auth);
+  try{await signOut(auth)}catch(_){}
+ }finally{
+  authCheckRunning=false;
  }
 });
 
 function adminRequired(){
  if(!currentAdmin)throw new Error("Admin login required");
 }
+
 async function logTransaction(uid,data){
  adminRequired();
  const id=makeId();
@@ -422,411 +523,853 @@ async function logTransaction(uid,data){
  });
 }
 
+/* DASHBOARD */
 async function loadDashboard(){
+ if(!currentAdmin)return;
  try{
   const [users,products,orders,wallets]=await Promise.all([
    read("users"),read("products"),read("orders"),read("walletRequests")
   ]);
+
   $("sUsers").textContent=entries(users).length;
   $("sProducts").textContent=entries(products).length;
+
   let pendingOrders=0,pendingWallet=0,recent=[];
-  for(const [uid,list] of entries(orders))for(const [id,o] of entries(list)){
-   if(statusOf(o)==="pending" && String(o.paymentMethod||"").toLowerCase()!=="wallet")pendingOrders++;
-   recent.push({kind:"Order",uid,id,...o});
+
+  for(const [uid,list] of entries(orders)){
+   for(const [id,o] of entries(list)){
+    if(statusOf(o)==="pending"&&String(o.paymentMethod||"").toLowerCase()!=="wallet")pendingOrders++;
+    recent.push({kind:"Order",uid,id,...o});
+   }
   }
-  for(const [uid,list] of entries(wallets))for(const [id,o] of entries(list)){
-   if(statusOf(o)==="pending")pendingWallet++;
-   recent.push({kind:"Wallet Request",uid,id,...o});
+
+  for(const [uid,list] of entries(wallets)){
+   for(const [id,o] of entries(list)){
+    if(statusOf(o)==="pending")pendingWallet++;
+    recent.push({kind:"Wallet Request",uid,id,...o});
+   }
   }
+
   $("sOrders").textContent=pendingOrders;
   $("sWallet").textContent=pendingWallet;
+
   recent.sort((a,b)=>(b.createdAt||b.requestedAt||0)-(a.createdAt||a.requestedAt||0));
+
   setList("recentActivity",recent.slice(0,8).map(x=>`
-   <div class="item"><div class="item-title">${safeText(x.kind)} · ${safeText(x.productName||money(x.amount))}</div>
-   <div class="small">UID: ${safeText(x.uid)} · ${dateText(x.createdAt||x.requestedAt)}</div></div>`).join(""));
+   <div class="item">
+    <div class="item-title">${safeText(x.kind)} · ${safeText(x.productName||money(x.amount))}</div>
+    <div class="small">UID: ${safeText(x.uid)} · ${dateText(x.createdAt||x.requestedAt)}</div>
+   </div>`).join(""));
  }catch(e){toast(errorMessage(e))}
 }
 
-async function refreshAll(){await loadDashboard();toast("Dashboard refreshed")}
+async function refreshAll(){
+ await loadDashboard();
+ toast("Dashboard refreshed");
+}
 window.refreshAll=refreshAll;
 
+/* PRODUCT ORDERS */
 async function loadOrders(){
+ if(!currentAdmin)return;
  try{
-  const all=await read("orders");let html="";
+  const all=await read("orders");
+  let html="";
+
   for(const [uid,list] of entries(all)){
    for(const [id,o] of entries(list)){
     if(String(o.paymentMethod||"").toLowerCase()==="wallet")continue;
+
+    const safeUid=encodeURIComponent(uid);
+    const safeId=encodeURIComponent(id);
+
     html+=`<div class="item">
      <div class="item-title">${safeText(o.productName||"Product Order")}</div>
-     <div class="small">UID: ${safeText(uid)}<br>Order: ${safeText(id)}<br>Amount: ${money(o.price)}<br>Method: ${safeText(o.paymentMethod||"—")}<br>TrxID: ${safeText(o.trxId||"—")}<br>Date: ${dateText(o.createdAt)}</div>
+     <div class="small">
+      UID: ${safeText(uid)}<br>
+      Order: ${safeText(id)}<br>
+      Amount: ${money(o.price)}<br>
+      Method: ${safeText(o.paymentMethod||"—")}<br>
+      TrxID: ${safeText(o.trxId||"—")}<br>
+      Date: ${dateText(o.createdAt)}
+     </div>
      <p>${statusPill(statusOf(o))}</p>
-     ${statusOf(o)==="pending"?`<label>DELIVERY KEY / DOWNLOAD URL</label><input id="key_${safeText(id)}" placeholder="Enter delivery key or URL">
-     <div class="actions"><button class="btn green" onclick="orderAction('${safeText(uid)}','${safeText(id)}','approved')">Approve</button><button class="btn red" onclick="orderAction('${safeText(uid)}','${safeText(id)}','rejected')">Reject</button></div>`:""}
+     ${statusOf(o)==="pending"?`
+      <label>DELIVERY KEY / DOWNLOAD URL</label>
+      <input id="key_${safeText(id)}" placeholder="Enter delivery key or URL">
+      <div class="actions">
+       <button class="btn green" onclick="orderAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'approved')">Approve</button>
+       <button class="btn red" onclick="orderAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'rejected')">Reject</button>
+      </div>`:""}
     </div>`;
    }
   }
+
   setList("ordersList",html);
- }catch(e){setList("ordersList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+ }catch(e){
+  setList("ordersList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+ }
 }
 window.loadOrders=loadOrders;
 
 window.orderAction=async(uid,id,status)=>{
+ if(!currentAdmin)return toast("Admin login required");
  if(!confirm(status==="approved"?"Approve this order?":"Reject this order?"))return;
+
  try{
   const o=await read(`orders/${uid}/${id}`);
   if(!o||statusOf(o)!=="pending")throw new Error("Order is no longer pending");
+
   const key=$("key_"+id)?.value.trim()||"";
   const product=o.productId?await read("products/"+o.productId):null;
   const delivery=key||product?.downloadUrl||"";
-  if(status==="approved"&&!delivery)throw new Error("Delivery key or product download URL required");
+
+  if(status==="approved"&&!delivery)
+   throw new Error("Delivery key or product download URL required");
+
   await patch(`orders/${uid}/${id}`,{
-   status,downloadUrl:status==="approved"?delivery:"",
+   status,
+   downloadUrl:status==="approved"?delivery:"",
    approvedAt:status==="approved"?Date.now():null,
    rejectedAt:status==="rejected"?Date.now():null,
    processedBy:currentAdmin.uid
   });
-  toast("Order "+status);await loadOrders();await loadDashboard();
+
+  toast("Order "+status);
+  await loadOrders();
+  await loadDashboard();
  }catch(e){toast(errorMessage(e))}
 };
 
+/* WALLET REQUESTS */
 async function loadWalletRequests(){
+ if(!currentAdmin)return;
  try{
-  const all=await read("walletRequests");let html="";
-  for(const [uid,list] of entries(all))for(const [id,r] of entries(list)){
-   html+=`<div class="item">
-    <div class="item-title">${money(r.amount)} · ${safeText(r.method||"")}</div>
-    <div class="small">UID: ${safeText(uid)}<br>Request: ${safeText(id)}<br>TrxID: ${safeText(r.trxId||"—")}<br>Date: ${dateText(r.requestedAt)}</div>
-    <p>${statusPill(statusOf(r))}</p>
-    ${statusOf(r)==="pending"?`<div class="actions"><button class="btn green" onclick="walletRequestAction('${safeText(uid)}','${safeText(id)}','approved')">Approve</button><button class="btn red" onclick="walletRequestAction('${safeText(uid)}','${safeText(id)}','rejected')">Reject</button></div>`:""}
-   </div>`;
+  const all=await read("walletRequests");
+  let html="";
+
+  for(const [uid,list] of entries(all)){
+   for(const [id,r] of entries(list)){
+    const safeUid=encodeURIComponent(uid);
+    const safeId=encodeURIComponent(id);
+
+    html+=`<div class="item">
+     <div class="item-title">${money(r.amount)} · ${safeText(r.method||"")}</div>
+     <div class="small">
+      UID: ${safeText(uid)}<br>
+      Request: ${safeText(id)}<br>
+      TrxID: ${safeText(r.trxId||"—")}<br>
+      Date: ${dateText(r.requestedAt)}
+     </div>
+     <p>${statusPill(statusOf(r))}</p>
+     ${statusOf(r)==="pending"?`
+      <div class="actions">
+       <button class="btn green" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'approved')">Approve</button>
+       <button class="btn red" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'rejected')">Reject</button>
+      </div>`:""}
+    </div>`;
+   }
   }
+
   setList("walletRequestsList",html);
- }catch(e){setList("walletRequestsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+ }catch(e){
+  setList("walletRequestsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+ }
 }
 window.loadWalletRequests=loadWalletRequests;
 
 window.walletRequestAction=async(uid,id,status)=>{
+ if(!currentAdmin)return toast("Admin login required");
  if(!confirm(status==="approved"?"Approve and add balance?":"Reject this request?"))return;
+
  try{
   const requestRef=path(`walletRequests/${uid}/${id}`);
+
   const claim=await runTransaction(requestRef,current=>{
    if(!current||statusOf(current)!=="pending")return;
-   current.status=status;current.processedAt=Date.now();current.processedBy=currentAdmin.uid;
+   current.status=status;
+   current.processedAt=Date.now();
+   current.processedBy=currentAdmin.uid;
    return current;
   });
+
   if(!claim.committed)throw new Error("Request already processed");
+
   const req=claim.snapshot.val();
+
   if(status==="approved"){
    const amount=Number(req.amount);
-   if(!Number.isFinite(amount)||amount<=0)throw new Error("Invalid request amount");
+   if(!Number.isFinite(amount)||amount<=0)
+    throw new Error("Invalid request amount");
+
    const bal=await runTransaction(path(`wallets/${uid}/balance`),v=>(Number(v)||0)+amount);
    if(!bal.committed)throw new Error("Wallet balance update failed");
-   await logTransaction(uid,{type:"credit",amount,reason:"Wallet request approved",requestId:id});
+
+   await logTransaction(uid,{
+    type:"credit",
+    amount,
+    reason:"Wallet request approved",
+    requestId:id
+   });
   }
-  toast("Wallet request "+status);await loadWalletRequests();await loadDashboard();
+
+  toast("Wallet request "+status);
+  await loadWalletRequests();
+  await loadDashboard();
  }catch(e){toast(errorMessage(e))}
 };
 
+/* TRANSACTIONS */
 async function loadTransactions(){
+ if(!currentAdmin)return;
  try{
-  const all=await read("walletTransactions");let html="";
-  for(const [uid,list] of entries(all))for(const [id,t] of entries(list)){
-   html+=`<div class="item"><div class="item-title">${safeText(t.type||"transaction")} · ${money(t.amount)}</div>
-   <div class="small">UID: ${safeText(uid)}<br>Reason: ${safeText(t.reason||"—")}<br>ID: ${safeText(id)}<br>Date: ${dateText(t.createdAt)}</div></div>`;
+  const all=await read("walletTransactions");
+  let html="";
+
+  for(const [uid,list] of entries(all)){
+   for(const [id,t] of entries(list)){
+    html+=`<div class="item">
+     <div class="item-title">${safeText(t.type||"transaction")} · ${money(t.amount)}</div>
+     <div class="small">
+      UID: ${safeText(uid)}<br>
+      Reason: ${safeText(t.reason||"—")}<br>
+      ID: ${safeText(id)}<br>
+      Date: ${dateText(t.createdAt)}
+     </div>
+    </div>`;
+   }
   }
+
   setList("transactionsList",html);
- }catch(e){setList("transactionsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+ }catch(e){
+  setList("transactionsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+ }
 }
 window.loadTransactions=loadTransactions;
 
+/* USERS */
 window.searchUser=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  const uid=$("searchUid").value.trim();
- if(!uid){toast("Enter user UID");return}
+ if(!uid)return toast("Enter user UID");
+
  $("userResult").innerHTML='<div class="empty">Searching...</div>';
+
  try{
-  const [user,wallet]=await Promise.all([read("users/"+uid),read("wallets/"+uid)]);
-  if(!user&&!wallet){$("userResult").innerHTML='<div class="empty">User not found</div>';return}
+  const [user,wallet]=await Promise.all([
+   read("users/"+uid),read("wallets/"+uid)
+  ]);
+
+  if(!user&&!wallet){
+   $("userResult").innerHTML='<div class="empty">User not found</div>';
+   return;
+  }
+
   const balance=Number(wallet?.balance)||0;
+
   $("userResult").innerHTML=`<div class="item">
    <div class="item-title">${safeText(user?.name||user?.displayName||"User")}</div>
-   <div class="small">UID: ${safeText(uid)}<br>Email: ${safeText(user?.email||"—")}<br>Wallet Balance: ${money(balance)}</div>
-   <span class="pill active">User found</span></div>`;
+   <div class="small">
+    UID: ${safeText(uid)}<br>
+    Email: ${safeText(user?.email||"—")}<br>
+    Wallet Balance: ${money(balance)}
+   </div>
+   <span class="pill active">User found</span>
+  </div>`;
+
   $("creditUid").value=uid;
- }catch(e){$("userResult").innerHTML=`<div class="empty">${safeText(errorMessage(e))}</div>`}
+ }catch(e){
+  $("userResult").innerHTML=`<div class="empty">${safeText(errorMessage(e))}</div>`;
+ }
 };
 
 window.creditWallet=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
  if(busy)return;
- const uid=$("creditUid").value.trim(),amount=Number($("creditAmount").value),note=$("creditNote").value.trim();
- if(!uid||!Number.isFinite(amount)||amount<=0){toast("Valid UID and amount required");return}
+
+ const uid=$("creditUid").value.trim();
+ const amount=Number($("creditAmount").value);
+ const note=$("creditNote").value.trim();
+
+ if(!uid||!Number.isFinite(amount)||amount<=0)
+  return toast("Valid UID and amount required");
+
  if(!confirm(`Add ${money(amount)} to this user's wallet?`))return;
+
  busy=true;
+
  try{
-  const bal=await runTransaction(path(`wallets/${uid}/balance`),v=>(Number(v)||0)+amount);
+  const bal=await runTransaction(
+   path(`wallets/${uid}/balance`),
+   v=>(Number(v)||0)+amount
+  );
+
   if(!bal.committed)throw new Error("Wallet update failed");
-  await logTransaction(uid,{type:"credit",amount,reason:note||"Admin manual credit"});
+
+  await logTransaction(uid,{
+   type:"credit",
+   amount,
+   reason:note||"Admin manual credit"
+  });
+
   toast("Wallet credited successfully");
-  $("creditAmount").value="";$("creditNote").value="";
+  $("creditAmount").value="";
+  $("creditNote").value="";
+
   if($("searchUid").value.trim()===uid)await searchUser();
   await loadTransactions();
  }catch(e){toast(errorMessage(e))}
  finally{busy=false}
 };
 
+/* PRODUCTS */
 function clearProductForm(){
- ["editProductId","pName","pPrice","pDescription","pImage","pDownload","pVideo","pExpiry"].forEach(id=>$(id).value="");
- $("pActive").value="true";$("productFormTitle").textContent="Add New Product";
+ [
+  "editProductId","pName","pPrice","pDescription",
+  "pImage","pDownload","pVideo","pExpiry"
+ ].forEach(id=>$(id).value="");
+
+ $("pActive").value="true";
+ $("productFormTitle").textContent="Add New Product";
 }
 window.clearProductForm=clearProductForm;
 
 async function loadProducts(){
+ if(!currentAdmin)return;
+
  try{
   productsCache=obj(await read("products"));
-  const options=Object.entries(productsCache).map(([id,p])=>`<option value="${safeText(id)}">${safeText(p.name||id)}</option>`).join("");
-  $("maintenanceProduct").innerHTML='<option value="">Select product</option>'+options;
+
+  const options=Object.entries(productsCache).map(([id,p])=>
+   `<option value="${safeText(id)}">${safeText(p.name||id)}</option>`
+  ).join("");
+
+  $("maintenanceProduct").innerHTML=
+   '<option value="">Select product</option>'+options;
+
   setList("productsList",entries(productsCache).map(([id,p])=>`
-   <div class="item"><div class="item-title">${safeText(p.name||"Unnamed Product")}</div>
-   <div class="small">ID: ${safeText(id)}<br>Category: ${safeText(p.category||"—")}<br>Price: ${money(p.price)}<br>Expiry: ${safeText(p.expiry||"Not set")}<br>Maintenance: ${p.maintenance?"ON":"OFF"}</div>
-   <p>${p.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
-   <div class="actions"><button class="btn" onclick="editProduct('${safeText(id)}')">Edit</button><button class="btn secondary" onclick="toggleProduct('${safeText(id)}')">${p.active===false?"Activate":"Deactivate"}</button><button class="btn red" onclick="deleteProduct('${safeText(id)}')">Delete</button></div></div>`).join(""));
+   <div class="item">
+    <div class="item-title">${safeText(p.name||"Unnamed Product")}</div>
+    <div class="small">
+     ID: ${safeText(id)}<br>
+     Category: ${safeText(p.category||"—")}<br>
+     Price: ${money(p.price)}<br>
+     Expiry: ${safeText(p.expiry||"Not set")}<br>
+     Maintenance: ${p.maintenance?"ON":"OFF"}
+    </div>
+    <p>${p.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
+    <div class="actions">
+     <button class="btn" onclick="editProduct('${encodeURIComponent(id)}')">Edit</button>
+     <button class="btn secondary" onclick="toggleProduct('${encodeURIComponent(id)}')">${p.active===false?"Activate":"Deactivate"}</button>
+     <button class="btn red" onclick="deleteProduct('${encodeURIComponent(id)}')">Delete</button>
+    </div>
+   </div>`).join(""));
+
   await fillCategorySelect();
- }catch(e){setList("productsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+ }catch(e){
+  setList("productsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+ }
 }
 window.loadProducts=loadProducts;
 
-window.editProduct=id=>{
- const p=productsCache[id];if(!p)return;
- $("editProductId").value=id;$("pName").value=p.name||"";
- $("pCategory").value=p.category||"";$("pPrice").value=p.price??"";
+window.editProduct=encodedId=>{
+ const id=decodeURIComponent(encodedId);
+ const p=productsCache[id];
+ if(!p)return;
+
+ $("editProductId").value=id;
+ $("pName").value=p.name||"";
+ $("pCategory").value=p.category||"";
+ $("pPrice").value=p.price??"";
  $("pActive").value=String(p.active!==false);
- $("pDescription").value=p.description||"";$("pImage").value=p.imageUrl||p.imageData||"";
- $("pDownload").value=p.downloadUrl||"";$("pVideo").value=p.setupVideoUrl||"";
+ $("pDescription").value=p.description||"";
+ $("pImage").value=p.imageUrl||p.imageData||"";
+ $("pDownload").value=p.downloadUrl||"";
+ $("pVideo").value=p.setupVideoUrl||"";
  $("pExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
  $("productFormTitle").textContent="Edit Product";
+
  window.scrollTo({top:0,behavior:"smooth"});
 };
+
 window.saveProduct=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  const id=$("editProductId").value||makeId();
- const name=$("pName").value.trim(),category=$("pCategory").value;
+ const name=$("pName").value.trim();
+ const category=$("pCategory").value;
  const price=Number($("pPrice").value);
- if(!name||!category||!Number.isFinite(price)||price<0){toast("Name, category and valid price required");return}
+
+ if(!name||!category||!Number.isFinite(price)||price<0)
+  return toast("Name, category and valid price required");
+
  const old=productsCache[id]||{};
+
  const data={
-  ...old,name,category,price,active:$("pActive").value==="true",
+  ...old,
+  name,
+  category,
+  price,
+  active:$("pActive").value==="true",
   description:$("pDescription").value.trim(),
-  imageUrl:$("pImage").value.trim(),downloadUrl:$("pDownload").value.trim(),
+  imageUrl:$("pImage").value.trim(),
+  downloadUrl:$("pDownload").value.trim(),
   setupVideoUrl:$("pVideo").value.trim(),
   expiry:$("pExpiry").value?new Date($("pExpiry").value).getTime():null,
   updatedAt:Date.now()
  };
+
  try{
-  await write("products/"+id,data);toast("Product saved");clearProductForm();await loadProducts();await loadDashboard();
+  await write("products/"+id,data);
+  toast("Product saved");
+  clearProductForm();
+  await loadProducts();
+  await loadDashboard();
  }catch(e){toast(errorMessage(e))}
 };
-window.toggleProduct=async id=>{
- try{const p=productsCache[id];await patch("products/"+id,{active:p.active===false,updatedAt:Date.now()});await loadProducts()}
- catch(e){toast(errorMessage(e))}
-};
-window.deleteProduct=async id=>{
- if(!confirm("Delete this product?"))return;
- try{await remove(path("products/"+id));toast("Product deleted");await loadProducts();await loadDashboard()}
- catch(e){toast(errorMessage(e))}
+
+window.toggleProduct=async encodedId=>{
+ if(!currentAdmin)return toast("Admin login required");
+ const id=decodeURIComponent(encodedId);
+
+ try{
+  const p=productsCache[id];
+  await patch("products/"+id,{
+   active:p.active===false,
+   updatedAt:Date.now()
+  });
+  await loadProducts();
+ }catch(e){toast(errorMessage(e))}
 };
 
+window.deleteProduct=async encodedId=>{
+ if(!currentAdmin)return toast("Admin login required");
+ const id=decodeURIComponent(encodedId);
+
+ if(!confirm("Delete this product?"))return;
+
+ try{
+  await remove(path("products/"+id));
+  toast("Product deleted");
+  await loadProducts();
+  await loadDashboard();
+ }catch(e){toast(errorMessage(e))}
+};
+
+/* CATEGORIES */
 async function loadCategories(){
+ if(!currentAdmin)return;
+
  try{
   categoriesCache=obj(await read("categories"));
+
   setList("categoriesList",entries(categoriesCache).map(([id,c])=>{
    const name=typeof c==="string"?c:c.name||id;
-   return `<div class="item"><div class="item-title">${safeText(name)}</div><div class="small">ID: ${safeText(id)}</div><div class="actions"><button class="btn red" onclick="deleteCategory('${safeText(id)}')">Delete</button></div></div>`;
+   return `<div class="item">
+    <div class="item-title">${safeText(name)}</div>
+    <div class="small">ID: ${safeText(id)}</div>
+    <div class="actions">
+     <button class="btn red" onclick="deleteCategory('${encodeURIComponent(id)}')">Delete</button>
+    </div>
+   </div>`;
   }).join(""));
+
   await fillCategorySelect();
- }catch(e){setList("categoriesList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+ }catch(e){
+  setList("categoriesList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+ }
 }
+
 async function fillCategorySelect(){
  const cats=entries(categoriesCache);
- $("pCategory").innerHTML='<option value="">Select category</option>'+cats.map(([id,c])=>`<option value="${safeText(typeof c==="string"?c:(c.name||id))}">${safeText(typeof c==="string"?c:(c.name||id))}</option>`).join("");
+
+ $("pCategory").innerHTML=
+  '<option value="">Select category</option>'+
+  cats.map(([id,c])=>{
+   const name=typeof c==="string"?c:(c.name||id);
+   return `<option value="${safeText(name)}">${safeText(name)}</option>`;
+  }).join("");
 }
+
 window.addCategory=async()=>{
- const name=$("categoryName").value.trim();if(!name)return toast("Enter category name");
+ if(!currentAdmin)return toast("Admin login required");
+
+ const name=$("categoryName").value.trim();
+ if(!name)return toast("Enter category name");
+
  try{
-  const id=makeId();await write("categories/"+id,{name,createdAt:Date.now()});
-  $("categoryName").value="";toast("Category added");await loadCategories();
+  const id=makeId();
+  await write("categories/"+id,{
+   name,
+   createdAt:Date.now()
+  });
+
+  $("categoryName").value="";
+  toast("Category added");
+  await loadCategories();
  }catch(e){toast(errorMessage(e))}
 };
-window.deleteCategory=async id=>{
+
+window.deleteCategory=async encodedId=>{
+ if(!currentAdmin)return toast("Admin login required");
+ const id=decodeURIComponent(encodedId);
+
  if(!confirm("Delete category? Products using it will not be deleted."))return;
- try{await remove(path("categories/"+id));toast("Category deleted");await loadCategories()}
- catch(e){toast(errorMessage(e))}
+
+ try{
+  await remove(path("categories/"+id));
+  toast("Category deleted");
+  await loadCategories();
+ }catch(e){toast(errorMessage(e))}
 };
 
+/* REFERRALS */
 async function loadReferrals(){
+ if(!currentAdmin)return;
+
  try{
-  const [codes,claims]=await Promise.all([read("referralCodes"),read("referralClaims")]);
+  const [codes,claims]=await Promise.all([
+   read("referralCodes"),read("referralClaims")
+  ]);
+
   setList("referralsList",entries(codes).map(([code,c])=>`
-   <div class="item"><div class="item-title">${safeText(code)}</div>
-   <div class="small">Reward: ${money(c.rewardAmount??c.reward)}<br>Used: ${Number(c.usedCount)||0} / ${Number(c.maxUses)||0}</div>
-   <p>${c.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
-   <div class="actions"><button class="btn secondary" onclick="editReferral('${safeText(code)}')">Edit</button><button class="btn yellow" onclick="toggleReferral('${safeText(code)}')">${c.active===false?"Activate":"Disable"}</button><button class="btn red" onclick="deleteReferral('${safeText(code)}')">Delete</button></div></div>`).join(""));
+   <div class="item">
+    <div class="item-title">${safeText(code)}</div>
+    <div class="small">
+     Reward: ${money(c.rewardAmount??c.reward)}<br>
+     Used: ${Number(c.usedCount)||0} / ${Number(c.maxUses)||0}
+    </div>
+    <p>${c.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
+    <div class="actions">
+     <button class="btn secondary" onclick="editReferral('${encodeURIComponent(code)}')">Edit</button>
+     <button class="btn yellow" onclick="toggleReferral('${encodeURIComponent(code)}')">${c.active===false?"Activate":"Disable"}</button>
+     <button class="btn red" onclick="deleteReferral('${encodeURIComponent(code)}')">Delete</button>
+    </div>
+   </div>`).join(""));
+
   let claimHtml="";
-  for(const [uid,list] of entries(claims))for(const [id,c] of entries(list)){
-   claimHtml+=`<div class="item"><div class="item-title">Code: ${safeText(c.code||"—")}</div><div class="small">UID: ${safeText(uid)}<br>Email: ${safeText(c.email||"—")}<br>Status: ${safeText(c.status||"submitted")}<br>Date: ${dateText(c.submittedAt)}</div></div>`;
+
+  for(const [uid,list] of entries(claims)){
+   for(const [id,c] of entries(list)){
+    claimHtml+=`<div class="item">
+     <div class="item-title">Code: ${safeText(c.code||"—")}</div>
+     <div class="small">
+      UID: ${safeText(uid)}<br>
+      Email: ${safeText(c.email||"—")}<br>
+      Status: ${safeText(c.status||"submitted")}<br>
+      Date: ${dateText(c.submittedAt)}
+     </div>
+    </div>`;
+   }
   }
+
   setList("claimsList",claimHtml);
- }catch(e){setList("referralsList",`<div class="empty">${safeText(errorMessage(e))}</div>`)}
+ }catch(e){
+  setList("referralsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+ }
 }
 window.loadReferrals=loadReferrals;
 
 window.createReferral=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  const code=$("refCode").value.trim().toUpperCase();
- const reward=Number($("refReward").value),max=Number($("refMax").value);
- if(!/^[A-Z0-9_-]{3,32}$/.test(code))return toast("Code must be 3–32 letters/numbers");
- if(!Number.isFinite(reward)||reward<0||!Number.isInteger(max)||max<1)return toast("Enter valid reward and max uses");
+ const reward=Number($("refReward").value);
+ const max=Number($("refMax").value);
+
+ if(!/^[A-Z0-9_-]{3,32}$/.test(code))
+  return toast("Code must be 3–32 letters/numbers");
+
+ if(!Number.isFinite(reward)||reward<0||!Number.isInteger(max)||max<1)
+  return toast("Enter valid reward and max uses");
+
  try{
-  if(await read("referralCodes/"+code))return toast("This code already exists");
+  if(await read("referralCodes/"+code))
+   return toast("This code already exists");
+
   await write("referralCodes/"+code,{
-   code,rewardAmount:reward,maxUses:max,usedCount:0,
-   active:$("refActive").value==="true",createdAt:Date.now()
+   code,
+   rewardAmount:reward,
+   maxUses:max,
+   usedCount:0,
+   active:$("refActive").value==="true",
+   createdAt:Date.now()
   });
-  $("refCode").value="";$("refReward").value="";$("refMax").value="";
-  toast("Referral code created");await loadReferrals();
+
+  $("refCode").value="";
+  $("refReward").value="";
+  $("refMax").value="";
+
+  toast("Referral code created");
+  await loadReferrals();
  }catch(e){toast(errorMessage(e))}
-};
-window.editReferral=async code=>{
- try{
-  const c=await read("referralCodes/"+code);if(!c)return;
-  const reward=prompt("Reward amount:",c.rewardAmount??c.reward??0);if(reward===null)return;
-  const max=prompt("Maximum uses:",c.maxUses??1);if(max===null)return;
-  if(!Number.isFinite(Number(reward))||Number(reward)<0||!Number.isInteger(Number(max))||Number(max)<1)return toast("Invalid values");
-  await patch("referralCodes/"+code,{rewardAmount:Number(reward),maxUses:Number(max),updatedAt:Date.now()});
-  toast("Referral updated");await loadReferrals();
- }catch(e){toast(errorMessage(e))}
-};
-window.toggleReferral=async code=>{
- try{const c=await read("referralCodes/"+code);await patch("referralCodes/"+code,{active:c.active===false,updatedAt:Date.now()});await loadReferrals()}
- catch(e){toast(errorMessage(e))}
-};
-window.deleteReferral=async code=>{
- if(!confirm("Delete this referral code?"))return;
- try{await remove(path("referralCodes/"+code));toast("Referral deleted");await loadReferrals()}
- catch(e){toast(errorMessage(e))}
 };
 
+window.editReferral=async encodedCode=>{
+ if(!currentAdmin)return toast("Admin login required");
+ const code=decodeURIComponent(encodedCode);
+
+ try{
+  const c=await read("referralCodes/"+code);
+  if(!c)return;
+
+  const reward=prompt("Reward amount:",c.rewardAmount??c.reward??0);
+  if(reward===null)return;
+
+  const max=prompt("Maximum uses:",c.maxUses??1);
+  if(max===null)return;
+
+  if(!Number.isFinite(Number(reward))||Number(reward)<0||
+     !Number.isInteger(Number(max))||Number(max)<1)
+   return toast("Invalid values");
+
+  await patch("referralCodes/"+code,{
+   rewardAmount:Number(reward),
+   maxUses:Number(max),
+   updatedAt:Date.now()
+  });
+
+  toast("Referral updated");
+  await loadReferrals();
+ }catch(e){toast(errorMessage(e))}
+};
+
+window.toggleReferral=async encodedCode=>{
+ if(!currentAdmin)return toast("Admin login required");
+ const code=decodeURIComponent(encodedCode);
+
+ try{
+  const c=await read("referralCodes/"+code);
+  await patch("referralCodes/"+code,{
+   active:c.active===false,
+   updatedAt:Date.now()
+  });
+  await loadReferrals();
+ }catch(e){toast(errorMessage(e))}
+};
+
+window.deleteReferral=async encodedCode=>{
+ if(!currentAdmin)return toast("Admin login required");
+ const code=decodeURIComponent(encodedCode);
+
+ if(!confirm("Delete this referral code?"))return;
+
+ try{
+  await remove(path("referralCodes/"+code));
+  toast("Referral deleted");
+  await loadReferrals();
+ }catch(e){toast(errorMessage(e))}
+};
+
+/* HOME & BANNER */
 async function loadHome(){
+ if(!currentAdmin)return;
+
  try{
   const h=obj(await read("settings/home"));
-  $("homeTitle").value=h.title||"";$("homeSubtitle").value=h.subtitle||"";
+  const notice=await read("settings/notice");
+
+  $("homeTitle").value=h.title||"";
+  $("homeSubtitle").value=h.subtitle||"";
   $("homeBanner").value=h.bannerImage||"";
-  $("homeNotice").value=typeof await read("settings/notice")==="string"?await read("settings/notice"):(await read("settings/notice"))?.text||"";
+
+  $("homeNotice").value=
+   typeof notice==="string" ? notice :
+   (notice?.text||"");
  }catch(e){toast(errorMessage(e))}
 }
 window.saveHome=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  try{
   await write("settings/home",{
-   title:$("homeTitle").value.trim(),subtitle:$("homeSubtitle").value.trim(),
-   bannerImage:$("homeBanner").value.trim(),updatedAt:Date.now()
+   title:$("homeTitle").value.trim(),
+   subtitle:$("homeSubtitle").value.trim(),
+   bannerImage:$("homeBanner").value.trim(),
+   updatedAt:Date.now()
   });
-  await write("settings/notice",{text:$("homeNotice").value.trim(),updatedAt:Date.now()});
+
+  /* Save notice as a string for User Panel compatibility. */
+  await write("settings/notice",$("homeNotice").value.trim());
+
   toast("Home settings saved");
  }catch(e){toast(errorMessage(e))}
 };
 
+/* ACTION FLOW */
 const actionFields={
- giveawayChannel:"aGiveawayChannel",giveawayAccount:"aGiveawayAccount",
- tiktokUrl:"aTiktok",youtubeUrl:"aYoutube",updatesTelegram:"aUpdates",
+ giveawayChannel:"aGiveawayChannel",
+ giveawayAccount:"aGiveawayAccount",
+ tiktokUrl:"aTiktok",
+ youtubeUrl:"aYoutube",
+ updatesTelegram:"aUpdates",
  freeReferralUrl:"aFreeReferral"
 };
+
 async function loadActionLinks(){
+ if(!currentAdmin)return;
+
  try{
   linksCache=obj(await read("settings/actionLinks"));
-  for(const [key,id] of Object.entries(actionFields))$(id).value=linksCache[key]||"";
+
+  for(const [key,id] of Object.entries(actionFields))
+   $(id).value=linksCache[key]||"";
+
   renderToolbox();
  }catch(e){toast(errorMessage(e))}
 }
+
 window.saveActionLinks=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  const data={...linksCache};
- for(const [key,id] of Object.entries(actionFields))data[key]=$(id).value.trim();
+
+ for(const [key,id] of Object.entries(actionFields))
+  data[key]=$(id).value.trim();
+
  data.updatedAt=Date.now();
- try{await write("settings/actionLinks",data);linksCache=data;renderToolbox();toast("Action Flow links saved")}
- catch(e){toast(errorMessage(e))}
+
+ try{
+  await write("settings/actionLinks",data);
+  linksCache=data;
+  renderToolbox();
+  toast("Action Flow links saved");
+ }catch(e){toast(errorMessage(e))}
 };
+
 function renderToolbox(){
  const items=[
-  ["Giveaway Channel","giveawayChannel"],["Giveaway Account","giveawayAccount"],
-  ["TikTok ID","tiktokUrl"],["YouTube ID","youtubeUrl"],
-  ["All Updates","updatesTelegram"],["Free Referral Codes","freeReferralUrl"]
+  ["Giveaway Channel","giveawayChannel"],
+  ["Giveaway Account","giveawayAccount"],
+  ["TikTok ID","tiktokUrl"],
+  ["YouTube ID","youtubeUrl"],
+  ["All Updates","updatesTelegram"],
+  ["Free Referral Codes","freeReferralUrl"]
  ];
+
  setList("toolboxLinks",items.map(([name,key])=>{
   const url=linksCache[key]||"";
-  return `<div class="item"><div class="item-title">${safeText(name)}</div><div class="small">${safeText(url||"Link not set")}</div>
-  ${url?`<div class="actions"><button class="btn secondary" onclick="openLink('${encodeURIComponent(url)}')">Open Link</button></div>`:""}</div>`;
+
+  return `<div class="item">
+   <div class="item-title">${safeText(name)}</div>
+   <div class="small">${safeText(url||"Link not set")}</div>
+   ${url?`<div class="actions">
+    <button class="btn secondary" onclick="openLink('${encodeURIComponent(url)}')">Open Link</button>
+   </div>`:""}
+  </div>`;
  }).join(""));
 }
+
 window.openLink=encoded=>{
  const url=decodeURIComponent(encoded);
- try{const u=new URL(url);if(!["http:","https:"].includes(u.protocol))throw 0;window.open(u.href,"_blank","noopener")}
- catch{toast("Invalid link")}
-};
-async function loadToolbox(){await loadActionLinks();renderToolbox()}
 
+ try{
+  const u=new URL(url);
+  if(!["http:","https:"].includes(u.protocol))throw 0;
+  window.open(u.href,"_blank","noopener");
+ }catch{
+  toast("Invalid link");
+ }
+};
+
+async function loadToolbox(){
+ await loadActionLinks();
+ renderToolbox();
+}
+
+/* PAYMENT SETTINGS */
 async function loadPayments(){
+ if(!currentAdmin)return;
+
  try{
   const a=obj(await read("settings/actionLinks"));
+
   $("bkashNumber").value=a.bkashNumber||"";
   $("nagadNumber").value=a.nagadNumber||"";
   $("paymentInstructions").value=a.paymentInstructions||"";
  }catch(e){toast(errorMessage(e))}
 }
+
 window.savePayments=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  try{
   const old=obj(await read("settings/actionLinks"));
+
   await write("settings/actionLinks",{
-   ...old,bkashNumber:$("bkashNumber").value.trim(),
+   ...old,
+   bkashNumber:$("bkashNumber").value.trim(),
    nagadNumber:$("nagadNumber").value.trim(),
-   paymentInstructions:$("paymentInstructions").value.trim(),updatedAt:Date.now()
+   paymentInstructions:$("paymentInstructions").value.trim(),
+   updatedAt:Date.now()
   });
+
   toast("Payment settings saved");
  }catch(e){toast(errorMessage(e))}
 };
 
+/* MAINTENANCE */
 async function loadMaintenance(){
+ if(!currentAdmin)return;
+
  try{
   const m=obj(await read("settings/maintenance"));
+
   $("siteMaintenance").value=String(m.enabled===true);
   $("maintenanceMessage").value=m.message||"";
+
   await loadProducts();
  }catch(e){toast(errorMessage(e))}
 }
+
 window.saveMaintenance=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  try{
   await write("settings/maintenance",{
    enabled:$("siteMaintenance").value==="true",
-   message:$("maintenanceMessage").value.trim(),updatedAt:Date.now()
+   message:$("maintenanceMessage").value.trim(),
+   updatedAt:Date.now()
   });
+
   toast("Website maintenance settings saved");
  }catch(e){toast(errorMessage(e))}
 };
+
+$("maintenanceProduct").addEventListener("change",()=>{
+ const id=$("maintenanceProduct").value;
+ const p=productsCache[id];
+
+ if(!p)return;
+
+ $("productMaintenance").value=String(p.maintenance===true);
+ $("productMaintenanceMessage").value=p.maintenanceMessage||"";
+ $("maintenanceExpiry").value=
+  p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
+});
+
 window.saveProductMaintenance=async()=>{
+ if(!currentAdmin)return toast("Admin login required");
+
  const id=$("maintenanceProduct").value;
  if(!id)return toast("Select a product");
+
  try{
   const expiry=$("maintenanceExpiry").value;
+
   await patch("products/"+id,{
    maintenance:$("productMaintenance").value==="true",
    maintenanceMessage:$("productMaintenanceMessage").value.trim(),
-   expiry:expiry?new Date(expiry).getTime():null,updatedAt:Date.now()
+   expiry:expiry?new Date(expiry).getTime():null,
+   updatedAt:Date.now()
   });
-  toast("Product settings saved");await loadProducts();
+
+  toast("Product settings saved");
+  await loadProducts();
  }catch(e){toast(errorMessage(e))}
 };
 
-async function loadAll(){
- await Promise.allSettled([
-  loadDashboard(),loadOrders(),loadWalletRequests(),loadTransactions(),
-  loadProducts(),loadCategories(),loadReferrals(),loadHome(),
-  loadActionLinks(),loadPayments(),loadMaintenance()
- ]);
-}
 </script>
 </body>
 </html>
