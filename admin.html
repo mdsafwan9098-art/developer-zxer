@@ -3,1042 +3,190 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#080e1c">
-<title>Developer ZXER | Admin Panel</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Developer ZXER Admin</title>
 <style>
-:root{
---bg:#080e1c;--panel:#101b30;--panel2:#142440;
---line:#263c5c;--blue:#168cff;--cyan:#20d5ff;
---text:#f4f8ff;--muted:#91a5c2;
---green:#24d69a;--red:#ff627c;--yellow:#ffd166;
-}
-*{box-sizing:border-box}
-body{
-margin:0;background:radial-gradient(ellipse at top,#142d55 0%,transparent 45%),var(--bg);
-color:var(--text);font-family:Inter,"Hind Siliguri",sans-serif;min-height:100vh
-}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-.container{max-width:1100px;margin:auto;padding:16px 14px 45px}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 20px}
-.logo{font-weight:800;font-size:19px}
-.logo span{color:var(--cyan)}
-.iconbtn{background:var(--panel2);border:1px solid var(--line);color:white;padding:10px 13px;border-radius:12px}
-.card,.panel{
-background:linear-gradient(145deg,#142746,#0d1729);
-border:1px solid var(--line);border-radius:19px;padding:17px;margin-bottom:14px
-}
-.auth{max-width:440px;margin:8vh auto}
-h1{font-size:24px;margin:8px 0}
-h2{font-size:17px;margin:0 0 14px}
-h3{font-size:14px;margin:0 0 8px}
-.muted,.small{color:var(--muted);font-size:12px;line-height:1.7}
-.field{margin:12px 0}
-.field label{display:block;color:#b9cce5;font-size:12px;margin-bottom:7px}
-.field input,.field select,.field textarea{
-width:100%;padding:12px 13px;background:#081326;color:white;
-border:1px solid #2a4263;border-radius:11px;outline:none
-}
-.field textarea{min-height:85px;resize:vertical}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan)}
-.btn{
-border:0;border-radius:11px;padding:11px 14px;
-color:white;font-weight:700;background:linear-gradient(100deg,#0878ef,#12b9f3)
-}
-.btn.full{width:100%}
-.btn.secondary{background:#172944;border:1px solid var(--line)}
-.btn.danger{background:#70283b}
-.btn.success{background:#087b5b}
-.btn.warning{background:#79541b}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.row{display:flex;gap:9px;flex-wrap:wrap}
-.row>*{flex:1;min-width:100px}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.stat{background:#0b172a;border:1px solid var(--line);border-radius:15px;padding:15px}
-.stat b{display:block;font-size:23px;color:var(--cyan);margin-top:6px}
-.layout{display:grid;grid-template-columns:205px minmax(0,1fr);gap:15px}
-.sidebar{background:#0d192d;border:1px solid var(--line);border-radius:17px;padding:10px;height:max-content;position:sticky;top:12px}
-.navbtn{
-width:100%;text-align:left;padding:12px 11px;margin:3px 0;
-background:transparent;color:#a8bdd8;border:0;border-radius:10px;font-size:12px
-}
-.navbtn.active{background:#123b68;color:white}
-.navbtn span{display:inline-block;width:24px;color:var(--cyan)}
-.content{min-width:0}
-.section{display:none}
-.section.active{display:block}
-.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-.sectionhead h2{margin:0}
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px}
-table{width:100%;border-collapse:collapse;min-width:560px;font-size:12px}
-th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
-th{background:#12213a;color:#b9d5f3}
-td{color:#dceaff}
-.status{display:inline-block;padding:5px 9px;border-radius:20px;background:#173b60;color:#bdeaff;font-size:10px}
-.status.approved{background:#104c3b;color:#a9ffe0}
-.status.rejected{background:#57283a;color:#ffc3ce}
-.status.pending,.status.pending_wallet_review{background:#57451d;color:#ffe7a5}
-.item{background:#0b172a;border:1px solid var(--line);border-radius:14px;padding:13px;margin:10px 0;font-size:12px}
-.item p{color:var(--muted);line-height:1.7}
-.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.actions .btn{font-size:11px;padding:8px 10px}
-.productrow{display:flex;gap:12px;align-items:center}
-.productrow img{width:65px;height:55px;object-fit:cover;border-radius:9px;background:#172944}
-.empty{text-align:center;color:var(--muted);padding:25px;font-size:13px}
-.notice{background:#112741;border:1px solid #234668;padding:12px;border-radius:12px;color:#cceaff;font-size:12px;margin-bottom:12px}
-.toast{
-display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-z-index:50;background:#173654;border:1px solid #3475a5;color:white;
-padding:12px 17px;border-radius:12px;max-width:90%;font-size:13px
-}
-.toast.show{display:block}
-@media(max-width:760px){
-.layout{grid-template-columns:1fr}
-.sidebar{position:static;display:flex;overflow-x:auto;gap:4px}
-.navbtn{width:auto;white-space:nowrap;min-width:max-content}
-.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
+body{margin:0;background:#080e1c;color:white;font-family:Arial;padding:18px}
+h1,h2{color:#45b4ff}
+.card{background:#111e35;border:1px solid #294568;border-radius:16px;padding:16px;margin:14px 0}
+input,textarea{width:100%;padding:12px;margin:7px 0;background:#080e1c;color:white;border:1px solid #345477;border-radius:9px;box-sizing:border-box}
+button{background:#168cff;color:white;border:0;padding:12px;border-radius:10px;margin:4px}
+img{max-width:100%;max-height:150px;object-fit:contain}
+.hidden{display:none}
 </style>
 </head>
 <body>
-<div class="container">
-
-<header class="topbar">
-  <div class="logo">DEVELOPER <span>ZXER</span> <span style="color:#91a5c2;font-size:11px">ADMIN</span></div>
-  <button class="iconbtn hidden" id="logoutTop">Logout</button>
-</header>
-
-<!-- ADMIN LOGIN -->
-<section id="loginScreen" class="auth">
-  <div class="card">
-    <div class="small">SECURE ADMIN ACCESS</div>
-    <h1>Admin Login</h1>
-    <p class="muted">Sign in with your authorized Firebase administrator account.</p>
-    <div id="loginError" class="notice hidden"></div>
-    <div class="field">
-      <label>Email Address</label>
-      <input id="adminEmail" type="email" placeholder="Admin email">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input id="adminPassword" type="password" placeholder="Password">
-    </div>
-    <button class="btn full" id="loginBtn">LOGIN TO ADMIN PANEL</button>
-  </div>
-</section>
-
-<!-- ADMIN APP -->
-<main id="adminApp" class="hidden">
-<div class="layout">
-
-<aside class="sidebar">
-  <button class="navbtn active" data-section="dashboard"><span>▦</span>Dashboard</button>
-  <button class="navbtn" data-section="products"><span>▣</span>Products</button>
-  <button class="navbtn" data-section="addProduct"><span>＋</span>Add Product</button>
-  <button class="navbtn" data-section="categories"><span>◈</span>Categories</button>
-  <button class="navbtn" data-section="orders"><span>▤</span>Product Orders</button>
-  <button class="navbtn" data-section="walletRequests"><span>৳</span>Wallet Requests</button>
-  <button class="navbtn" data-section="transactions"><span>⇄</span>Wallet Transactions</button>
-  <button class="navbtn" data-section="users"><span>♙</span>Users</button>
-  <button class="navbtn" data-section="homeEdit"><span>⚙</span>Home Edit</button>
-</aside>
-
-<div class="content">
-
-<!-- DASHBOARD -->
-<section id="dashboardSection" class="section active">
-  <div class="sectionhead"><h2>Dashboard Overview</h2><span class="status approved">ADMIN ACTIVE</span></div>
-  <div class="stats">
-    <div class="stat"><div class="small">Total Products</div><b id="statProducts">0</b></div>
-    <div class="stat"><div class="small">Total Users</div><b id="statUsers">0</b></div>
-    <div class="stat"><div class="small">Product Orders</div><b id="statOrders">0</b></div>
-    <div class="stat"><div class="small">Wallet Requests</div><b id="statWallet">0</b></div>
-  </div>
-  <div class="panel" style="margin-top:15px">
-    <h2>Admin Information</h2>
-    <div class="small">Logged in email</div>
-    <p id="adminProfileEmail"></p>
-    <div class="small">Administrator UID</div>
-    <p id="adminProfileUid" style="overflow-wrap:anywhere"></p>
-    <button class="btn danger" id="logoutBtn">LOGOUT</button>
-  </div>
-</section>
-
-<!-- PRODUCTS -->
-<section id="productsSection" class="section">
-  <div class="sectionhead">
-    <h2>Manage Products</h2>
-    <button class="btn" data-go="addProduct">＋ Add Product</button>
-  </div>
-  <div id="productList"></div>
-</section>
-
-<!-- ADD PRODUCT -->
-<section id="addProductSection" class="section">
-  <div class="sectionhead"><h2 id="productFormTitle">Add New Product</h2></div>
-  <div class="panel">
-    <input type="hidden" id="editProductId">
-
-    <div class="field">
-      <label>Product Name</label>
-      <input id="productName" placeholder="Website / App / Product name">
-    </div>
-
-    <div class="field">
-      <label>Product Type</label>
-      <select id="productType">
-        <option value="Website">Website</option>
-        <option value="App">Application</option>
-        <option value="Digital Product">Digital Product</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Category</label>
-      <select id="productCategory">
-        <option value="">Select Category</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Description</label>
-      <textarea id="productDescription" placeholder="Write product description"></textarea>
-    </div>
-
-    <div class="field">
-      <label>Product Price (৳)</label>
-      <input id="productPrice" type="number" min="0" step="1" placeholder="0 for free product">
-    </div>
-
-    <div class="field">
-      <label>Product Image URL</label>
-      <input id="productImage" type="url" placeholder="https://example.com/image.jpg">
-    </div>
-
-    <div class="field">
-      <label>Download File URL</label>
-      <input id="productDownload" type="url" placeholder="https://example.com/file.zip">
-    </div>
-
-    <div class="field">
-      <label>Setup Video URL (Optional)</label>
-      <input id="productVideo" type="url" placeholder="https://youtube.com/...">
-    </div>
-
-    <div class="field">
-      <label>Product Status</label>
-      <select id="productActive">
-        <option value="true">Active</option>
-        <option value="false">Hidden</option>
-      </select>
-    </div>
-
-    <div class="notice">Price 0 হলে Product Free হিসেবে দেখানো হবে। File URL সরাসরি Download link হতে হবে।</div>
-
-    <button class="btn full" id="saveProductBtn">SAVE PRODUCT</button>
-    <button class="btn secondary full hidden" id="cancelEditBtn" style="margin-top:9px">CANCEL EDIT</button>
-  </div>
-</section>
-
-<!-- CATEGORIES -->
-<section id="categoriesSection" class="section">
-  <h2>Manage Categories</h2>
-  <div class="panel">
-    <div class="field">
-      <label>New Category Name</label>
-      <input id="newCategory" placeholder="Enter category name">
-    </div>
-    <button class="btn full" id="addCategoryBtn">ADD CATEGORY</button>
-  </div>
-  <div id="categoryAdminList"></div>
-</section>
-
-<!-- PRODUCT ORDERS -->
-<section id="ordersSection" class="section">
-  <h2>Product Order Requests</h2>
-  <div class="notice">Instant Payment এবং Wallet Payment অর্ডার এখানে দেখা যাবে। Wallet order approve করলে balance থেকে মূল্য কাটা হবে।</div>
-  <div id="orderRequestsList"></div>
-</section>
-
-<!-- WALLET REQUESTS -->
-<section id="walletRequestsSection" class="section">
-  <h2>Wallet Add Fund Requests</h2>
-  <div class="notice">Transaction ID যাচাই করে তারপর Approve করবেন। একই Request একবারের বেশি Credit করা যাবে না।</div>
-  <div id="walletRequestsList"></div>
-</section>
-
-<!-- TRANSACTIONS -->
-<section id="transactionsSection" class="section">
-  <h2>Wallet Transactions</h2>
-  <div id="allTransactionsList"></div>
-</section>
-
-<!-- USERS -->
-<section id="usersSection" class="section">
-  <h2>Registered Users</h2>
-  <div id="usersList"></div>
-</section>
-
-<!-- HOME EDIT -->
-<section id="homeEditSection" class="section">
-  <h2>Home Page Settings</h2>
-  <div class="panel">
-    <div class="field">
-      <label>Hero Title</label>
-      <input id="homeTitle" placeholder="Store title">
-    </div>
-    <div class="field">
-      <label>Hero Subtitle</label>
-      <input id="homeSubtitle" placeholder="Store subtitle">
-    </div>
-    <div class="field">
-      <label>Banner Image URL</label>
-      <input id="homeBanner" type="url" placeholder="https://example.com/banner.jpg">
-    </div>
-    <div class="field">
-      <label>Scrolling Notice</label>
-      <textarea id="homeNotice" placeholder="Write store notice"></textarea>
-    </div>
-    <button class="btn full" id="saveHomeBtn">SAVE HOME SETTINGS</button>
-  </div>
-</section>
-
+<h1>DEVELOPER ZXER</h1>
+<div id="login" class="card">
+<h2>Admin Login</h2>
+<input id="email" placeholder="Admin Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="loginAdmin()">Login</button>
+<p id="msg"></p>
 </div>
+
+<main id="panel" class="hidden">
+<div class="card">
+<h2>Add / Edit Product</h2>
+<input id="pid" placeholder="Product ID (blank for new)">
+<input id="name" placeholder="Product Name">
+<textarea id="description" placeholder="Description"></textarea>
+<input id="price" type="number" placeholder="Price">
+<input id="category" placeholder="Category">
+<label>Product Image Upload</label>
+<input id="imageFile" type="file" accept="image/*">
+<img id="preview">
+<input id="downloadUrl" placeholder="Download URL">
+<input id="videoUrl" placeholder="Setup Video URL">
+<label><input id="active" type="checkbox" checked> Active</label>
+<button onclick="saveProduct()">Save Product</button>
 </div>
+
+<div class="card">
+<h2>Products</h2><div id="productList"></div>
+</div>
+
+<div class="card">
+<h2>Wallet Requests</h2><div id="fundList"></div>
+</div>
+
+<div class="card">
+<h2>Product Orders</h2><div id="orderList"></div>
+</div>
+
+<div class="card">
+<h2>Create Custom Referral</h2>
+<input id="refText" placeholder="Your Referral Code">
+<input id="refAmount" type="number" placeholder="Reward Amount">
+<input id="refLimit" type="number" value="3" min="1" max="3">
+<button onclick="createReferral()">Create Referral</button>
+<div id="refList"></div>
+</div>
+
+<div class="card">
+<h2>Home Settings</h2>
+<input id="homeTitle" placeholder="Home Title">
+<input id="homeSubtitle" placeholder="Subtitle">
+<textarea id="notice" placeholder="Notice"></textarea>
+<button onclick="saveSettings()">Save Settings</button>
+</div>
+<button onclick="logoutAdmin()">Logout</button>
 </main>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import{getDatabase,ref,get,set,push,update,remove}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-import {
- getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+const config={
+apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+authDomain:"devzxer-9d8e9.firebaseapp.com",
+databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"devzxer-9d8e9",
+storageBucket:"devzxer-9d8e9.firebasestorage.app",
+messagingSenderId:"101740085617",
+appId:"1:101740085617:web:86d08757e668d4b897b6d0"
+};
+const app=initializeApp(config),auth=getAuth(app),db=getDatabase(app);
+let admin=false,imageData="";
 
-import {
- getDatabase,ref,get,set,update,remove,push,runTransaction
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+window.loginAdmin=async()=>{
+try{await signInWithEmailAndPassword(auth,email.value,password.value)}
+catch(e){msg.textContent=e.message}
+};
+onAuthStateChanged(auth,async u=>{
+if(!u)return;
+let a=await get(ref(db,"admins/"+u.uid));
+if(a.val()!==true){msg.textContent="Access denied";await signOut(auth);return}
+admin=true;login.classList.add("hidden");panel.classList.remove("hidden");load();
+});
+window.logoutAdmin=()=>signOut(auth);
 
-/* FIREBASE CONFIG */
-const firebaseConfig={
- apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
- authDomain:"devzxer-9d8e9.firebaseapp.com",
- databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
- projectId:"devzxer-9d8e9",
- storageBucket:"devzxer-9d8e9.firebasestorage.app",
- messagingSenderId:"101740085617",
- appId:"1:101740085617:web:86d08757e668d4b897b6d0",
- measurementId:"G-1635XV6SKV"
+imageFile.onchange=()=>{
+let f=imageFile.files[0];if(!f)return;
+if(f.size>300000) return alert("Image must be under 300 KB");
+let r=new FileReader();r.onload=()=>{imageData=r.result;preview.src=imageData};r.readAsDataURL(f);
 };
 
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getDatabase(app);
-const $=id=>document.getElementById(id);
-
-let admin=null;
-let products={};
-let categories={};
-let users={};
-let orders={};
-let walletRequests={};
-
-function safe(v){
- return String(v??"").replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- })[c]);
-}
-function money(v){return "৳"+Number(v||0).toLocaleString("en-US")}
-function toast(message){
- const box=$("toast");
- box.textContent=message;
- box.classList.add("show");
- setTimeout(()=>box.classList.remove("show"),3500);
-}
-function statusClass(s){
- if(s==="approved")return "approved";
- if(s==="rejected")return "rejected";
- return "pending";
-}
-function goSection(name){
- document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
- const target=$(name+"Section");
- if(target)target.classList.add("active");
- document.querySelectorAll(".navbtn").forEach(b=>{
-  b.classList.toggle("active",b.dataset.section===name);
- });
- if(name==="products")loadProducts();
- if(name==="categories")renderCategories();
- if(name==="orders")loadOrders();
- if(name==="walletRequests")loadWalletRequests();
- if(name==="transactions")loadAllTransactions();
- if(name==="users")loadUsers();
- if(name==="homeEdit")loadHomeEdit();
- window.scrollTo({top:0,behavior:"smooth"});
-}
-document.querySelectorAll("[data-section]").forEach(b=>{
- b.onclick=()=>goSection(b.dataset.section);
+window.saveProduct=async()=>{
+if(!admin)return;
+let id=pid.value.trim()||push(ref(db,"products")).key;
+let old=await get(ref(db,"products/"+id));
+await set(ref(db,"products/"+id),{
+name:name.value,description:description.value,
+price:Number(price.value)||0,category:category.value,
+imageData:imageData||old.val()?.imageData||"",
+downloadUrl:downloadUrl.value.trim(),setupVideoUrl:videoUrl.value.trim(),
+active:active.checked,updatedAt:Date.now()
 });
-document.querySelectorAll("[data-go]").forEach(b=>{
- b.onclick=()=>goSection(b.dataset.go);
+alert("Product saved");load();
+};
+
+async function load(){
+let p=(await get(ref(db,"products"))).val()||{};
+productList.innerHTML="";
+Object.entries(p).forEach(([id,x])=>{
+let d=document.createElement("div");d.className="card";
+d.textContent=x.name+" — ৳"+x.price;
+let edit=document.createElement("button");edit.textContent="Edit";edit.onclick=()=>{
+pid.value=id;name.value=x.name;description.value=x.description;
+price.value=x.price;category.value=x.category;
+downloadUrl.value=x.downloadUrl;videoUrl.value=x.setupVideoUrl;
+active.checked=x.active;imageData=x.imageData||"";preview.src=imageData;
+};
+let del=document.createElement("button");del.textContent="Delete";del.onclick=async()=>{
+if(confirm("Delete product?")){await remove(ref(db,"products/"+id));load()}
+};
+d.append(edit,del);productList.append(d);
 });
 
-/* LOGIN */
-$("loginBtn").onclick=async()=>{
- $("loginError").classList.add("hidden");
- try{
-  await signInWithEmailAndPassword(
-   auth,$("adminEmail").value.trim(),$("adminPassword").value
-  );
- }catch(e){
-  $("loginError").textContent=e.message;
-  $("loginError").classList.remove("hidden");
- }
-};
+let w=(await get(ref(db,"walletRequests"))).val()||{};
+fundList.innerHTML="";
+Object.entries(w).forEach(([uid,items])=>Object.entries(items||{}).forEach(([id,x])=>{
+let d=document.createElement("div");d.className="card";
+d.textContent=uid+" | ৳"+x.amount+" | "+x.method+" | "+x.trxId+" | "+x.status;
+let ok=document.createElement("button");ok.textContent="Approve";
+ok.onclick=()=>alert("Wallet credit requires a secure atomic server-side process. Do not manually approve from this demo.");
+let no=document.createElement("button");no.textContent="Reject";
+no.onclick=async()=>{await update(ref(db,"walletRequests/"+uid+"/"+id),{status:"rejected",reviewedAt:Date.now()});load()};
+d.append(ok,no);fundList.append(d);
+}));
 
-async function logout(){
- await signOut(auth);
-}
-$("logoutBtn").onclick=logout;
-$("logoutTop").onclick=logout;
+let o=(await get(ref(db,"orders"))).val()||{};
+orderList.innerHTML="";
+Object.entries(o).forEach(([uid,items])=>Object.entries(items||{}).forEach(([id,x])=>{
+let d=document.createElement("div");d.className="card";
+d.textContent=x.productName+" | "+uid+" | "+x.status+" | "+x.trxId;
+let ok=document.createElement("button");ok.textContent="Approve";
+ok.onclick=async()=>{await update(ref(db,"orders/"+uid+"/"+id),{status:"approved",reviewedAt:Date.now()});load()};
+let no=document.createElement("button");no.textContent="Reject";
+no.onclick=async()=>{await update(ref(db,"orders/"+uid+"/"+id),{status:"rejected",reviewedAt:Date.now()});load()};
+d.append(ok,no);orderList.append(d);
+}));
 
-/* ADMIN AUTHORIZATION */
-onAuthStateChanged(auth,async user=>{
- if(!user){
-  admin=null;
-  $("loginScreen").classList.remove("hidden");
-  $("adminApp").classList.add("hidden");
-  $("logoutTop").classList.add("hidden");
-  return;
- }
-
- try{
-  const adminSnap=await get(ref(db,"admins/"+user.uid));
-
-  if(adminSnap.val()!==true){
-   await signOut(auth);
-   $("loginError").textContent="Access denied. This account is not an administrator.";
-   $("loginError").classList.remove("hidden");
-   return;
-  }
-
-  admin=user;
-  $("loginScreen").classList.add("hidden");
-  $("adminApp").classList.remove("hidden");
-  $("logoutTop").classList.remove("hidden");
-  $("adminProfileEmail").textContent=user.email||"";
-  $("adminProfileUid").textContent=user.uid;
-
-  await loadAllData();
-  goSection("dashboard");
-
- }catch(error){
-  $("loginError").textContent="Admin verification failed: "+error.message;
-  $("loginError").classList.remove("hidden");
- }
+let refs=(await get(ref(db,"referralCodes"))).val()||{};
+refList.innerHTML="";
+Object.entries(refs).forEach(([id,x])=>{
+let d=document.createElement("div");d.className="card";
+d.textContent=id+" | ৳"+x.amount+" | "+x.limit+" uses";
+refList.append(d);
 });
-
-/* INITIAL DATA */
-async function loadAllData(){
- const paths=["products","categories","users","orders","walletRequests"];
- const results=await Promise.all(paths.map(path=>get(ref(db,path))));
- products=results[0].val()||{};
- categories=results[1].val()||{};
- users=results[2].val()||{};
- orders=results[3].val()||{};
- walletRequests=results[4].val()||{};
- updateDashboard();
 }
 
-function updateDashboard(){
- $("statProducts").textContent=Object.keys(products).length;
- $("statUsers").textContent=Object.keys(users).length;
- let orderCount=0,walletCount=0;
- Object.values(orders).forEach(x=>orderCount+=Object.keys(x||{}).length);
- Object.values(walletRequests).forEach(x=>walletCount+=Object.keys(x||{}).length);
- $("statOrders").textContent=orderCount;
- $("statWallet").textContent=walletCount;
-}
-
-/* PRODUCTS */
-async function loadProducts(){
- try{
-  const snap=await get(ref(db,"products"));
-  products=snap.val()||{};
-  updateDashboard();
-
-  const box=$("productList");
-  const entries=Object.entries(products);
-
-  if(!entries.length){
-   box.innerHTML='<div class="empty">No products added yet.</div>';
-   return;
-  }
-
-  box.innerHTML=entries.map(([id,p])=>`
-   <div class="item">
-    <div class="productrow">
-     <img src="${safe(p.imageUrl||p.image||"")}" onerror="this.style.display='none'">
-     <div style="min-width:0">
-      <b>${safe(p.name||p.title||"Product")}</b>
-      <div class="small">${safe(p.type||"Digital Product")} · ${safe(p.category||"No Category")}</div>
-      <div style="color:var(--cyan);margin-top:5px">${Number(p.price||0)===0?"FREE":money(p.price)}</div>
-     </div>
-    </div>
-    <div class="actions">
-     <button class="btn secondary" data-edit="${safe(id)}">EDIT</button>
-     <button class="btn danger" data-delete="${safe(id)}">DELETE</button>
-    </div>
-   </div>
-  `).join("");
-
-  box.querySelectorAll("[data-edit]").forEach(b=>{
-   b.onclick=()=>editProduct(b.dataset.edit);
-  });
-  box.querySelectorAll("[data-delete]").forEach(b=>{
-   b.onclick=()=>deleteProduct(b.dataset.delete);
-  });
-
- }catch(e){
-  $("productList").innerHTML='<div class="notice">Product loading failed: '+safe(e.message)+'</div>';
- }
-}
-
-function fillCategorySelect(){
- const select=$("productCategory");
- const old=select.value;
- select.innerHTML='<option value="">Select Category</option>'+
- Object.entries(categories).map(([id,c])=>{
-  const name=typeof c==="string"?c:c.name;
-  return `<option value="${safe(name)}">${safe(name)}</option>`;
- }).join("");
- if(old)select.value=old;
-}
-
-function clearProductForm(){
- $("editProductId").value="";
- $("productName").value="";
- $("productType").value="Website";
- $("productCategory").value="";
- $("productDescription").value="";
- $("productPrice").value="";
- $("productImage").value="";
- $("productDownload").value="";
- $("productVideo").value="";
- $("productActive").value="true";
- $("productFormTitle").textContent="Add New Product";
- $("saveProductBtn").textContent="SAVE PRODUCT";
- $("cancelEditBtn").classList.add("hidden");
-}
-
-async function saveProduct(){
- const name=$("productName").value.trim();
- const category=$("productCategory").value;
- const price=Number($("productPrice").value);
- const imageUrl=$("productImage").value.trim();
- const downloadUrl=$("productDownload").value.trim();
- const editId=$("editProductId").value;
-
- if(!name||!category||!Number.isFinite(price)||price<0||!downloadUrl){
-  toast("Name, Category, valid Price এবং Download URL দিন");
-  return;
- }
-
- const data={
-  name,
-  title:name,
-  type:$("productType").value,
-  category,
-  description:$("productDescription").value.trim(),
-  price,
-  isFree:price===0,
-  imageUrl,
-  downloadUrl,
-  setupVideoUrl:$("productVideo").value.trim(),
-  active:$("productActive").value==="true",
-  updatedAt:Date.now()
- };
-
- try{
-  if(editId){
-   await update(ref(db,"products/"+editId),data);
-   toast("Product updated");
-  }else{
-   data.createdAt=Date.now();
-   const id=push(ref(db,"products")).key;
-   await set(ref(db,"products/"+id),data);
-   toast("Product added successfully");
-  }
-
-  clearProductForm();
-  await loadProducts();
-  goSection("products");
-
- }catch(e){
-  toast("Save failed: "+e.message);
- }
-}
-$("saveProductBtn").onclick=saveProduct;
-$("cancelEditBtn").onclick=clearProductForm;
-
-async function editProduct(id){
- const p=products[id];
- if(!p)return;
-
- fillCategorySelect();
- $("editProductId").value=id;
- $("productName").value=p.name||p.title||"";
- $("productType").value=p.type||"Website";
- $("productCategory").value=p.category||"";
- $("productDescription").value=p.description||"";
- $("productPrice").value=Number(p.price||0);
- $("productImage").value=p.imageUrl||p.image||"";
- $("productDownload").value=p.downloadUrl||p.fileUrl||"";
- $("productVideo").value=p.setupVideoUrl||"";
- $("productActive").value=p.active===false?"false":"true";
-
- $("productFormTitle").textContent="Edit Product";
- $("saveProductBtn").textContent="UPDATE PRODUCT";
- $("cancelEditBtn").classList.remove("hidden");
- goSection("addProduct");
-}
-
-async function deleteProduct(id){
- if(!confirm("Delete this product?"))return;
- try{
-  await remove(ref(db,"products/"+id));
-  toast("Product deleted");
-  await loadProducts();
- }catch(e){toast("Delete failed: "+e.message)}
-}
-
-/* CATEGORIES */
-async function loadCategories(){
- const snap=await get(ref(db,"categories"));
- categories=snap.val()||{};
- fillCategorySelect();
-}
-$("addCategoryBtn").onclick=async()=>{
- const name=$("newCategory").value.trim();
- if(!name){toast("Category name লিখুন");return}
-
- try{
-  const id=push(ref(db,"categories")).key;
-  await set(ref(db,"categories/"+id),{
-   name,createdAt:Date.now()
-  });
-  $("newCategory").value="";
-  await loadCategories();
-  renderCategories();
-  toast("Category added");
- }catch(e){toast("Category error: "+e.message)}
+window.createReferral=async()=>{
+let code=refText.value.trim().toUpperCase(),amount=Number(refAmount.value),limit=Number(refLimit.value);
+if(!code||amount<=0||limit<1||limit>3)return alert("Enter valid code, amount and limit (1–3)");
+let exists=await get(ref(db,"referralCodes/"+code));
+if(exists.exists())return alert("Code already exists");
+await set(ref(db,"referralCodes/"+code),{amount,limit,used:0,active:true,createdAt:Date.now()});
+alert("Referral created");load();
 };
 
-function renderCategories(){
- const box=$("categoryAdminList");
- const entries=Object.entries(categories);
- box.innerHTML=entries.length?entries.map(([id,c])=>{
-  const name=typeof c==="string"?c:c.name;
-  return `<div class="item"><b>${safe(name)}</b>
-   <div class="actions"><button class="btn danger" data-catdel="${safe(id)}">DELETE</button></div>
-  </div>`;
- }).join(""):'<div class="empty">No categories.</div>';
-
- box.querySelectorAll("[data-catdel]").forEach(b=>{
-  b.onclick=async()=>{
-   if(!confirm("Delete category?"))return;
-   try{
-    await remove(ref(db,"categories/"+b.dataset.catdel));
-    await loadCategories();
-    renderCategories();
-    toast("Category deleted");
-   }catch(e){toast(e.message)}
-  };
- });
-}
-
-/* WALLET REQUESTS */
-async function loadWalletRequests(){
- try{
-  const snap=await get(ref(db,"walletRequests"));
-  walletRequests=snap.val()||{};
-  updateDashboard();
-
-  const box=$("walletRequestsList");
-  let html="";
-
-  Object.entries(walletRequests).forEach(([uid,requests])=>{
-   Object.entries(requests||{}).forEach(([id,r])=>{
-    html+=`
-     <div class="item">
-      <b>Wallet Request</b>
-      <div class="small">User UID: ${safe(uid)}</div>
-      <p>Amount: <b style="color:var(--cyan)">${money(r.amount)}</b><br>
-      Method: ${safe(r.method)}<br>
-      Transaction ID: <b>${safe(r.trxId)}</b><br>
-      Request Date: ${safe(new Date(r.requestedAt||Date.now()).toLocaleString())}</p>
-      <span class="status ${statusClass(r.status)}">${safe(r.status||"pending")}</span>
-      <div class="actions">
-       <button class="btn success" data-wapprove="${safe(uid)}|${safe(id)}" ${r.status!=="pending"?"disabled":""}>APPROVE</button>
-       <button class="btn danger" data-wreject="${safe(uid)}|${safe(id)}" ${r.status!=="pending"?"disabled":""}>REJECT</button>
-      </div>
-     </div>`;
-   });
-  });
-
-  box.innerHTML=html||'<div class="empty">No wallet requests found.</div>';
-
-  box.querySelectorAll("[data-wapprove]").forEach(b=>{
-   b.onclick=()=>approveWallet(...b.dataset.wapprove.split("|"));
-  });
-  box.querySelectorAll("[data-wreject]").forEach(b=>{
-   b.onclick=()=>rejectWallet(...b.dataset.wreject.split("|"));
-  });
-
- }catch(e){
-  $("walletRequestsList").innerHTML='<div class="notice">Loading failed: '+safe(e.message)+'</div>';
- }
-}
-
-/*
-  Claim request first. Only the admin can approve.
-  The balance is incremented with a database transaction.
-  A processing request must be checked before manual recovery;
-  never approve it repeatedly.
-*/
-async function approveWallet(uid,id){
- const requestRef=ref(db,`walletRequests/${uid}/${id}`);
-
- try{
-  const claim=await runTransaction(requestRef,current=>{
-   if(!current||current.status!=="pending")return;
-   return {...current,status:"processing",processingAt:Date.now()};
-  });
-
-  if(!claim.committed){
-   toast("Request already processed or being reviewed");
-   await loadWalletRequests();
-   return;
-  }
-
-  const request=claim.snapshot.val();
-  const amount=Number(request.amount);
-
-  if(!Number.isFinite(amount)||amount<=0){
-   await update(requestRef,{status:"rejected",adminNote:"Invalid amount"});
-   toast("Invalid request amount");
-   await loadWalletRequests();
-   return;
-  }
-
-  const balanceRef=ref(db,"wallets/"+uid+"/balance");
-  const balanceResult=await runTransaction(balanceRef,current=>{
-   return Number(current||0)+amount;
-  });
-
-  if(!balanceResult.committed){
-   toast("Balance transaction failed. Check request before retrying.");
-   await loadWalletRequests();
-   return;
-  }
-
-  const transactionId=push(ref(db,"walletTransactions/"+uid)).key;
-
-  await update(ref(db),{
-   [`walletRequests/${uid}/${id}/status`]:"approved",
-   [`walletRequests/${uid}/${id}/walletCredited`]:true,
-   [`walletRequests/${uid}/${id}/approvedAt`]:Date.now(),
-   [`walletRequests/${uid}/${id}/approvedBy`]:admin.uid,
-   [`walletTransactions/${uid}/${transactionId}`]:{
-    type:"Wallet Deposit",
-    amount,
-    method:request.method||"",
-    trxId:request.trxId||"",
-    requestId:id,
-    createdAt:Date.now()
-   }
-  });
-
-  toast("Wallet credited: "+money(amount));
-  await loadWalletRequests();
-  await loadAllData();
-
- }catch(e){
-  toast("Approval error: "+e.message);
-  await loadWalletRequests();
- }
-}
-
-async function rejectWallet(uid,id){
- const requestRef=ref(db,`walletRequests/${uid}/${id}`);
-
- try{
-  const result=await runTransaction(requestRef,current=>{
-   if(!current||current.status!=="pending")return;
-   return {...current,status:"rejected",rejectedAt:Date.now(),rejectedBy:admin.uid};
-  });
-
-  if(!result.committed){
-   toast("Request already processed");
-  }else{
-   toast("Wallet request rejected");
-  }
-
-  await loadWalletRequests();
- }catch(e){toast("Reject failed: "+e.message)}
-}
-
-/* PRODUCT ORDERS */
-async function loadOrders(){
- try{
-  const snap=await get(ref(db,"orders"));
-  orders=snap.val()||{};
-  updateDashboard();
-
-  const box=$("orderRequestsList");
-  let html="";
-
-  Object.entries(orders).forEach(([uid,userOrders])=>{
-   Object.entries(userOrders||{}).forEach(([id,o])=>{
-    html+=`
-     <div class="item">
-      <b>${safe(o.productName||"Product")}</b>
-      <div class="small">User UID: ${safe(uid)}</div>
-      <p>Price: <b style="color:var(--cyan)">${money(o.price)}</b><br>
-      Payment: ${safe(o.paymentMethod)}<br>
-      Transaction ID: ${safe(o.trxId||"Not provided")}<br>
-      Order Date: ${safe(new Date(o.createdAt||Date.now()).toLocaleString())}</p>
-      <span class="status ${statusClass(o.status)}">${safe(o.status||"pending")}</span>
-      <div class="actions">
-       <button class="btn success" data-oapprove="${safe(uid)}|${safe(id)}"
-        ${!["pending","pending_wallet_review"].includes(o.status)?"disabled":""}>APPROVE</button>
-       <button class="btn danger" data-oreject="${safe(uid)}|${safe(id)}"
-        ${!["pending","pending_wallet_review"].includes(o.status)?"disabled":""}>REJECT</button>
-      </div>
-     </div>`;
-   });
-  });
-
-  box.innerHTML=html||'<div class="empty">No product orders found.</div>';
-
-  box.querySelectorAll("[data-oapprove]").forEach(b=>{
-   b.onclick=()=>approveOrder(...b.dataset.oapprove.split("|"));
-  });
-  box.querySelectorAll("[data-oreject]").forEach(b=>{
-   b.onclick=()=>rejectOrder(...b.dataset.oreject.split("|"));
-  });
-
- }catch(e){
-  $("orderRequestsList").innerHTML='<div class="notice">Order loading failed: '+safe(e.message)+'</div>';
- }
-}
-
-async function approveOrder(uid,id){
- const orderRef=ref(db,`orders/${uid}/${id}`);
-
- try{
-  const claim=await runTransaction(orderRef,current=>{
-   if(!current||!["pending","pending_wallet_review"].includes(current.status))return;
-   return {...current,status:"processing",processingAt:Date.now()};
-  });
-
-  if(!claim.committed){
-   toast("Order already processed or being reviewed");
-   await loadOrders();
-   return;
-  }
-
-  const order=claim.snapshot.val();
-  const price=Number(order.price||0);
-
-  if(order.paymentMethod==="wallet" && price>0){
-   const balanceRef=ref(db,"wallets/"+uid+"/balance");
-
-   const debit=await runTransaction(balanceRef,current=>{
-    const balance=Number(current||0);
-    if(balance<price)return;
-    return balance-price;
-   });
-
-   if(!debit.committed){
-    await update(orderRef,{
-     status:"rejected",
-     adminNote:"Insufficient wallet balance",
-     rejectedAt:Date.now()
-    });
-    toast("User has insufficient wallet balance");
-    await loadOrders();
-    return;
-   }
-
-   const txId=push(ref(db,"walletTransactions/"+uid)).key;
-
-   await update(ref(db),{
-    [`orders/${uid}/${id}/status`]:"approved",
-    [`orders/${uid}/${id}/walletDeducted`]:true,
-    [`orders/${uid}/${id}/approvedAt`]:Date.now(),
-    [`orders/${uid}/${id}/approvedBy`]:admin.uid,
-    [`walletTransactions/${uid}/${txId}`]:{
-     type:"Product Purchase",
-     amount:-price,
-     productName:order.productName||"",
-     orderId:id,
-     createdAt:Date.now()
-    }
-   });
-
-  }else{
-   await update(orderRef,{
-    status:"approved",
-    approvedAt:Date.now(),
-    approvedBy:admin.uid
-   });
-  }
-
-  toast("Order approved");
-  await loadOrders();
-  await loadAllData();
-
- }catch(e){
-  toast("Approval failed: "+e.message);
-  await loadOrders();
- }
-}
-
-async function rejectOrder(uid,id){
- const orderRef=ref(db,`orders/${uid}/${id}`);
-
- try{
-  const result=await runTransaction(orderRef,current=>{
-   if(!current||!["pending","pending_wallet_review"].includes(current.status))return;
-   return {...current,status:"rejected",rejectedAt:Date.now(),rejectedBy:admin.uid};
-  });
-
-  toast(result.committed?"Order rejected":"Order already processed");
-  await loadOrders();
-
- }catch(e){toast("Reject failed: "+e.message)}
-}
-
-/* USERS */
-async function loadUsers(){
- try{
-  const snap=await get(ref(db,"users"));
-  users=snap.val()||{};
-  updateDashboard();
-
-  const box=$("usersList");
-  const entries=Object.entries(users);
-
-  box.innerHTML=entries.length?entries.map(([uid,u])=>`
-   <div class="item">
-    <b>${safe(u.email||"No email")}</b>
-    <div class="small" style="overflow-wrap:anywhere">UID: ${safe(uid)}</div>
-    <div class="actions">
-     <button class="btn secondary" data-userbalance="${safe(uid)}">VIEW WALLET</button>
-    </div>
-   </div>
-  `).join(""):'<div class="empty">No users found.</div>';
-
-  box.querySelectorAll("[data-userbalance]").forEach(b=>{
-   b.onclick=()=>viewUserWallet(b.dataset.userbalance);
-  });
-
- }catch(e){
-  $("usersList").innerHTML='<div class="notice">Users load failed: '+safe(e.message)+'</div>';
- }
-}
-
-async function viewUserWallet(uid){
- try{
-  const snap=await get(ref(db,"wallets/"+uid+"/balance"));
-  alert("User UID: "+uid+"\nWallet Balance: "+money(snap.val()||0));
- }catch(e){toast(e.message)}
-}
-
-/* ALL TRANSACTIONS */
-async function loadAllTransactions(){
- try{
-  const snap=await get(ref(db,"walletTransactions"));
-  const data=snap.val()||{};
-  const box=$("allTransactionsList");
-  let html="";
-
-  Object.entries(data).forEach(([uid,items])=>{
-   Object.entries(items||{}).forEach(([id,t])=>{
-    html+=`
-     <div class="item">
-      <b>${safe(t.type||"Transaction")}</b>
-      <div class="small">User UID: ${safe(uid)}</div>
-      <p>Amount: <b>${money(t.amount)}</b><br>
-      Date: ${safe(new Date(t.createdAt||Date.now()).toLocaleString())}</p>
-     </div>`;
-   });
-  });
-
-  box.innerHTML=html||'<div class="empty">No transactions yet.</div>';
- }catch(e){
-  $("allTransactionsList").innerHTML='<div class="notice">'+safe(e.message)+'</div>';
- }
-}
-
-/* HOME SETTINGS */
-async function loadHomeEdit(){
- try{
-  const [homeSnap,noticeSnap]=await Promise.all([
-   get(ref(db,"settings/home")),
-   get(ref(db,"settings/notice"))
-  ]);
-
-  const home=homeSnap.val()||{};
-  $("homeTitle").value=home.title||"";
-  $("homeSubtitle").value=home.subtitle||"";
-  $("homeBanner").value=home.bannerUrl||"";
-
-  const notice=noticeSnap.val();
-  $("homeNotice").value=typeof notice==="string"?(notice):(notice?.text||"");
-
- }catch(e){toast("Settings load failed: "+e.message)}
-}
-
-$("saveHomeBtn").onclick=async()=>{
- try{
-  await update(ref(db,"settings/home"),{
-   title:$("homeTitle").value.trim(),
-   subtitle:$("homeSubtitle").value.trim(),
-   bannerUrl:$("homeBanner").value.trim(),
-   updatedAt:Date.now()
-  });
-
-  await set(ref(db,"settings/notice"),{
-   text:$("homeNotice").value.trim(),
-   updatedAt:Date.now()
-  });
-
-  toast("Home settings saved");
-
- }catch(e){toast("Settings save failed: "+e.message)}
+window.saveSettings=async()=>{
+await set(ref(db,"settings/home"),{title:homeTitle.value,subtitle:homeSubtitle.value});
+await set(ref(db,"settings/notice"),notice.value);
+alert("Settings saved");
 };
-
-/* STARTUP */
-async function loadAllData(){
- await Promise.all([
-  loadProducts(),
-  loadCategories()
- ]);
- await loadUsers();
- await loadOrders();
- await loadWalletRequests();
- updateDashboard();
-}
-
 </script>
 </body>
 </html>
