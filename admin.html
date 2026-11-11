@@ -317,8 +317,9 @@ import {
  getDatabase,ref,get,set,update,push,remove,runTransaction
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+/* FIREBASE CONFIG */
 const firebaseConfig={
- apiKey:"AIzaSyCY7gl6V_WANX6B_irbndap8z7pZfSb5Os",
+ apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
  authDomain:"devzxer-9d8e9.firebaseapp.com",
  databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
  projectId:"devzxer-9d8e9",
@@ -359,6 +360,8 @@ function errorMessage(e){
  const code=String(e?.code||"");
  const msg=String(e?.message||"");
 
+ if(code==="auth/invalid-api-key"||msg.toLowerCase().includes("api key not valid"))
+  return "Invalid API Key. Firebase Console-এর Web App Config এবং Google Cloud API Key status যাচাই করুন।";
  if(code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/user-not-found")
   return "Login failed: Email or password is incorrect. Firebase Authentication-এর Admin account যাচাই করুন।";
  if(code==="auth/invalid-email")
@@ -465,30 +468,18 @@ onAuthStateChanged(auth,async user=>{
    currentAdmin=null;
    $("app").style.display="none";
    $("loginScreen").style.display="grid";
-   authCheckRunning=false;
    return;
   }
 
   $("loginMsg").textContent="Verifying Admin UID...";
 
-  let adminValue;
-  try{
-   adminValue=await read("admins/"+user.uid);
-  }catch(e){
-   $("app").style.display="none";
-   $("loginScreen").style.display="grid";
-   $("loginMsg").textContent=errorMessage(e);
-   await signOut(auth);
-   authCheckRunning=false;
-   return;
-  }
+  const adminValue=await read("admins/"+user.uid);
 
   if(adminValue!==true){
    $("app").style.display="none";
    $("loginScreen").style.display="grid";
    $("loginMsg").textContent="Access denied: admins/"+user.uid+" must be Boolean true in Realtime Database.";
    await signOut(auth);
-   authCheckRunning=false;
    return;
   }
 
@@ -682,9 +673,10 @@ async function loadWalletRequests(){
 window.loadWalletRequests=loadWalletRequests;
 
 /*
- WALLET APPROVAL FIX
- Uses a wallet-level transaction and a request-specific credit marker.
- The marker prevents a repeated approval from crediting the same request twice.
+ WALLET APPROVAL:
+ - Claims pending request with a transaction.
+ - Uses a request-specific marker to prevent duplicate credit.
+ - Uses a fixed transaction ID to avoid duplicate history records.
 */
 window.walletRequestAction=async(uid,id,status)=>{
  if(!currentAdmin)return toast("Admin login required");
@@ -693,23 +685,19 @@ window.walletRequestAction=async(uid,id,status)=>{
  if(!confirm(status==="approved"?"Approve and add balance?":"Reject this request?"))return;
 
  busy=true;
-
  const requestRef=path(`walletRequests/${uid}/${id}`);
  const walletRef=path(`wallets/${uid}`);
 
  try{
   let req=await read(`walletRequests/${uid}/${id}`);
-
   if(!req)throw new Error("Wallet request not found");
 
   if(status==="rejected"){
    const rejectResult=await runTransaction(requestRef,current=>{
     if(!current||statusOf(current)!=="pending")return;
-
     current.status="rejected";
     current.processedAt=Date.now();
     current.processedBy=currentAdmin.uid;
-
     return current;
    });
 
@@ -723,17 +711,11 @@ window.walletRequestAction=async(uid,id,status)=>{
   }
 
   const amount=Number(req.amount);
-
   if(!Number.isFinite(amount)||amount<=0)
    throw new Error("Invalid request amount");
 
-  /*
-   Claim the request first.
-   A request already marked processing can be safely retried.
-  */
   const claim=await runTransaction(requestRef,current=>{
    if(!current)return;
-
    const state=statusOf(current);
 
    if(state==="pending"){
@@ -747,7 +729,6 @@ window.walletRequestAction=async(uid,id,status)=>{
    if(state==="processing"&&current.processingAction==="approved"){
     return current;
    }
-
    return;
   });
 
@@ -755,35 +736,22 @@ window.walletRequestAction=async(uid,id,status)=>{
    throw new Error("Request is already processed or cannot be claimed.");
 
   req=claim.snapshot.val();
-
   if(!req||statusOf(req)!=="processing")
    throw new Error("Request is not in processing state.");
 
-  /*
-   Credit the wallet exactly once.
-   The creditedRequests marker is stored in the same wallet transaction
-   as the balance update.
-  */
   const walletResult=await runTransaction(walletRef,current=>{
    current=current&&typeof current==="object"?current:{};
-
    const credited=current.creditedRequests&&typeof current.creditedRequests==="object"
     ?current.creditedRequests:{};
 
    if(credited[id])return current;
 
    const oldBalance=Number(current.balance)||0;
-
    current.balance=oldBalance+amount;
    current.creditedRequests={
     ...credited,
-    [id]:{
-     amount:amount,
-     requestId:id,
-     creditedAt:Date.now()
-    }
+    [id]:{amount,requestId:id,creditedAt:Date.now()}
    };
-
    return current;
   });
 
@@ -791,36 +759,21 @@ window.walletRequestAction=async(uid,id,status)=>{
    throw new Error("Wallet balance update was not committed.");
 
   const walletData=walletResult.snapshot.val();
-
   if(!walletData?.creditedRequests?.[id])
    throw new Error("Wallet credit verification failed.");
 
-  /*
-   Use a fixed transaction ID so retrying will not create
-   multiple transaction history records.
-  */
   const transactionId="walletreq_"+id;
   const transactionPath=`walletTransactions/${uid}/${transactionId}`;
-
   const oldTransaction=await read(transactionPath);
 
   if(!oldTransaction){
    await write(transactionPath,{
-    id:transactionId,
-    uid:uid,
-    type:"credit",
-    amount:amount,
-    reason:"Wallet request approved",
-    requestId:id,
-    createdAt:Date.now(),
-    createdBy:currentAdmin.uid
+    id:transactionId,uid,type:"credit",amount,
+    reason:"Wallet request approved",requestId:id,
+    createdAt:Date.now(),createdBy:currentAdmin.uid
    });
   }
 
-  /*
-   Mark the request approved only after wallet credit and
-   transaction history have been confirmed.
-  */
   await patch(`walletRequests/${uid}/${id}`,{
    status:"approved",
    processedAt:Date.now(),
@@ -829,7 +782,6 @@ window.walletRequestAction=async(uid,id,status)=>{
   });
 
   toast("Approved! Wallet balance updated successfully.");
-
   await loadWalletRequests();
   await loadDashboard();
   await loadTransactions();
@@ -837,14 +789,10 @@ window.walletRequestAction=async(uid,id,status)=>{
  }catch(e){
   console.error("Wallet approval error:",e);
   toast(errorMessage(e));
-
   try{
    await loadWalletRequests();
    await loadDashboard();
-  }catch(refreshError){
-   console.error(refreshError);
-  }
-
+  }catch(refreshError){console.error(refreshError)}
  }finally{
   busy=false;
  }
@@ -870,7 +818,6 @@ async function loadTransactions(){
     </div>`;
    }
   }
-
   setList("transactionsList",html);
  }catch(e){
   setList("transactionsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
@@ -881,7 +828,6 @@ window.loadTransactions=loadTransactions;
 /* USERS */
 window.searchUser=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  const uid=$("searchUid").value.trim();
  if(!uid)return toast("Enter user UID");
 
@@ -898,7 +844,6 @@ window.searchUser=async()=>{
   }
 
   const balance=Number(wallet?.balance)||0;
-
   $("userResult").innerHTML=`<div class="item">
    <div class="item-title">${safeText(user?.name||user?.displayName||"User")}</div>
    <div class="small">
@@ -908,7 +853,6 @@ window.searchUser=async()=>{
    </div>
    <span class="pill active">User found</span>
   </div>`;
-
   $("creditUid").value=uid;
  }catch(e){
   $("userResult").innerHTML=`<div class="empty">${safeText(errorMessage(e))}</div>`;
@@ -929,25 +873,20 @@ window.creditWallet=async()=>{
  if(!confirm(`Add ${money(amount)} to this user's wallet?`))return;
 
  busy=true;
-
  try{
   const bal=await runTransaction(
    path(`wallets/${uid}/balance`),
    v=>(Number(v)||0)+amount
   );
-
   if(!bal.committed)throw new Error("Wallet update failed");
 
   await logTransaction(uid,{
-   type:"credit",
-   amount,
-   reason:note||"Admin manual credit"
+   type:"credit",amount,reason:note||"Admin manual credit"
   });
 
   toast("Wallet credited successfully");
   $("creditAmount").value="";
   $("creditNote").value="";
-
   if($("searchUid").value.trim()===uid)await searchUser();
   await loadTransactions();
  }catch(e){toast(errorMessage(e))}
@@ -956,11 +895,7 @@ window.creditWallet=async()=>{
 
 /* PRODUCTS */
 function clearProductForm(){
- [
-  "editProductId","pName","pPrice","pDescription",
-  "pImage","pDownload","pVideo","pExpiry"
- ].forEach(id=>$(id).value="");
-
+ ["editProductId","pName","pPrice","pDescription","pImage","pDownload","pVideo","pExpiry"].forEach(id=>$(id).value="");
  $("pActive").value="true";
  $("productFormTitle").textContent="Add New Product";
 }
@@ -968,7 +903,6 @@ window.clearProductForm=clearProductForm;
 
 async function loadProducts(){
  if(!currentAdmin)return;
-
  try{
   productsCache=obj(await read("products"));
 
@@ -976,8 +910,7 @@ async function loadProducts(){
    `<option value="${safeText(id)}">${safeText(p.name||id)}</option>`
   ).join("");
 
-  $("maintenanceProduct").innerHTML=
-   '<option value="">Select product</option>'+options;
+  $("maintenanceProduct").innerHTML='<option value="">Select product</option>'+options;
 
   setList("productsList",entries(productsCache).map(([id,p])=>`
    <div class="item">
@@ -1020,7 +953,6 @@ window.editProduct=encodedId=>{
  $("pVideo").value=p.setupVideoUrl||"";
  $("pExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
  $("productFormTitle").textContent="Edit Product";
-
  window.scrollTo({top:0,behavior:"smooth"});
 };
 
@@ -1036,12 +968,8 @@ window.saveProduct=async()=>{
   return toast("Name, category and valid price required");
 
  const old=productsCache[id]||{};
-
  const data={
-  ...old,
-  name,
-  category,
-  price,
+  ...old,name,category,price,
   active:$("pActive").value==="true",
   description:$("pDescription").value.trim(),
   imageUrl:$("pImage").value.trim(),
@@ -1063,13 +991,9 @@ window.saveProduct=async()=>{
 window.toggleProduct=async encodedId=>{
  if(!currentAdmin)return toast("Admin login required");
  const id=decodeURIComponent(encodedId);
-
  try{
   const p=productsCache[id];
-  await patch("products/"+id,{
-   active:p.active===false,
-   updatedAt:Date.now()
-  });
+  await patch("products/"+id,{active:p.active===false,updatedAt:Date.now()});
   await loadProducts();
  }catch(e){toast(errorMessage(e))}
 };
@@ -1077,9 +1001,7 @@ window.toggleProduct=async encodedId=>{
 window.deleteProduct=async encodedId=>{
  if(!currentAdmin)return toast("Admin login required");
  const id=decodeURIComponent(encodedId);
-
  if(!confirm("Delete this product?"))return;
-
  try{
   await remove(path("products/"+id));
   toast("Product deleted");
@@ -1091,10 +1013,8 @@ window.deleteProduct=async encodedId=>{
 /* CATEGORIES */
 async function loadCategories(){
  if(!currentAdmin)return;
-
  try{
   categoriesCache=obj(await read("categories"));
-
   setList("categoriesList",entries(categoriesCache).map(([id,c])=>{
    const name=typeof c==="string"?c:c.name||id;
    return `<div class="item">
@@ -1105,7 +1025,6 @@ async function loadCategories(){
     </div>
    </div>`;
   }).join(""));
-
   await fillCategorySelect();
  }catch(e){
   setList("categoriesList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
@@ -1114,28 +1033,20 @@ async function loadCategories(){
 
 async function fillCategorySelect(){
  const cats=entries(categoriesCache);
-
- $("pCategory").innerHTML=
-  '<option value="">Select category</option>'+
-  cats.map(([id,c])=>{
-   const name=typeof c==="string"?c:(c.name||id);
-   return `<option value="${safeText(name)}">${safeText(name)}</option>`;
-  }).join("");
+ $("pCategory").innerHTML='<option value="">Select category</option>'+
+ cats.map(([id,c])=>{
+  const name=typeof c==="string"?c:(c.name||id);
+  return `<option value="${safeText(name)}">${safeText(name)}</option>`;
+ }).join("");
 }
 
 window.addCategory=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  const name=$("categoryName").value.trim();
  if(!name)return toast("Enter category name");
-
  try{
   const id=makeId();
-  await write("categories/"+id,{
-   name,
-   createdAt:Date.now()
-  });
-
+  await write("categories/"+id,{name,createdAt:Date.now()});
   $("categoryName").value="";
   toast("Category added");
   await loadCategories();
@@ -1145,9 +1056,7 @@ window.addCategory=async()=>{
 window.deleteCategory=async encodedId=>{
  if(!currentAdmin)return toast("Admin login required");
  const id=decodeURIComponent(encodedId);
-
  if(!confirm("Delete category? Products using it will not be deleted."))return;
-
  try{
   await remove(path("categories/"+id));
   toast("Category deleted");
@@ -1158,11 +1067,8 @@ window.deleteCategory=async encodedId=>{
 /* REFERRALS */
 async function loadReferrals(){
  if(!currentAdmin)return;
-
  try{
-  const [codes,claims]=await Promise.all([
-   read("referralCodes"),read("referralClaims")
-  ]);
+  const [codes,claims]=await Promise.all([read("referralCodes"),read("referralClaims")]);
 
   setList("referralsList",entries(codes).map(([code,c])=>`
    <div class="item">
@@ -1180,7 +1086,6 @@ async function loadReferrals(){
    </div>`).join(""));
 
   let claimHtml="";
-
   for(const [uid,list] of entries(claims)){
    for(const [id,c] of entries(list)){
     claimHtml+=`<div class="item">
@@ -1194,7 +1099,6 @@ async function loadReferrals(){
     </div>`;
    }
   }
-
   setList("claimsList",claimHtml);
  }catch(e){
   setList("referralsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
@@ -1204,34 +1108,23 @@ window.loadReferrals=loadReferrals;
 
 window.createReferral=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  const code=$("refCode").value.trim().toUpperCase();
  const reward=Number($("refReward").value);
  const max=Number($("refMax").value);
 
- if(!/^[A-Z0-9_-]{3,32}$/.test(code))
-  return toast("Code must be 3–32 letters/numbers");
-
+ if(!/^[A-Z0-9_-]{3,32}$/.test(code))return toast("Code must be 3–32 letters/numbers");
  if(!Number.isFinite(reward)||reward<0||!Number.isInteger(max)||max<1)
   return toast("Enter valid reward and max uses");
 
  try{
-  if(await read("referralCodes/"+code))
-   return toast("This code already exists");
-
+  if(await read("referralCodes/"+code))return toast("This code already exists");
   await write("referralCodes/"+code,{
-   code,
-   rewardAmount:reward,
-   maxUses:max,
-   usedCount:0,
-   active:$("refActive").value==="true",
-   createdAt:Date.now()
+   code,rewardAmount:reward,maxUses:max,usedCount:0,
+   active:$("refActive").value==="true",createdAt:Date.now()
   });
-
   $("refCode").value="";
   $("refReward").value="";
   $("refMax").value="";
-
   toast("Referral code created");
   await loadReferrals();
  }catch(e){toast(errorMessage(e))}
@@ -1240,27 +1133,19 @@ window.createReferral=async()=>{
 window.editReferral=async encodedCode=>{
  if(!currentAdmin)return toast("Admin login required");
  const code=decodeURIComponent(encodedCode);
-
  try{
   const c=await read("referralCodes/"+code);
   if(!c)return;
-
   const reward=prompt("Reward amount:",c.rewardAmount??c.reward??0);
   if(reward===null)return;
-
   const max=prompt("Maximum uses:",c.maxUses??1);
   if(max===null)return;
-
   if(!Number.isFinite(Number(reward))||Number(reward)<0||
      !Number.isInteger(Number(max))||Number(max)<1)
    return toast("Invalid values");
-
   await patch("referralCodes/"+code,{
-   rewardAmount:Number(reward),
-   maxUses:Number(max),
-   updatedAt:Date.now()
+   rewardAmount:Number(reward),maxUses:Number(max),updatedAt:Date.now()
   });
-
   toast("Referral updated");
   await loadReferrals();
  }catch(e){toast(errorMessage(e))}
@@ -1269,13 +1154,9 @@ window.editReferral=async encodedCode=>{
 window.toggleReferral=async encodedCode=>{
  if(!currentAdmin)return toast("Admin login required");
  const code=decodeURIComponent(encodedCode);
-
  try{
   const c=await read("referralCodes/"+code);
-  await patch("referralCodes/"+code,{
-   active:c.active===false,
-   updatedAt:Date.now()
-  });
+  await patch("referralCodes/"+code,{active:c.active===false,updatedAt:Date.now()});
   await loadReferrals();
  }catch(e){toast(errorMessage(e))}
 };
@@ -1283,9 +1164,7 @@ window.toggleReferral=async encodedCode=>{
 window.deleteReferral=async encodedCode=>{
  if(!currentAdmin)return toast("Admin login required");
  const code=decodeURIComponent(encodedCode);
-
  if(!confirm("Delete this referral code?"))return;
-
  try{
   await remove(path("referralCodes/"+code));
   toast("Referral deleted");
@@ -1296,23 +1175,18 @@ window.deleteReferral=async encodedCode=>{
 /* HOME & BANNER */
 async function loadHome(){
  if(!currentAdmin)return;
-
  try{
   const h=obj(await read("settings/home"));
   const notice=await read("settings/notice");
-
   $("homeTitle").value=h.title||"";
   $("homeSubtitle").value=h.subtitle||"";
   $("homeBanner").value=h.bannerImage||"";
-
-  $("homeNotice").value=
-   typeof notice==="string" ? notice :
-   (notice?.text||"");
+  $("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
  }catch(e){toast(errorMessage(e))}
 }
+
 window.saveHome=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  try{
   await write("settings/home",{
    title:$("homeTitle").value.trim(),
@@ -1320,9 +1194,7 @@ window.saveHome=async()=>{
    bannerImage:$("homeBanner").value.trim(),
    updatedAt:Date.now()
   });
-
   await write("settings/notice",$("homeNotice").value.trim());
-
   toast("Home settings saved");
  }catch(e){toast(errorMessage(e))}
 };
@@ -1339,27 +1211,18 @@ const actionFields={
 
 async function loadActionLinks(){
  if(!currentAdmin)return;
-
  try{
   linksCache=obj(await read("settings/actionLinks"));
-
-  for(const [key,id] of Object.entries(actionFields))
-   $(id).value=linksCache[key]||"";
-
+  for(const [key,id] of Object.entries(actionFields))$(id).value=linksCache[key]||"";
   renderToolbox();
  }catch(e){toast(errorMessage(e))}
 }
 
 window.saveActionLinks=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  const data={...linksCache};
-
- for(const [key,id] of Object.entries(actionFields))
-  data[key]=$(id).value.trim();
-
+ for(const [key,id] of Object.entries(actionFields))data[key]=$(id).value.trim();
  data.updatedAt=Date.now();
-
  try{
   await write("settings/actionLinks",data);
   linksCache=data;
@@ -1377,10 +1240,8 @@ function renderToolbox(){
   ["All Updates","updatesTelegram"],
   ["Free Referral Codes","freeReferralUrl"]
  ];
-
  setList("toolboxLinks",items.map(([name,key])=>{
   const url=linksCache[key]||"";
-
   return `<div class="item">
    <div class="item-title">${safeText(name)}</div>
    <div class="small">${safeText(url||"Link not set")}</div>
@@ -1393,14 +1254,11 @@ function renderToolbox(){
 
 window.openLink=encoded=>{
  const url=decodeURIComponent(encoded);
-
  try{
   const u=new URL(url);
   if(!["http:","https:"].includes(u.protocol))throw 0;
   window.open(u.href,"_blank","noopener");
- }catch{
-  toast("Invalid link");
- }
+ }catch{toast("Invalid link")}
 };
 
 async function loadToolbox(){
@@ -1411,10 +1269,8 @@ async function loadToolbox(){
 /* PAYMENT SETTINGS */
 async function loadPayments(){
  if(!currentAdmin)return;
-
  try{
   const a=obj(await read("settings/actionLinks"));
-
   $("bkashNumber").value=a.bkashNumber||"";
   $("nagadNumber").value=a.nagadNumber||"";
   $("paymentInstructions").value=a.paymentInstructions||"";
@@ -1423,10 +1279,8 @@ async function loadPayments(){
 
 window.savePayments=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  try{
   const old=obj(await read("settings/actionLinks"));
-
   await write("settings/actionLinks",{
    ...old,
    bkashNumber:$("bkashNumber").value.trim(),
@@ -1434,7 +1288,6 @@ window.savePayments=async()=>{
    paymentInstructions:$("paymentInstructions").value.trim(),
    updatedAt:Date.now()
   });
-
   toast("Payment settings saved");
  }catch(e){toast(errorMessage(e))}
 };
@@ -1442,27 +1295,22 @@ window.savePayments=async()=>{
 /* MAINTENANCE */
 async function loadMaintenance(){
  if(!currentAdmin)return;
-
  try{
   const m=obj(await read("settings/maintenance"));
-
   $("siteMaintenance").value=String(m.enabled===true);
   $("maintenanceMessage").value=m.message||"";
-
   await loadProducts();
  }catch(e){toast(errorMessage(e))}
 }
 
 window.saveMaintenance=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  try{
   await write("settings/maintenance",{
    enabled:$("siteMaintenance").value==="true",
    message:$("maintenanceMessage").value.trim(),
    updatedAt:Date.now()
   });
-
   toast("Website maintenance settings saved");
  }catch(e){toast(errorMessage(e))}
 };
@@ -1470,36 +1318,28 @@ window.saveMaintenance=async()=>{
 $("maintenanceProduct").addEventListener("change",()=>{
  const id=$("maintenanceProduct").value;
  const p=productsCache[id];
-
  if(!p)return;
-
  $("productMaintenance").value=String(p.maintenance===true);
  $("productMaintenanceMessage").value=p.maintenanceMessage||"";
- $("maintenanceExpiry").value=
-  p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
+ $("maintenanceExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
 });
 
 window.saveProductMaintenance=async()=>{
  if(!currentAdmin)return toast("Admin login required");
-
  const id=$("maintenanceProduct").value;
  if(!id)return toast("Select a product");
-
  try{
   const expiry=$("maintenanceExpiry").value;
-
   await patch("products/"+id,{
    maintenance:$("productMaintenance").value==="true",
    maintenanceMessage:$("productMaintenanceMessage").value.trim(),
    expiry:expiry?new Date(expiry).getTime():null,
    updatedAt:Date.now()
   });
-
   toast("Product settings saved");
   await loadProducts();
  }catch(e){toast(errorMessage(e))}
 };
-
 </script>
 </body>
 </html>
