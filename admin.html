@@ -1,320 +1,497 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#080d19">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080e1c">
 <title>Developer ZXER Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
 :root{
---bg:#080d19;--panel:#101a2d;--panel2:#14223a;--blue:#1688ff;
---cyan:#00d5ff;--text:#f2f7ff;--muted:#91a4c2;--line:#223653;
---green:#20d69a;--red:#ff5572;--yellow:#ffc857
+ --bg:#080e1c;
+ --panel:#101b30;
+ --panel2:#14243d;
+ --blue:#1688ff;
+ --cyan:#00d5ff;
+ --text:#f3f7ff;
+ --muted:#91a4c2;
+ --line:#223653;
+ --green:#20d69a;
+ --red:#ff5572;
+ --yellow:#ffc857;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
-button,input,select,textarea{font:inherit}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Inter,Arial,sans-serif;min-height:100vh
+}
+button,input,textarea,select{font:inherit}
 button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
 .hidden{display:none!important}
-#loginScreen{min-height:100vh;display:grid;place-items:center;padding:20px}
-.login-card{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:25px;padding:26px;box-shadow:0 20px 60px #0007}
-.logo{font-size:24px;font-weight:800;letter-spacing:.5px}
+#loginScreen{
+ min-height:100vh;display:grid;place-items:center;padding:18px
+}
+.login-card{
+ width:100%;max-width:420px;background:var(--panel);
+ border:1px solid var(--line);border-radius:22px;padding:23px
+}
+.logo{text-align:center;font-size:23px;font-weight:900;margin:8px 0}
 .logo span{color:var(--cyan)}
-.muted{color:var(--muted);font-size:12px;line-height:1.6}
-label{display:block;font-size:11px;color:#b9cbe4;font-weight:700;margin:13px 0 7px}
-input,select,textarea{width:100%;background:#091426;color:white;border:1px solid var(--line);border-radius:13px;padding:12px;outline:none;min-width:0}
-input:focus,select:focus,textarea:focus{border-color:var(--blue)}
-textarea{min-height:85px;resize:vertical}
-.btn{border:0;border-radius:13px;padding:11px 14px;background:linear-gradient(100deg,var(--blue),#0757c9);color:white;font-weight:700}
+.sub{text-align:center;color:var(--muted);font-size:10px;margin-bottom:22px}
+.field{margin:12px 0}
+.field label{
+ display:block;font-size:10px;font-weight:800;
+ color:#b9cbe4;margin-bottom:7px
+}
+.field input,.field textarea,.field select{
+ width:100%;background:#091426;color:white;
+ border:1px solid var(--line);border-radius:11px;
+ padding:12px;font-size:12px;outline:none
+}
+.field textarea{min-height:85px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#101b30}
+.btn{
+ border:0;border-radius:11px;padding:11px 14px;
+ color:white;font-size:11px;font-weight:800;
+ background:linear-gradient(100deg,var(--blue),#0757c9)
+}
+.btn.full{width:100%;margin-top:10px}
 .btn.secondary{background:#1b2b45;border:1px solid var(--line)}
 .btn.green{background:#087d60}
 .btn.red{background:#a92e49}
-.btn.yellow{background:#876019}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.full{width:100%;margin-top:15px}
-#app{display:none;min-height:100vh}
-.topbar{height:66px;position:sticky;top:0;z-index:20;background:#0b1424f5;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-.topbar .logo{font-size:19px}
-.tag{color:var(--cyan);border:1px solid #087dbb;border-radius:30px;padding:6px 9px;font-size:10px}
-.layout{display:flex;max-width:1500px;margin:auto}
-.sidebar{width:245px;flex-shrink:0;padding:15px 12px;border-right:1px solid var(--line);min-height:calc(100vh - 66px)}
-.nav-title{font-size:10px;color:#69809f;font-weight:800;letter-spacing:1px;padding:14px 10px 6px}
-.nav{width:100%;display:block;text-align:left;border:0;background:transparent;color:#a9bad3;padding:12px;border-radius:13px;margin:3px 0;font-size:12px;font-weight:700}
-.nav.active,.nav:hover{background:#142c4c;color:white}
-.main{width:100%;max-width:1200px;min-width:0;padding:22px}
-.page{display:none}.page.active{display:block}
-.head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-h1{font-size:23px;margin:0 0 5px}
-h2{font-size:16px;margin:0 0 13px}
-.card,.stat{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:14px;min-width:0}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat .num{font-size:25px;font-weight:800;margin:10px 0 3px}
-.stat .name{font-size:11px;color:var(--muted)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.row>*{flex:1;min-width:0}
+.btn.yellow{background:#8a6417}
+.btn.small{padding:8px 10px;font-size:10px}
+#adminApp{display:none;min-height:100vh}
+.sidebar{
+ position:fixed;top:0;bottom:0;left:0;width:245px;
+ background:#0b1424;border-right:1px solid var(--line);
+ padding:18px 13px;overflow-y:auto;z-index:50
+}
+.sidebar-logo{
+ font-size:18px;font-weight:900;padding:9px 7px 18px;
+ border-bottom:1px solid var(--line);margin-bottom:15px
+}
+.sidebar-logo span{color:var(--cyan)}
+.nav-title{
+ color:#607695;font-size:9px;font-weight:900;
+ letter-spacing:1px;padding:13px 9px 7px
+}
+.nav-btn{
+ display:flex;align-items:center;gap:11px;
+ width:100%;border:0;background:transparent;
+ color:#a9bad3;padding:12px 11px;border-radius:11px;
+ text-align:left;font-size:11px;font-weight:800;margin:3px 0
+}
+.nav-btn.active,.nav-btn:hover{background:#17365b;color:white}
+.nav-btn .ico{width:20px;text-align:center;font-size:16px}
+.main{
+ margin-left:245px;padding:20px;max-width:1500px
+}
+.topbar{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;margin-bottom:20px
+}
+.topbar h1{font-size:20px;margin:0}
+.topbar small{color:var(--muted);font-size:10px}
+.menu-btn{display:none}
+.page{display:none}
+.page.active{display:block}
+.card{
+ background:var(--panel);border:1px solid var(--line);
+ border-radius:17px;padding:16px;margin-bottom:14px
+}
+.card h2{font-size:14px;margin:0 0 14px}
+.stats{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:12px;margin-bottom:15px
+}
+.stat{
+ background:var(--panel);border:1px solid var(--line);
+ border-radius:16px;padding:15px;min-width:0
+}
+.stat .icon{font-size:20px}
+.stat .number{font-size:22px;font-weight:900;margin:9px 0 4px;overflow-wrap:anywhere}
+.stat .label{font-size:10px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .item{padding:13px 0;border-bottom:1px solid var(--line)}
 .item:last-child{border:0}
-.item-title{font-size:13px;font-weight:700;overflow-wrap:anywhere;margin-bottom:5px}
-.small{font-size:11px;color:var(--muted);overflow-wrap:anywhere;line-height:1.6}
-.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
-.actions .btn{font-size:11px;padding:9px 11px}
-.pill{display:inline-block;padding:5px 9px;border-radius:30px;font-size:10px;font-weight:800;background:#263650}
-.pending{background:#463515;color:#ffd477}
-.approved,.active{background:#103d35;color:#62e8bb}
-.rejected,.inactive{background:#4a2030;color:#ff9aab}
-.notice{padding:12px;background:#102a45;border:1px solid #15558a;border-radius:13px;color:#b9dcff;font-size:12px;line-height:1.6;margin-bottom:13px}
-.empty{text-align:center;padding:22px;color:var(--muted);font-size:12px}
-.mobile-nav{display:none}
-#toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a2c45;border:1px solid #315477;padding:12px 18px;border-radius:13px;z-index:99;font-size:12px;max-width:90%;text-align:center}
-.preview{width:100%;max-height:180px;object-fit:cover;border-radius:13px;margin-top:10px}
+.item-title{font-size:12px;font-weight:800;margin-bottom:6px;overflow-wrap:anywhere}
+.meta{font-size:10px;color:var(--muted);line-height:1.8;overflow-wrap:anywhere}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.badge{
+ display:inline-block;border-radius:30px;padding:5px 9px;
+ font-size:9px;font-weight:900;background:#263650;color:#c9d8ed
+}
+.badge.pending{background:#463515;color:#ffd477}
+.badge.approved{background:#103d35;color:#62e8bb}
+.badge.rejected{background:#4a2030;color:#ff9aab}
+.badge.active{background:#103d35;color:#62e8bb}
+.badge.inactive{background:#4a2030;color:#ff9aab}
+.search{
+ width:100%;background:#091426;color:white;
+ border:1px solid var(--line);border-radius:11px;
+ padding:12px;font-size:11px;margin-bottom:12px
+}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{
+ padding:11px;text-align:left;border-bottom:1px solid var(--line);
+ font-size:10px;vertical-align:top
+}
+th{color:var(--muted);font-weight:900}
+td{color:#d9e5f5}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:11px}
+.notice{
+ background:#102a45;border:1px solid #15558a;
+ color:#b9dcff;border-radius:12px;padding:12px;
+ font-size:10px;line-height:1.7;margin-bottom:13px
+}
+.product-image{
+ width:65px;height:55px;object-fit:cover;
+ border-radius:9px;background:#091426
+}
+.modal{
+ position:fixed;inset:0;z-index:100;background:#000b;
+ display:none;align-items:center;justify-content:center;padding:12px
+}
+.modal.show{display:flex}
+.modal-box{
+ width:100%;max-width:520px;max-height:90vh;overflow:auto;
+ background:var(--panel);border:1px solid var(--line);
+ border-radius:19px;padding:18px
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-head h2{font-size:15px;margin:0}
+.close{background:#263650;color:white;border:0;border-radius:9px;padding:8px 11px}
+#toast{
+ display:none;position:fixed;bottom:20px;left:50%;
+ transform:translateX(-50%);z-index:150;
+ background:#1a2c45;border:1px solid #315477;
+ padding:12px 17px;border-radius:12px;font-size:11px;
+ max-width:90%;text-align:center
+}
 @media(max-width:850px){
-.sidebar{display:none}
-.main{padding:15px 12px 95px}
-.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.two{grid-template-columns:1fr}
-.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:#0b1424f5;border-top:1px solid var(--line);overflow-x:auto;padding:7px;gap:5px}
-.mobile-nav button{flex:0 0 auto;border:0;background:transparent;color:#9db1ce;padding:9px 11px;border-radius:11px;font-size:10px;font-weight:700}
-.mobile-nav button.active{background:#17365b;color:white}
+ .sidebar{width:215px}
+ .main{margin-left:215px;padding:15px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ .sidebar{
+  transform:translateX(-100%);width:260px;
+  transition:transform .25s
+ }
+ .sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;padding:13px}
+ .menu-btn{display:block}
+ .topbar h1{font-size:17px}
+ .grid2{grid-template-columns:1fr}
 }
 </style>
 </head>
+
 <body>
 
+<!-- LOGIN -->
 <section id="loginScreen">
  <div class="login-card">
   <div class="logo">DEVELOPER <span>ZXER</span></div>
-  <p class="muted">SECURE ADMIN CONTROL PANEL</p>
-  <h2 style="margin-top:25px">Admin Login</h2>
-  <label>ADMIN EMAIL</label>
-  <input id="email" type="email" placeholder="Enter admin email" autocomplete="username">
-  <label>PASSWORD</label>
-  <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
-  <button class="btn full" id="loginBtn">LOGIN TO DASHBOARD</button>
-  <p class="muted" id="loginMsg" role="status"></p>
- </div>
-</section>
+  <div class="sub">SECURE ADMIN CONTROL PANEL</div>
 
-<div id="app">
-<header class="topbar">
- <div class="logo">ZXER <span>ADMIN</span></div>
- <div class="row" style="flex:initial;align-items:center">
-  <span class="tag">ADMIN VERIFIED</span>
-  <button class="btn secondary" id="logoutBtn">Logout</button>
- </div>
-</header>
-
-<div class="layout">
-<aside class="sidebar">
- <div class="nav-title">MAIN MENU</div>
- <button class="nav active" data-page="dashboard">📊 Dashboard</button>
- <button class="nav" data-page="productOrders">📦 Product Orders</button>
- <button class="nav" data-page="walletRequests">💳 Wallet Requests</button>
- <button class="nav" data-page="transactions">💰 Wallet Transactions</button>
- <button class="nav" data-page="users">👥 Manage Users</button>
- <div class="nav-title">STORE MANAGEMENT</div>
- <button class="nav" data-page="products">🛍 Products</button>
- <button class="nav" data-page="categories">🗂 Categories</button>
- <button class="nav" data-page="referrals">🎁 Referral Codes</button>
- <div class="nav-title">WEBSITE SETTINGS</div>
- <button class="nav" data-page="home">🏠 Home & Banner</button>
- <button class="nav" data-page="action">⚡ Action Flow</button>
- <button class="nav" data-page="payments">💵 Payment Settings</button>
- <button class="nav" data-page="maintenance">🛠 Maintenance & Update</button>
- <button class="nav" data-page="toolbox">🧰 Toolbox</button>
-</aside>
-
-<main class="main">
-
-<section class="page active" id="page-dashboard">
- <div class="head"><div><h1>Dashboard</h1><div class="muted">Store overview and activity</div></div><button class="btn secondary" onclick="refreshAll()">↻ Refresh</button></div>
- <div class="grid">
-  <div class="stat"><div>👥</div><div class="num" id="sUsers">0</div><div class="name">Registered Users</div></div>
-  <div class="stat"><div>🛍️</div><div class="num" id="sProducts">0</div><div class="name">Products</div></div>
-  <div class="stat"><div>📦</div><div class="num" id="sOrders">0</div><div class="name">Pending Instant Orders</div></div>
-  <div class="stat"><div>💳</div><div class="num" id="sWallet">0</div><div class="name">Pending Wallet Requests</div></div>
- </div>
- <div class="card">
-  <h2>Quick Overview</h2>
-  <div class="notice">Wallet Request এবং Instant Payment Order আলাদা। Wallet Payment অটোমেটিক অর্ডার হিসেবে সম্পন্ন হবে; Admin Approval লাগবে না।</div>
-  <div class="row">
-   <button class="btn" onclick="showPage('walletRequests')">Wallet Requests</button>
-   <button class="btn secondary" onclick="showPage('productOrders')">Product Orders</button>
+  <div class="notice">
+   Admin account দিয়ে Login করুন। Firebase Database-এর admins node-এ আপনার UID-এর value true থাকতে হবে।
   </div>
- </div>
- <div class="card"><h2>Recent Activity</h2><div id="recentActivity" class="empty">Loading...</div></div>
-</section>
 
-<section class="page" id="page-productOrders">
- <div class="head"><div><h1>Product Orders</h1><div class="muted">Instant payment orders only</div></div><button class="btn secondary" onclick="loadOrders()">Refresh</button></div>
- <div class="notice">Wallet Payment-এর অর্ডার এখানে Approval-এর জন্য আসবে না। শুধু Instant Payment-এর pending order Approve/Reject হবে।</div>
- <div class="card"><div id="ordersList" class="empty">Loading orders...</div></div>
-</section>
-
-<section class="page" id="page-walletRequests">
- <div class="head"><div><h1>Wallet Requests</h1><div class="muted">Approve or reject Add Fund requests</div></div><button class="btn secondary" onclick="loadWalletRequests()">Refresh</button></div>
- <div class="card"><div id="walletRequestsList" class="empty">Loading requests...</div></div>
-</section>
-
-<section class="page" id="page-transactions">
- <div class="head"><div><h1>Wallet Transactions</h1><div class="muted">Wallet credit and debit history</div></div><button class="btn secondary" onclick="loadTransactions()">Refresh</button></div>
- <div class="card"><div id="transactionsList" class="empty">Loading transactions...</div></div>
-</section>
-
-<section class="page" id="page-users">
- <div class="head"><div><h1>Manage Users</h1><div class="muted">Search any user by Firebase UID</div></div></div>
- <div class="card">
-  <h2>Find User</h2>
-  <label>USER FIREBASE UID</label>
-  <input id="searchUid" placeholder="Paste user UID">
-  <button class="btn full" onclick="searchUser()">Search User</button>
-  <div id="userResult"></div>
- </div>
- <div class="card">
-  <h2>Manual Wallet Credit</h2>
-  <div class="notice">শুধু যাচাই করা User UID-তে টাকা যোগ করবে। প্রতিটি Credit-এর Transaction Record তৈরি হবে।</div>
-  <label>USER UID</label><input id="creditUid" placeholder="User UID">
-  <label>AMOUNT (BDT)</label><input id="creditAmount" type="number" min="1" step="0.01" placeholder="Enter amount">
-  <label>NOTE</label><input id="creditNote" placeholder="Credit reason">
-  <button class="btn green full" onclick="creditWallet()">Add Wallet Balance</button>
- </div>
-</section>
-
-<section class="page" id="page-products">
- <div class="head"><div><h1>Products</h1><div class="muted">Add, edit and manage store products</div></div><button class="btn secondary" onclick="loadProducts()">Refresh</button></div>
- <div class="card">
-  <h2 id="productFormTitle">Add New Product</h2>
-  <input id="editProductId" type="hidden">
-  <label>PRODUCT NAME</label><input id="pName" placeholder="Product name">
-  <label>CATEGORY</label><select id="pCategory"><option value="">Select category</option></select>
-  <div class="row">
-   <div><label>PRICE (BDT)</label><input id="pPrice" type="number" min="0" placeholder="Price"></div>
-   <div><label>STATUS</label><select id="pActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+  <div class="field">
+   <label>ADMIN EMAIL</label>
+   <input id="adminEmail" type="email" placeholder="Enter admin email">
   </div>
-  <label>DESCRIPTION</label><textarea id="pDescription" placeholder="Product details"></textarea>
-  <label>PRODUCT IMAGE URL</label><input id="pImage" placeholder="https://image-url">
-  <label>DOWNLOAD URL</label><input id="pDownload" placeholder="https://download-url">
-  <label>SETUP VIDEO URL</label><input id="pVideo" placeholder="https://video-url">
-  <label>EXPIRY DATE (OPTIONAL)</label><input id="pExpiry" type="datetime-local">
-  <div class="row">
-   <button class="btn full" onclick="saveProduct()">Save Product</button>
-   <button class="btn secondary full" onclick="clearProductForm()">Clear Form</button>
+
+  <div class="field">
+   <label>PASSWORD</label>
+   <input id="adminPassword" type="password" placeholder="Enter password">
   </div>
- </div>
- <div class="card"><h2>Product List</h2><div id="productsList" class="empty">Loading products...</div></div>
-</section>
 
-<section class="page" id="page-categories">
- <div class="head"><div><h1>Categories</h1><div class="muted">Manage product categories</div></div></div>
- <div class="card">
-  <h2>Add Category</h2>
-  <input id="categoryName" placeholder="Category name">
-  <button class="btn full" onclick="addCategory()">Create Category</button>
- </div>
- <div class="card"><h2>Category List</h2><div id="categoriesList" class="empty">Loading...</div></div>
-</section>
-
-<section class="page" id="page-referrals">
- <div class="head"><div><h1>Referral Codes</h1><div class="muted">Create and manage referral codes</div></div><button class="btn secondary" onclick="loadReferrals()">Refresh</button></div>
- <div class="card">
-  <h2>Create New Referral Code</h2>
-  <label>CUSTOM REFERRAL CODE</label><input id="refCode" placeholder="Example: ZXER100">
-  <div class="row">
-   <div><label>REWARD AMOUNT (BDT)</label><input id="refReward" type="number" min="0" placeholder="Reward"></div>
-   <div><label>MAX USES</label><input id="refMax" type="number" min="1" placeholder="Example: 3"></div>
-  </div>
-  <label>STATUS</label><select id="refActive"><option value="true">Active</option><option value="false">Inactive</option></select>
-  <button class="btn full" onclick="createReferral()">Create Referral Code</button>
- </div>
- <div class="card"><h2>Referral Code List</h2><div id="referralsList" class="empty">Loading...</div></div>
- <div class="card"><h2>Referral Claims</h2><div class="notice">Referral claim-এর Approve/Reject নেই। এই তালিকা শুধু claim status ও ব্যবহার দেখাবে।</div><div id="claimsList" class="empty">Loading...</div></div>
-</section>
-
-<section class="page" id="page-home">
- <div class="head"><div><h1>Home & Banner</h1><div class="muted">Edit user panel homepage</div></div></div>
- <div class="card">
-  <label>HOME TITLE</label><input id="homeTitle" placeholder="Home title">
-  <label>HOME SUBTITLE</label><textarea id="homeSubtitle" placeholder="Home subtitle"></textarea>
-  <label>BANNER IMAGE URL</label><input id="homeBanner" placeholder="https://image-url">
-  <label>NOTICE TEXT</label><textarea id="homeNotice" placeholder="Scrolling notice"></textarea>
-  <button class="btn full" onclick="saveHome()">Save Home Settings</button>
+  <button class="btn full" id="loginBtn" onclick="adminLogin()">LOGIN TO ADMIN PANEL</button>
+  <p id="loginMessage" class="meta"></p>
  </div>
 </section>
 
-<section class="page" id="page-action">
- <div class="head"><div><h1>Action Flow</h1><div class="muted">Manage all action buttons and links</div></div></div>
- <div class="card">
-  <label>GIVEAWAY CHANNEL</label><input id="aGiveawayChannel" placeholder="https://t.me/...">
-  <label>GIVEAWAY ACCOUNT</label><input id="aGiveawayAccount" placeholder="https://...">
-  <label>TIKTOK ID</label><input id="aTiktok" placeholder="https://tiktok.com/...">
-  <label>YOUTUBE ID</label><input id="aYoutube" placeholder="https://youtube.com/...">
-  <label>ALL UPDATES (TELEGRAM)</label><input id="aUpdates" placeholder="https://t.me/...">
-  <label>FREE REFERRAL CODES</label><input id="aFreeReferral" placeholder="https://...">
-  <button class="btn full" onclick="saveActionLinks()">Save Action Flow Links</button>
- </div>
-</section>
+<!-- ADMIN APPLICATION -->
+<div id="adminApp">
 
-<section class="page" id="page-payments">
- <div class="head"><div><h1>Payment Settings</h1><div class="muted">Configure Send Money details</div></div></div>
- <div class="card">
-  <label>bKASH NUMBER</label><input id="bkashNumber" placeholder="01XXXXXXXXX">
-  <label>NAGAD NUMBER</label><input id="nagadNumber" placeholder="01XXXXXXXXX">
-  <label>PAYMENT INSTRUCTIONS</label><textarea id="paymentInstructions" placeholder="Send Money instructions"></textarea>
-  <button class="btn full" onclick="savePayments()">Save Payment Settings</button>
- </div>
-</section>
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">DEVELOPER <span>ZXER</span></div>
 
-<section class="page" id="page-maintenance">
- <div class="head"><div><h1>Maintenance & Update</h1><div class="muted">Control website and product availability</div></div></div>
- <div class="card">
-  <h2>Website Maintenance</h2>
-  <label>MAINTENANCE MODE</label><select id="siteMaintenance"><option value="false">OFF</option><option value="true">ON</option></select>
-  <label>MAINTENANCE MESSAGE</label><textarea id="maintenanceMessage" placeholder="We are updating the website..."></textarea>
-  <button class="btn yellow full" onclick="saveMaintenance()">Save Website Maintenance</button>
- </div>
- <div class="card">
-  <h2>Product Maintenance & Expiry</h2>
-  <label>SELECT PRODUCT</label><select id="maintenanceProduct"><option value="">Select product</option></select>
-  <label>PRODUCT MAINTENANCE</label><select id="productMaintenance"><option value="false">OFF</option><option value="true">ON</option></select>
-  <label>MAINTENANCE MESSAGE</label><input id="productMaintenanceMessage" placeholder="Product maintenance message">
-  <label>EXPIRY DATE</label><input id="maintenanceExpiry" type="datetime-local">
-  <button class="btn full" onclick="saveProductMaintenance()">Save Product Settings</button>
- </div>
-</section>
+  <div class="nav-title">MAIN</div>
+  <button class="nav-btn active" data-page="dashboard"><span class="ico">▦</span>Dashboard</button>
+  <button class="nav-btn" data-page="orders"><span class="ico">📦</span>Product Orders</button>
+  <button class="nav-btn" data-page="walletRequests"><span class="ico">💳</span>Wallet Requests</button>
+  <button class="nav-btn" data-page="transactions"><span class="ico">📜</span>Wallet Transactions</button>
+  <button class="nav-btn" data-page="users"><span class="ico">👥</span>Manage Users</button>
 
-<section class="page" id="page-toolbox">
- <div class="head"><div><h1>Toolbox</h1><div class="muted">Quick access to Action Flow links</div></div></div>
- <div class="card">
-  <h2>Action Flow Toolbox</h2>
-  <div class="notice">এখানের লিংকগুলো Action Flow পেজের একই Settings থেকে আসবে।</div>
-  <div id="toolboxLinks" class="empty">Loading links...</div>
- </div>
-</section>
+  <div class="nav-title">STORE MANAGEMENT</div>
+  <button class="nav-btn" data-page="products"><span class="ico">🛍️</span>Products</button>
+  <button class="nav-btn" data-page="categories"><span class="ico">▤</span>Categories</button>
 
-</main>
+  <div class="nav-title">REFERRAL SYSTEM</div>
+  <button class="nav-btn" data-page="referrals"><span class="ico">🎁</span>Referral Codes</button>
+  <button class="nav-btn" data-page="claims"><span class="ico">🎫</span>Referral Claims</button>
+
+  <div class="nav-title">WEBSITE SETTINGS</div>
+  <button class="nav-btn" data-page="homeSettings"><span class="ico">🏠</span>Home Edit</button>
+  <button class="nav-btn" data-page="paymentSettings"><span class="ico">💰</span>Payment Settings</button>
+  <button class="nav-btn" data-page="actionSettings"><span class="ico">🔗</span>Action Links</button>
+  <button class="nav-btn" data-page="maintenance"><span class="ico">⚙️</span>Maintenance</button>
+
+  <div class="nav-title">ACCOUNT</div>
+  <button class="nav-btn" onclick="adminLogout()"><span class="ico">↪</span>Logout</button>
+ </aside>
+
+ <main class="main">
+  <header class="topbar">
+   <div class="row">
+    <button class="btn secondary menu-btn" onclick="toggleSidebar()">☰</button>
+    <div>
+     <h1 id="pageTitle">Dashboard</h1>
+     <small id="adminEmailLabel">Admin Panel</small>
+    </div>
+   </div>
+   <button class="btn secondary small" onclick="refreshCurrentPage()">↻ Refresh</button>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+   <div class="stats">
+    <div class="stat"><div class="icon">👥</div><div class="number" id="statUsers">0</div><div class="label">Total Users</div></div>
+    <div class="stat"><div class="icon">🛍️</div><div class="number" id="statProducts">0</div><div class="label">Products</div></div>
+    <div class="stat"><div class="icon">📦</div><div class="number" id="statOrders">0</div><div class="label">Pending Orders</div></div>
+    <div class="stat"><div class="icon">💳</div><div class="number" id="statWallet">0</div><div class="label">Pending Wallet Requests</div></div>
+   </div>
+
+   <div class="card">
+    <h2>Admin Overview</h2>
+    <div class="grid2">
+     <div class="item"><div class="item-title">Admin Account</div><div class="meta" id="dashboardAdmin">—</div></div>
+     <div class="item"><div class="item-title">Firebase Status</div><span class="badge active">Connected</span></div>
+    </div>
+   </div>
+
+   <div class="card">
+    <h2>Recent Product Orders</h2>
+    <div id="recentOrders" class="empty">Loading...</div>
+   </div>
+
+   <div class="card">
+    <h2>Recent Wallet Requests</h2>
+    <div id="recentWallet" class="empty">Loading...</div>
+   </div>
+  </section>
+
+  <!-- ORDERS -->
+  <section class="page" id="page-orders">
+   <div class="card">
+    <h2>Product Orders</h2>
+    <input class="search" id="orderSearch" placeholder="Search product, user, order ID..." oninput="renderOrders()">
+    <div id="ordersList"><div class="empty">Loading orders...</div></div>
+   </div>
+  </section>
+
+  <!-- WALLET REQUESTS -->
+  <section class="page" id="page-walletRequests">
+   <div class="card">
+    <h2>Wallet Requests</h2>
+    <input class="search" id="walletSearch" placeholder="Search user, transaction ID..." oninput="renderWalletRequests()">
+    <div id="walletRequestsList"><div class="empty">Loading wallet requests...</div></div>
+   </div>
+  </section>
+
+  <!-- TRANSACTIONS -->
+  <section class="page" id="page-transactions">
+   <div class="card">
+    <h2>Wallet Transactions</h2>
+    <input class="search" id="transactionSearch" placeholder="Search transactions..." oninput="renderTransactions()">
+    <div id="transactionsList"><div class="empty">Loading transactions...</div></div>
+   </div>
+  </section>
+
+  <!-- USERS -->
+  <section class="page" id="page-users">
+   <div class="card">
+    <h2>Manage Users</h2>
+    <input class="search" id="userSearch" placeholder="Search user name or email..." oninput="renderUsers()">
+    <div id="usersList"><div class="empty">Loading users...</div></div>
+   </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section class="page" id="page-products">
+   <div class="card">
+    <div class="row">
+     <h2>Products Management</h2>
+     <button class="btn small" onclick="openProductEditor()">+ Add Product</button>
+    </div>
+    <input class="search" id="productSearch" placeholder="Search products..." oninput="renderAdminProducts()">
+    <div id="adminProductsList"><div class="empty">Loading products...</div></div>
+   </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="page" id="page-categories">
+   <div class="card">
+    <h2>Add Category</h2>
+    <div class="field"><label>CATEGORY NAME</label><input id="newCategoryName" placeholder="Enter category name"></div>
+    <button class="btn" onclick="addCategory()">Add Category</button>
+   </div>
+   <div class="card">
+    <h2>All Categories</h2>
+    <div id="categoriesList"><div class="empty">Loading categories...</div></div>
+   </div>
+  </section>
+
+  <!-- REFERRALS -->
+  <section class="page" id="page-referrals">
+   <div class="card">
+    <h2>Create Referral Code</h2>
+    <div class="field"><label>REFERRAL CODE</label><input id="refCode" placeholder="EXAMPLE2026"></div>
+    <div class="grid2">
+     <div class="field"><label>REWARD AMOUNT</label><input id="refReward" type="number" min="0" placeholder="0"></div>
+     <div class="field"><label>MAX USES</label><input id="refMaxUses" type="number" min="1" placeholder="100"></div>
+    </div>
+    <button class="btn" onclick="createReferral()">Create Referral Code</button>
+   </div>
+   <div class="card">
+    <h2>Referral Codes</h2>
+    <div id="referralsList"><div class="empty">Loading referral codes...</div></div>
+   </div>
+  </section>
+
+  <!-- CLAIMS -->
+  <section class="page" id="page-claims">
+   <div class="card">
+    <h2>Referral Claims</h2>
+    <div id="claimsList"><div class="empty">Loading claims...</div></div>
+   </div>
+  </section>
+
+  <!-- HOME SETTINGS -->
+  <section class="page" id="page-homeSettings">
+   <div class="card">
+    <h2>Home Page Settings</h2>
+    <div class="field"><label>HERO TITLE</label><input id="homeTitle" placeholder="Welcome to Developer ZXER"></div>
+    <div class="field"><label>HERO SUBTITLE</label><textarea id="homeSubtitle" placeholder="Your premium digital store"></textarea></div>
+    <div class="field"><label>BANNER IMAGE URL</label><input id="homeBanner" placeholder="https://image-url"></div>
+    <div class="field"><label>NOTICE TEXT</label><textarea id="homeNotice" placeholder="Website notice"></textarea></div>
+    <button class="btn full" onclick="saveHomeSettings()">Save Home Settings</button>
+   </div>
+  </section>
+
+  <!-- PAYMENT SETTINGS -->
+  <section class="page" id="page-paymentSettings">
+   <div class="card">
+    <h2>Payment Settings</h2>
+    <div class="notice">এখানে bKash এবং Nagad Send Money নম্বর সেট করুন। User Panel-এ এই তথ্য দেখানো হবে।</div>
+    <div class="field"><label>BKASH NUMBER</label><input id="setBkash" placeholder="01XXXXXXXXX"></div>
+    <div class="field"><label>NAGAD NUMBER</label><input id="setNagad" placeholder="01XXXXXXXXX"></div>
+    <div class="field"><label>PAYMENT INSTRUCTIONS</label><textarea id="setPaymentInstructions" placeholder="Send Money instructions"></textarea></div>
+    <button class="btn full" onclick="savePaymentSettings()">Save Payment Settings</button>
+   </div>
+  </section>
+
+  <!-- ACTION LINKS -->
+  <section class="page" id="page-actionSettings">
+   <div class="card">
+    <h2>Action Links Settings</h2>
+    <div class="field"><label>GIVEAWAY CHANNEL URL</label><input id="linkGiveawayChannel"></div>
+    <div class="field"><label>GIVEAWAY ACCOUNT URL</label><input id="linkGiveawayAccount"></div>
+    <div class="field"><label>TIKTOK URL</label><input id="linkTiktok"></div>
+    <div class="field"><label>YOUTUBE URL</label><input id="linkYoutube"></div>
+    <div class="field"><label>UPDATES TELEGRAM URL</label><input id="linkUpdates"></div>
+    <div class="field"><label>FREE REFERRAL URL</label><input id="linkReferral"></div>
+    <button class="btn full" onclick="saveActionLinks()">Save Action Links</button>
+   </div>
+  </section>
+
+  <!-- MAINTENANCE -->
+  <section class="page" id="page-maintenance">
+   <div class="card">
+    <h2>Website Maintenance</h2>
+    <div class="field">
+     <label>MAINTENANCE STATUS</label>
+     <select id="maintenanceEnabled">
+      <option value="false">Disabled</option>
+      <option value="true">Enabled</option>
+     </select>
+    </div>
+    <div class="field"><label>MAINTENANCE MESSAGE</label><textarea id="maintenanceMessage"></textarea></div>
+    <button class="btn full" onclick="saveMaintenance()">Save Maintenance Settings</button>
+   </div>
+  </section>
+
+ </main>
 </div>
+
+<!-- PRODUCT EDIT MODAL -->
+<div class="modal" id="productModal">
+ <div class="modal-box">
+  <div class="modal-head">
+   <h2 id="productModalTitle">Add Product</h2>
+   <button class="close" onclick="closeModal('productModal')">✕</button>
+  </div>
+
+  <input type="hidden" id="editProductId">
+
+  <div class="field"><label>PRODUCT NAME</label><input id="productName"></div>
+  <div class="field"><label>CATEGORY</label><select id="productCategory"></select></div>
+  <div class="field"><label>PRICE (BDT)</label><input id="productPrice" type="number" min="0"></div>
+  <div class="field"><label>DESCRIPTION</label><textarea id="productDescription"></textarea></div>
+  <div class="field"><label>IMAGE URL</label><input id="productImage"></div>
+  <div class="field"><label>DOWNLOAD / DELIVERY URL</label><input id="productDownload"></div>
+  <div class="field"><label>SETUP VIDEO URL</label><input id="productVideo"></div>
+  <div class="field"><label>EXPIRY DATE (OPTIONAL)</label><input id="productExpiry" type="datetime-local"></div>
+  <div class="field"><label>PRODUCT STATUS</label>
+   <select id="productActive"><option value="true">Active</option><option value="false">Inactive</option></select>
+  </div>
+  <div class="field"><label>PRODUCT MAINTENANCE</label>
+   <select id="productMaintenance"><option value="false">Disabled</option><option value="true">Enabled</option></select>
+  </div>
+  <div class="field"><label>MAINTENANCE MESSAGE</label><textarea id="productMaintenanceMessage"></textarea></div>
+
+  <button class="btn full" onclick="saveProduct()">Save Product</button>
+ </div>
 </div>
 
-<nav class="mobile-nav" id="mobileNav">
- <button class="active" data-page="dashboard">📊 Home</button>
- <button data-page="productOrders">📦 Orders</button>
- <button data-page="walletRequests">💳 Wallet</button>
- <button data-page="users">👥 Users</button>
- <button data-page="products">🛍 Products</button>
- <button data-page="referrals">🎁 Referral</button>
- <button data-page="toolbox">🧰 Toolbox</button>
-</nav>
+<!-- WALLET CREDIT MODAL -->
+<div class="modal" id="creditModal">
+ <div class="modal-box">
+  <div class="modal-head">
+   <h2>Credit User Wallet</h2>
+   <button class="close" onclick="closeModal('creditModal')">✕</button>
+  </div>
+  <div class="meta" id="creditUserInfo"></div>
+  <input type="hidden" id="creditUid">
+  <div class="field"><label>AMOUNT (BDT)</label><input id="creditAmount" type="number" min="0.01" step="0.01"></div>
+  <div class="field"><label>REASON</label><input id="creditReason" placeholder="Admin wallet credit"></div>
+  <button class="btn full" onclick="creditWallet()">Confirm Wallet Credit</button>
+ </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+
 import {
  getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
 import {
- getDatabase,ref,get,set,update,push,remove,runTransaction
+ getDatabase,ref,get,set,update,push,remove,
+ runTransaction,onValue
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
 /* FIREBASE CONFIG */
@@ -329,1017 +506,917 @@ const firebaseConfig={
  measurementId:"G-1635XV6SKV"
 };
 
-const appFirebase=initializeApp(firebaseConfig);
-const auth=getAuth(appFirebase);
-const db=getDatabase(appFirebase);
-
-let currentAdmin=null;
-let productsCache={};
-let categoriesCache={};
-let linksCache={};
-let busy=false;
-let authCheckRunning=false;
-
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
 const $=id=>document.getElementById(id);
-const safeText=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const money=v=>"৳"+Number(v||0).toLocaleString("en-US");
-const dateText=v=>v?new Date(v).toLocaleString():"—";
-const statusPill=s=>`<span class="pill ${safeText(s||"pending")}">${safeText(s||"pending")}</span>`;
-const path=(...p)=>ref(db,p.filter(Boolean).join("/"));
+const r=p=>ref(db,p);
+const obj=v=>v&&typeof v==="object"?v:{};
+const entries=v=>Object.entries(obj(v));
+const safe=v=>String(v??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+const money=v=>"৳"+Number(v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 
-function toast(message){
+let admin=null;
+let users={};
+let products={};
+let categories={};
+let orders={};
+let walletRequests={};
+let wallets={};
+let transactions={};
+let referralCodes={};
+let referralClaims={};
+let actionLinks={};
+let homeSettings={};
+let maintenance={};
+let busy=false;
+let activePage="dashboard";
+let listeners=[];
+
+function toast(msg){
  const t=$("toast");
- t.textContent=message;
- t.style.display="block";
- clearTimeout(window.toastTimer);
- window.toastTimer=setTimeout(()=>t.style.display="none",3000);
+ t.textContent=msg;t.style.display="block";
+ clearTimeout(window.__toastTimer);
+ window.__toastTimer=setTimeout(()=>t.style.display="none",3200);
 }
 
-function errorMessage(e){
- console.error("Firebase error:",e);
- const code=String(e?.code||"");
- const msg=String(e?.message||"");
-
- if(code==="auth/invalid-api-key"||msg.toLowerCase().includes("api key not valid"))
-  return "Invalid API Key. Firebase Console-এর Web App Config এবং Google Cloud API Key status যাচাই করুন।";
- if(code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/user-not-found")
-  return "Login failed: Email or password is incorrect. Firebase Authentication-এর Admin account যাচাই করুন।";
- if(code==="auth/invalid-email")
-  return "Invalid email address.";
- if(code==="auth/too-many-requests")
-  return "Too many login attempts. কিছুক্ষণ পরে চেষ্টা করুন।";
- if(code==="auth/network-request-failed")
-  return "Network error. Internet connection যাচাই করুন।";
- if(code==="auth/operation-not-allowed")
-  return "Email/Password sign-in Firebase Authentication-এ enabled নেই।";
- if(code==="PERMISSION_DENIED"||code==="database/permission-denied"||msg.includes("PERMISSION_DENIED"))
-  return "Database permission denied. Firebase RTDB Rules যাচাই করুন।";
- if(code==="app/duplicate-app")
-  return "Firebase app already initialized. Page reload করুন।";
-
- return msg||"Something went wrong. Console error যাচাই করুন।";
+function errorText(e){
+ console.error(e);
+ if(e?.code==="PERMISSION_DENIED"||String(e?.code).includes("permission-denied"))
+  return "Permission denied. Firebase Rules যাচাই করুন।";
+ if(String(e?.code).includes("network"))return "Network connection error.";
+ return e?.message||"Something went wrong.";
 }
 
-async function read(p){
- const s=await get(path(p));
+async function read(path){
+ const s=await get(r(path));
  return s.exists()?s.val():null;
 }
-async function write(p,v){await set(path(p),v)}
-async function patch(p,v){await update(path(p),v)}
-function obj(v){return v&&typeof v==="object"?v:{}}
-function entries(v){return Object.entries(obj(v))}
-function makeId(){return push(ref(db)).key}
 
-function setList(id,html){
- $(id).innerHTML=html||'<div class="empty">No data found</div>';
+function listen(path,callback){
+ const unsub=onValue(r(path),s=>callback(s.exists()?s.val():null),e=>{
+  console.error(path,e);
+  toast("Database read error: "+e.message);
+ });
+ listeners.push(unsub);
 }
-function statusOf(x){return String(x?.status||"pending").toLowerCase()}
 
-function showPage(name){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- $("page-"+name)?.classList.add("active");
- document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
-
- const loaders={
-  dashboard:loadDashboard,
-  productOrders:loadOrders,
-  walletRequests:loadWalletRequests,
-  transactions:loadTransactions,
-  users:()=>{},
-  products:loadProducts,
-  categories:loadCategories,
-  referrals:loadReferrals,
-  home:loadHome,
-  action:loadActionLinks,
-  payments:loadPayments,
-  maintenance:loadMaintenance,
-  toolbox:loadToolbox
- };
- if(currentAdmin)loaders[name]?.();
+function stopListeners(){
+ listeners.forEach(fn=>{try{fn()}catch(e){}});
+ listeners=[];
 }
-window.showPage=showPage;
 
-document.querySelectorAll("[data-page]").forEach(b=>{
- b.addEventListener("click",()=>showPage(b.dataset.page));
-});
-
-/* ADMIN LOGIN */
-$("loginBtn").addEventListener("click",async()=>{
- const email=$("email").value.trim();
- const password=$("password").value;
-
- if(!email||!password){
-  $("loginMsg").textContent="Email and password required.";
-  return;
- }
+/* AUTHENTICATION */
+window.adminLogin=async()=>{
+ const email=$("adminEmail").value.trim();
+ const password=$("adminPassword").value;
+ if(!email||!password)return $("loginMessage").textContent="Email and password required.";
 
  $("loginBtn").disabled=true;
- $("loginMsg").textContent="Checking login details...";
+ $("loginMessage").textContent="Verifying account...";
 
  try{
-  await signInWithEmailAndPassword(auth,email,password);
-  $("loginMsg").textContent="Login successful. Verifying admin access...";
+  const result=await signInWithEmailAndPassword(auth,email,password);
+  const marker=await read("admins/"+result.user.uid);
+
+  if(marker!==true){
+   await signOut(auth);
+   $("loginMessage").textContent="Access denied. This account is not an authorized admin.";
+   return;
+  }
+
+  admin=result.user;
+  showAdmin();
  }catch(e){
-  $("loginMsg").textContent=errorMessage(e);
+  $("loginMessage").textContent=errorText(e);
  }finally{
   $("loginBtn").disabled=false;
  }
-});
+};
 
-$("password").addEventListener("keydown",e=>{
- if(e.key==="Enter")$("loginBtn").click();
-});
-
-$("logoutBtn").addEventListener("click",async()=>{
- try{
-  await signOut(auth);
-  currentAdmin=null;
-  $("loginMsg").textContent="You have been logged out.";
- }catch(e){toast(errorMessage(e))}
-});
-
-/* ADMIN UID VERIFICATION */
 onAuthStateChanged(auth,async user=>{
- if(authCheckRunning)return;
- authCheckRunning=true;
+ stopListeners();
+
+ if(!user){
+  admin=null;
+  $("adminApp").style.display="none";
+  $("loginScreen").classList.remove("hidden");
+  return;
+ }
 
  try{
-  if(!user){
-   currentAdmin=null;
-   $("app").style.display="none";
-   $("loginScreen").style.display="grid";
-   return;
-  }
-
-  $("loginMsg").textContent="Verifying Admin UID...";
-
-  const adminValue=await read("admins/"+user.uid);
-
-  if(adminValue!==true){
-   $("app").style.display="none";
-   $("loginScreen").style.display="grid";
-   $("loginMsg").textContent="Access denied: admins/"+user.uid+" must be Boolean true in Realtime Database.";
+  const marker=await read("admins/"+user.uid);
+  if(marker!==true){
    await signOut(auth);
+   $("loginMessage").textContent="Access denied. Admin permission not found.";
    return;
   }
-
-  currentAdmin=user;
-  $("loginScreen").style.display="none";
-  $("app").style.display="block";
-  $("loginMsg").textContent="";
-  showPage("dashboard");
-
+  admin=user;
+  showAdmin();
  }catch(e){
-  currentAdmin=null;
-  $("app").style.display="none";
-  $("loginScreen").style.display="grid";
-  $("loginMsg").textContent=errorMessage(e);
-  try{await signOut(auth)}catch(_){}
- }finally{
-  authCheckRunning=false;
+  console.error(e);
+  $("loginMessage").textContent=errorText(e);
  }
 });
 
-function adminRequired(){
- if(!currentAdmin)throw new Error("Admin login required");
+function showAdmin(){
+ $("loginScreen").classList.add("hidden");
+ $("adminApp").style.display="block";
+ $("adminEmailLabel").textContent=admin.email||"Admin";
+ $("dashboardAdmin").textContent=admin.email||admin.uid;
+ startListeners();
+ showPage("dashboard");
 }
 
-async function logTransaction(uid,data){
- adminRequired();
- const id=makeId();
- await write(`walletTransactions/${uid}/${id}`,{
-  ...data,id,uid,createdAt:Date.now(),createdBy:currentAdmin.uid
- });
+window.adminLogout=async()=>{
+ if(!confirm("Logout from admin panel?"))return;
+ try{await signOut(auth)}catch(e){toast(errorText(e))}
+};
+
+/* REALTIME DATABASE LISTENERS */
+function startListeners(){
+ listen("users",v=>{users=obj(v);renderUsers();renderDashboard()});
+ listen("products",v=>{products=obj(v);renderAdminProducts();renderDashboard();fillCategorySelect()});
+ listen("categories",v=>{categories=obj(v);renderCategories();fillCategorySelect()});
+ listen("orders",v=>{orders=obj(v);renderOrders();renderDashboard();renderRecent()});
+ listen("walletRequests",v=>{walletRequests=obj(v);renderWalletRequests();renderDashboard();renderRecent()});
+ listen("wallets",v=>{wallets=obj(v);renderUsers()});
+ listen("walletTransactions",v=>{transactions=obj(v);renderTransactions()});
+ listen("referralCodes",v=>{referralCodes=obj(v);renderReferrals()});
+ listen("referralClaims",v=>{referralClaims=obj(v);renderClaims()});
+ listen("settings/home",v=>{homeSettings=obj(v);fillHomeSettings()});
+ listen("settings/actionLinks",v=>{actionLinks=obj(v);fillActionSettings()});
+ listen("settings/maintenance",v=>{maintenance=obj(v);fillMaintenance()});
+ listen("settings/notice",v=>{if(typeof v==="string")$("homeNotice").value=v;else $("homeNotice").value=v?.text||""});
 }
+
+/* NAVIGATION */
+const pageNames={
+ dashboard:"Dashboard",
+ orders:"Product Orders",
+ walletRequests:"Wallet Requests",
+ transactions:"Wallet Transactions",
+ users:"Manage Users",
+ products:"Products Management",
+ categories:"Categories",
+ referrals:"Referral Codes",
+ claims:"Referral Claims",
+ homeSettings:"Home Edit",
+ paymentSettings:"Payment Settings",
+ actionSettings:"Action Links",
+ maintenance:"Maintenance"
+};
+
+window.showPage=name=>{
+ activePage=name;
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ $("page-"+name)?.classList.add("active");
+ document.querySelectorAll(".nav-btn[data-page]").forEach(b=>{
+  b.classList.toggle("active",b.dataset.page===name);
+ });
+ $("pageTitle").textContent=pageNames[name]||"Admin";
+ $("sidebar").classList.remove("open");
+};
+
+document.querySelectorAll(".nav-btn[data-page]").forEach(btn=>{
+ btn.addEventListener("click",()=>showPage(btn.dataset.page));
+});
+
+window.toggleSidebar=()=> $("sidebar").classList.toggle("open");
+
+window.refreshCurrentPage=()=>{
+ renderDashboard();
+ renderOrders();
+ renderWalletRequests();
+ renderTransactions();
+ renderUsers();
+ renderAdminProducts();
+ renderCategories();
+ renderReferrals();
+ renderClaims();
+ toast("Page refreshed");
+};
 
 /* DASHBOARD */
-async function loadDashboard(){
- if(!currentAdmin)return;
- try{
-  const [users,products,orders,wallets]=await Promise.all([
-   read("users"),read("products"),read("orders"),read("walletRequests")
-  ]);
-
-  $("sUsers").textContent=entries(users).length;
-  $("sProducts").textContent=entries(products).length;
-
-  let pendingOrders=0,pendingWallet=0,recent=[];
-
-  for(const [uid,list] of entries(orders)){
-   for(const [id,o] of entries(list)){
-    if(statusOf(o)==="pending"&&String(o.paymentMethod||"").toLowerCase()!=="wallet")pendingOrders++;
-    recent.push({kind:"Order",uid,id,...o});
-   }
+function countPendingOrders(){
+ let n=0;
+ for(const [,userOrders] of entries(orders)){
+  for(const [,o] of entries(userOrders)){
+   if(o.paymentMethod!=="wallet"&&o.status==="pending")n++;
   }
-
-  for(const [uid,list] of entries(wallets)){
-   for(const [id,o] of entries(list)){
-    if(statusOf(o)==="pending"||statusOf(o)==="processing")pendingWallet++;
-    recent.push({kind:"Wallet Request",uid,id,...o});
-   }
-  }
-
-  $("sOrders").textContent=pendingOrders;
-  $("sWallet").textContent=pendingWallet;
-
-  recent.sort((a,b)=>(b.createdAt||b.requestedAt||0)-(a.createdAt||a.requestedAt||0));
-
-  setList("recentActivity",recent.slice(0,8).map(x=>`
-   <div class="item">
-    <div class="item-title">${safeText(x.kind)} · ${safeText(x.productName||money(x.amount))}</div>
-    <div class="small">UID: ${safeText(x.uid)} · ${dateText(x.createdAt||x.requestedAt)}</div>
-   </div>`).join(""));
- }catch(e){toast(errorMessage(e))}
+ }
+ return n;
 }
 
-async function refreshAll(){
- await loadDashboard();
- toast("Dashboard refreshed");
+function countPendingWallet(){
+ let n=0;
+ for(const [,userRequests] of entries(walletRequests)){
+  for(const [,w] of entries(userRequests)){
+   if(w.status==="pending"||w.status==="processing")n++;
+  }
+ }
+ return n;
 }
-window.refreshAll=refreshAll;
+
+function renderDashboard(){
+ $("statUsers").textContent=entries(users).length;
+ $("statProducts").textContent=entries(products).length;
+ $("statOrders").textContent=countPendingOrders();
+ $("statWallet").textContent=countPendingWallet();
+}
+
+function renderRecent(){
+ const recent=[];
+ for(const [uid,list] of entries(orders)){
+  for(const [id,o] of entries(list)){
+   if(o.paymentMethod!=="wallet")recent.push({uid,id,...o});
+  }
+ }
+ recent.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ $("recentOrders").innerHTML=recent.length?recent.slice(0,5).map(o=>`
+  <div class="item">
+   <div class="item-title">${safe(o.productName||"Product")}</div>
+   <div class="meta">${money(o.price)} · ${safe(o.status||"pending")}</div>
+  </div>
+ `).join(""):'<div class="empty">No orders yet.</div>';
+
+ const walletsList=[];
+ for(const [uid,list] of entries(walletRequests)){
+  for(const [id,w] of entries(list))walletsList.push({uid,id,...w});
+ }
+ walletsList.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+
+ $("recentWallet").innerHTML=walletsList.length?walletsList.slice(0,5).map(w=>`
+  <div class="item">
+   <div class="item-title">${money(w.amount)} · ${safe(w.method)}</div>
+   <div class="meta">${safe(w.trxId)} · ${safe(w.status)}</div>
+  </div>
+ `).join(""):'<div class="empty">No wallet requests yet.</div>';
+}
 
 /* PRODUCT ORDERS */
-async function loadOrders(){
- if(!currentAdmin)return;
- try{
-  const all=await read("orders");
-  let html="";
-
-  for(const [uid,list] of entries(all)){
-   for(const [id,o] of entries(list)){
-    if(String(o.paymentMethod||"").toLowerCase()==="wallet")continue;
-
-    const safeUid=encodeURIComponent(uid);
-    const safeId=encodeURIComponent(id);
-
-    html+=`<div class="item">
-     <div class="item-title">${safeText(o.productName||"Product Order")}</div>
-     <div class="small">
-      UID: ${safeText(uid)}<br>
-      Order: ${safeText(id)}<br>
-      Amount: ${money(o.price)}<br>
-      Method: ${safeText(o.paymentMethod||"—")}<br>
-      TrxID: ${safeText(o.trxId||"—")}<br>
-      Date: ${dateText(o.createdAt)}
-     </div>
-     <p>${statusPill(statusOf(o))}</p>
-     ${statusOf(o)==="pending"?`
-      <label>DELIVERY KEY / DOWNLOAD URL</label>
-      <input id="key_${safeText(id)}" placeholder="Enter delivery key or URL">
-      <div class="actions">
-       <button class="btn green" onclick="orderAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'approved')">Approve</button>
-       <button class="btn red" onclick="orderAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'rejected')">Reject</button>
-      </div>`:""}
-    </div>`;
-   }
+function allOrders(){
+ const result=[];
+ for(const [uid,list] of entries(orders)){
+  for(const [id,o] of entries(list)){
+   if(o.paymentMethod!=="wallet")result.push({uid,id,...o});
   }
-
-  setList("ordersList",html);
- }catch(e){
-  setList("ordersList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
  }
+ return result.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 }
-window.loadOrders=loadOrders;
+
+window.renderOrders=()=>{
+ const q=($("orderSearch")?.value||"").toLowerCase();
+ const list=allOrders().filter(o=>
+  [o.productName,o.trxId,o.id,o.uid].some(v=>String(v||"").toLowerCase().includes(q))
+ );
+
+ if(!list.length){
+  $("ordersList").innerHTML='<div class="empty">No matching product orders.</div>';
+  return;
+ }
+
+ $("ordersList").innerHTML=list.map(o=>`
+  <div class="item">
+   <div class="row">
+    <div class="item-title">${safe(o.productName||"Product Order")}</div>
+    <span class="badge ${safe(o.status||"pending")}">${safe(o.status||"pending")}</span>
+   </div>
+   <div class="meta">
+    User: ${safe(users[o.uid]?.email||o.uid)}<br>
+    Order ID: ${safe(o.id)}<br>
+    Amount: ${money(o.price)}<br>
+    Payment: ${safe(o.paymentMethod||"—")}<br>
+    Transaction ID: ${safe(o.trxId||"—")}<br>
+    Date: ${o.createdAt?new Date(o.createdAt).toLocaleString():"—"}
+   </div>
+   ${o.status==="pending"?`
+    <div class="field">
+     <label>DELIVERY KEY / DOWNLOAD URL</label>
+     <input id="delivery_${safe(o.uid)}_${safe(o.id)}" placeholder="Enter delivery key or URL">
+    </div>
+    <div class="actions">
+     <button class="btn green small" onclick="orderAction('${o.uid}','${o.id}','approved')">Approve</button>
+     <button class="btn red small" onclick="orderAction('${o.uid}','${o.id}','rejected')">Reject</button>
+    </div>
+   `:""}
+   ${o.downloadUrl?`<div class="meta" style="margin-top:8px">Delivery: ${safe(o.downloadUrl)}</div>`:""}
+  </div>
+ `).join("");
+};
 
 window.orderAction=async(uid,id,status)=>{
- if(!currentAdmin)return toast("Admin login required");
- if(!confirm(status==="approved"?"Approve this order?":"Reject this order?"))return;
-
+ if(busy)return;
+ const path=`orders/${uid}/${id}`;
  try{
-  const o=await read(`orders/${uid}/${id}`);
-  if(!o||statusOf(o)!=="pending")throw new Error("Order is no longer pending");
+  const order=await read(path);
+  if(!order||order.status!=="pending")return toast("Order is no longer pending");
 
-  const key=$("key_"+id)?.value.trim()||"";
-  const product=o.productId?await read("products/"+o.productId):null;
-  const delivery=key||product?.downloadUrl||"";
+  let delivery="";
+  if(status==="approved"){
+   const input=$(`delivery_${uid}_${id}`);
+   delivery=input?.value.trim()||"";
+   if(!delivery)return toast("Delivery key or URL required");
+  }
 
-  if(status==="approved"&&!delivery)
-   throw new Error("Delivery key or product download URL required");
+  if(!confirm(status==="approved"?"Approve this order?":"Reject this order?"))return;
 
-  await patch(`orders/${uid}/${id}`,{
+  busy=true;
+  const patch={
    status,
-   downloadUrl:status==="approved"?delivery:"",
-   approvedAt:status==="approved"?Date.now():null,
-   rejectedAt:status==="rejected"?Date.now():null,
-   processedBy:currentAdmin.uid
-  });
+   processedAt:Date.now(),
+   processedBy:admin.uid
+  };
+  if(status==="approved")patch.downloadUrl=delivery;
+  if(status==="rejected")patch.rejectedAt=Date.now();
 
+  await update(r(path),patch);
   toast("Order "+status);
-  await loadOrders();
-  await loadDashboard();
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
+ finally{busy=false}
 };
 
 /* WALLET REQUESTS */
-async function loadWalletRequests(){
- if(!currentAdmin)return;
- try{
-  const all=await read("walletRequests");
-  let html="";
-
-  for(const [uid,list] of entries(all)){
-   for(const [id,r] of entries(list)){
-    const state=statusOf(r);
-    const safeUid=encodeURIComponent(uid);
-    const safeId=encodeURIComponent(id);
-
-    html+=`<div class="item">
-     <div class="item-title">${money(r.amount)} · ${safeText(r.method||"")}</div>
-     <div class="small">
-      UID: ${safeText(uid)}<br>
-      Request: ${safeText(id)}<br>
-      TrxID: ${safeText(r.trxId||"—")}<br>
-      Date: ${dateText(r.requestedAt)}
-     </div>
-     <p>${statusPill(state)}</p>
-     ${["pending","processing"].includes(state)?`
-      <div class="actions">
-       <button class="btn green" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'approved')">
-        ${state==="processing"?"Complete Approval":"Approve"}
-       </button>
-       ${state==="pending"?`
-       <button class="btn red" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'rejected')">Reject</button>
-       `:""}
-      </div>`:""}
-    </div>`;
-   }
-  }
-
-  setList("walletRequestsList",html);
- }catch(e){
-  setList("walletRequestsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+function allWalletRequests(){
+ const result=[];
+ for(const [uid,list] of entries(walletRequests)){
+  for(const [id,w] of entries(list))result.push({uid,id,...w});
  }
+ return result.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
 }
-window.loadWalletRequests=loadWalletRequests;
 
-/*
- WALLET APPROVAL:
- - Claims pending request with a transaction.
- - Uses a request-specific marker to prevent duplicate credit.
- - Uses a fixed transaction ID to avoid duplicate history records.
-*/
+window.renderWalletRequests=()=>{
+ const q=($("walletSearch")?.value||"").toLowerCase();
+ const list=allWalletRequests().filter(w=>
+  [w.trxId,w.method,w.uid,users[w.uid]?.email].some(v=>String(v||"").toLowerCase().includes(q))
+ );
+
+ if(!list.length){
+  $("walletRequestsList").innerHTML='<div class="empty">No matching wallet requests.</div>';
+  return;
+ }
+
+ $("walletRequestsList").innerHTML=list.map(w=>`
+  <div class="item">
+   <div class="row">
+    <div class="item-title">${money(w.amount)} Wallet Request</div>
+    <span class="badge ${safe(w.status||"pending")}">${safe(w.status||"pending")}</span>
+   </div>
+   <div class="meta">
+    User: ${safe(users[w.uid]?.email||w.uid)}<br>
+    Method: ${safe(w.method||"—")}<br>
+    Transaction ID: ${safe(w.trxId||"—")}<br>
+    Request ID: ${safe(w.id)}<br>
+    Date: ${w.requestedAt?new Date(w.requestedAt).toLocaleString():"—"}
+   </div>
+   ${w.status==="pending"||w.status==="processing"?`
+    <div class="actions">
+     <button class="btn green small" onclick="walletRequestAction('${w.uid}','${w.id}','approved')">Approve & Credit</button>
+     <button class="btn red small" onclick="walletRequestAction('${w.uid}','${w.id}','rejected')">Reject</button>
+    </div>
+   `:""}
+  </div>
+ `).join("");
+};
+
 window.walletRequestAction=async(uid,id,status)=>{
- if(!currentAdmin)return toast("Admin login required");
  if(busy)return;
-
- if(!confirm(status==="approved"?"Approve and add balance?":"Reject this request?"))return;
-
- busy=true;
- const requestRef=path(`walletRequests/${uid}/${id}`);
- const walletRef=path(`wallets/${uid}`);
+ const requestPath=`walletRequests/${uid}/${id}`;
 
  try{
-  let req=await read(`walletRequests/${uid}/${id}`);
-  if(!req)throw new Error("Wallet request not found");
+  const req=await read(requestPath);
+  if(!req)return toast("Request not found");
+  if(req.status==="approved"||req.status==="rejected")return toast("Already processed");
+  if(!confirm(status==="approved"?"Approve request and credit wallet?":"Reject wallet request?"))return;
+
+  busy=true;
 
   if(status==="rejected"){
-   const rejectResult=await runTransaction(requestRef,current=>{
-    if(!current||statusOf(current)!=="pending")return;
-    current.status="rejected";
-    current.processedAt=Date.now();
-    current.processedBy=currentAdmin.uid;
-    return current;
+   await update(r(requestPath),{
+    status:"rejected",
+    rejectedAt:Date.now(),
+    processedBy:admin.uid
    });
-
-   if(!rejectResult.committed)
-    throw new Error("Request already processed. Refresh the list.");
-
    toast("Wallet request rejected");
-   await loadWalletRequests();
-   await loadDashboard();
+   return;
+  }
+
+  // Claim the request first, so repeated clicks cannot credit twice.
+  const claim=await runTransaction(r(requestPath),current=>{
+   if(!current||current.status!=="pending")return;
+   return {...current,status:"processing",processingBy:admin.uid,processingAt:Date.now()};
+  });
+
+  if(!claim.committed){
+   toast("Request already being processed");
    return;
   }
 
   const amount=Number(req.amount);
-  if(!Number.isFinite(amount)||amount<=0)
-   throw new Error("Invalid request amount");
+  if(!Number.isFinite(amount)||amount<=0){
+   await update(r(requestPath),{status:"pending"});
+   return toast("Invalid request amount");
+  }
 
-  const claim=await runTransaction(requestRef,current=>{
-   if(!current)return;
-   const state=statusOf(current);
-
-   if(state==="pending"){
-    current.status="processing";
-    current.processingBy=currentAdmin.uid;
-    current.processingAt=Date.now();
-    current.processingAction="approved";
-    return current;
-   }
-
-   if(state==="processing"&&current.processingAction==="approved"){
-    return current;
-   }
-   return;
-  });
-
-  if(!claim.committed)
-   throw new Error("Request is already processed or cannot be claimed.");
-
-  req=claim.snapshot.val();
-  if(!req||statusOf(req)!=="processing")
-   throw new Error("Request is not in processing state.");
-
-  const walletResult=await runTransaction(walletRef,current=>{
-   current=current&&typeof current==="object"?current:{};
-   const credited=current.creditedRequests&&typeof current.creditedRequests==="object"
-    ?current.creditedRequests:{};
-
-   if(credited[id])return current;
-
-   const oldBalance=Number(current.balance)||0;
-   current.balance=oldBalance+amount;
-   current.creditedRequests={
-    ...credited,
-    [id]:{amount,requestId:id,creditedAt:Date.now()}
-   };
+  const walletPath=`wallets/${uid}`;
+  const credit=await runTransaction(r(walletPath),current=>{
+   current=obj(current);
+   current.creditedRequests=obj(current.creditedRequests);
+   if(current.creditedRequests[id])return;
+   const balance=Number(current.balance)||0;
+   current.balance=balance+amount;
+   current.creditedRequests[id]=true;
    return current;
   });
 
-  if(!walletResult.committed)
-   throw new Error("Wallet balance update was not committed.");
-
-  const walletData=walletResult.snapshot.val();
-  if(!walletData?.creditedRequests?.[id])
-   throw new Error("Wallet credit verification failed.");
-
-  const transactionId="walletreq_"+id;
-  const transactionPath=`walletTransactions/${uid}/${transactionId}`;
-  const oldTransaction=await read(transactionPath);
-
-  if(!oldTransaction){
-   await write(transactionPath,{
-    id:transactionId,uid,type:"credit",amount,
-    reason:"Wallet request approved",requestId:id,
-    createdAt:Date.now(),createdBy:currentAdmin.uid
-   });
+  if(!credit.committed){
+   const latest=await read(walletPath);
+   if(!latest?.creditedRequests?.[id]){
+    await update(r(requestPath),{status:"pending"});
+    return toast("Wallet credit failed. Try again.");
+   }
   }
 
-  await patch(`walletRequests/${uid}/${id}`,{
-   status:"approved",
-   processedAt:Date.now(),
-   processedBy:currentAdmin.uid,
-   creditedAmount:amount
+  await set(r(`walletTransactions/${uid}/walletreq_${id}`),{
+   type:"credit",
+   amount,
+   reason:"Wallet request approved",
+   requestId:id,
+   method:req.method||"",
+   trxId:req.trxId||"",
+   createdAt:Date.now(),
+   processedBy:admin.uid
   });
 
-  toast("Approved! Wallet balance updated successfully.");
-  await loadWalletRequests();
-  await loadDashboard();
-  await loadTransactions();
+  await update(r(requestPath),{
+   status:"approved",
+   approvedAt:Date.now(),
+   processedBy:admin.uid
+  });
 
+  toast("Wallet approved and credited");
  }catch(e){
-  console.error("Wallet approval error:",e);
-  toast(errorMessage(e));
-  try{
-   await loadWalletRequests();
-   await loadDashboard();
-  }catch(refreshError){console.error(refreshError)}
+  console.error(e);
+  toast(errorText(e));
  }finally{
   busy=false;
  }
 };
 
-/* TRANSACTIONS */
-async function loadTransactions(){
- if(!currentAdmin)return;
- try{
-  const all=await read("walletTransactions");
-  let html="";
-
-  for(const [uid,list] of entries(all)){
-   for(const [id,t] of entries(list)){
-    html+=`<div class="item">
-     <div class="item-title">${safeText(t.type||"transaction")} · ${money(t.amount)}</div>
-     <div class="small">
-      UID: ${safeText(uid)}<br>
-      Reason: ${safeText(t.reason||"—")}<br>
-      ID: ${safeText(id)}<br>
-      Date: ${dateText(t.createdAt)}
-     </div>
-    </div>`;
-   }
-  }
-  setList("transactionsList",html);
- }catch(e){
-  setList("transactionsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
- }
-}
-window.loadTransactions=loadTransactions;
-
 /* USERS */
-window.searchUser=async()=>{
- if(!currentAdmin)return toast("Admin login required");
- const uid=$("searchUid").value.trim();
- if(!uid)return toast("Enter user UID");
+window.renderUsers=()=>{
+ const q=($("userSearch")?.value||"").toLowerCase();
+ const list=entries(users).filter(([uid,u])=>
+  [uid,u.email,u.displayName].some(v=>String(v||"").toLowerCase().includes(q))
+ );
 
- $("userResult").innerHTML='<div class="empty">Searching...</div>';
+ if(!list.length){
+  $("usersList").innerHTML='<div class="empty">No users found.</div>';
+  return;
+ }
 
- try{
-  const [user,wallet]=await Promise.all([
-   read("users/"+uid),read("wallets/"+uid)
-  ]);
-
-  if(!user&&!wallet){
-   $("userResult").innerHTML='<div class="empty">User not found</div>';
-   return;
-  }
-
-  const balance=Number(wallet?.balance)||0;
-  $("userResult").innerHTML=`<div class="item">
-   <div class="item-title">${safeText(user?.name||user?.displayName||"User")}</div>
-   <div class="small">
-    UID: ${safeText(uid)}<br>
-    Email: ${safeText(user?.email||"—")}<br>
+ $("usersList").innerHTML=list.map(([uid,u])=>{
+  const wallet=obj(wallets[uid]);
+  const balance=Number(wallet.balance)||0;
+  return `<div class="item">
+   <div class="item-title">${safe(u.displayName||"User")}</div>
+   <div class="meta">
+    Email: ${safe(u.email||"—")}<br>
+    UID: ${safe(uid)}<br>
     Wallet Balance: ${money(balance)}
    </div>
-   <span class="pill active">User found</span>
+   <div class="actions">
+    <button class="btn small" onclick="openCredit('${uid}')">+ Add Balance</button>
+   </div>
   </div>`;
-  $("creditUid").value=uid;
- }catch(e){
-  $("userResult").innerHTML=`<div class="empty">${safeText(errorMessage(e))}</div>`;
- }
+ }).join("");
+};
+
+window.openCredit=uid=>{
+ $("creditUid").value=uid;
+ $("creditUserInfo").textContent=users[uid]?.email||uid;
+ $("creditAmount").value="";
+ $("creditReason").value="Admin wallet credit";
+ $("creditModal").classList.add("show");
 };
 
 window.creditWallet=async()=>{
- if(!currentAdmin)return toast("Admin login required");
+ const uid=$("creditUid").value;
+ const amount=Number($("creditAmount").value);
+ const reason=$("creditReason").value.trim()||"Admin wallet credit";
+
+ if(!uid||!Number.isFinite(amount)||amount<=0)return toast("Enter a valid amount");
  if(busy)return;
 
- const uid=$("creditUid").value.trim();
- const amount=Number($("creditAmount").value);
- const note=$("creditNote").value.trim();
-
- if(!uid||!Number.isFinite(amount)||amount<=0)
-  return toast("Valid UID and amount required");
-
- if(!confirm(`Add ${money(amount)} to this user's wallet?`))return;
-
- busy=true;
  try{
-  const bal=await runTransaction(
-   path(`wallets/${uid}/balance`),
-   v=>(Number(v)||0)+amount
-  );
-  if(!bal.committed)throw new Error("Wallet update failed");
+  if(!confirm("Add "+money(amount)+" to this user's wallet?"))return;
+  busy=true;
 
-  await logTransaction(uid,{
-   type:"credit",amount,reason:note||"Admin manual credit"
+  const result=await runTransaction(r("wallets/"+uid),current=>{
+   current=obj(current);
+   current.balance=(Number(current.balance)||0)+amount;
+   current.creditedRequests=obj(current.creditedRequests);
+   return current;
   });
 
+  if(!result.committed)throw new Error("Wallet update failed");
+
+  const tx=push(r("walletTransactions/"+uid));
+  await set(tx,{
+   type:"credit",
+   amount,
+   reason,
+   createdAt:Date.now(),
+   processedBy:admin.uid
+  });
+
+  closeModal("creditModal");
   toast("Wallet credited successfully");
-  $("creditAmount").value="";
-  $("creditNote").value="";
-  if($("searchUid").value.trim()===uid)await searchUser();
-  await loadTransactions();
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
  finally{busy=false}
 };
 
-/* PRODUCTS */
-function clearProductForm(){
- ["editProductId","pName","pPrice","pDescription","pImage","pDownload","pVideo","pExpiry"].forEach(id=>$(id).value="");
- $("pActive").value="true";
- $("productFormTitle").textContent="Add New Product";
-}
-window.clearProductForm=clearProductForm;
-
-async function loadProducts(){
- if(!currentAdmin)return;
- try{
-  productsCache=obj(await read("products"));
-
-  const options=Object.entries(productsCache).map(([id,p])=>
-   `<option value="${safeText(id)}">${safeText(p.name||id)}</option>`
-  ).join("");
-
-  $("maintenanceProduct").innerHTML='<option value="">Select product</option>'+options;
-
-  setList("productsList",entries(productsCache).map(([id,p])=>`
-   <div class="item">
-    <div class="item-title">${safeText(p.name||"Unnamed Product")}</div>
-    <div class="small">
-     ID: ${safeText(id)}<br>
-     Category: ${safeText(p.category||"—")}<br>
-     Price: ${money(p.price)}<br>
-     Expiry: ${safeText(p.expiry||"Not set")}<br>
-     Maintenance: ${p.maintenance?"ON":"OFF"}
-    </div>
-    <p>${p.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
-    <div class="actions">
-     <button class="btn" onclick="editProduct('${encodeURIComponent(id)}')">Edit</button>
-     <button class="btn secondary" onclick="toggleProduct('${encodeURIComponent(id)}')">${p.active===false?"Activate":"Deactivate"}</button>
-     <button class="btn red" onclick="deleteProduct('${encodeURIComponent(id)}')">Delete</button>
-    </div>
-   </div>`).join(""));
-
-  await fillCategorySelect();
- }catch(e){
-  setList("productsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
+/* TRANSACTIONS */
+function allTransactions(){
+ const list=[];
+ for(const [uid,items] of entries(transactions)){
+  for(const [id,t] of entries(items))list.push({uid,id,...t});
  }
+ return list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 }
-window.loadProducts=loadProducts;
 
-window.editProduct=encodedId=>{
- const id=decodeURIComponent(encodedId);
- const p=productsCache[id];
- if(!p)return;
+window.renderTransactions=()=>{
+ const q=($("transactionSearch")?.value||"").toLowerCase();
+ const list=allTransactions().filter(t=>
+  [t.uid,t.reason,t.type,t.id,t.trxId].some(v=>String(v||"").toLowerCase().includes(q))
+ );
 
- $("editProductId").value=id;
- $("pName").value=p.name||"";
- $("pCategory").value=p.category||"";
- $("pPrice").value=p.price??"";
- $("pActive").value=String(p.active!==false);
- $("pDescription").value=p.description||"";
- $("pImage").value=p.imageUrl||p.imageData||"";
- $("pDownload").value=p.downloadUrl||"";
- $("pVideo").value=p.setupVideoUrl||"";
- $("pExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
- $("productFormTitle").textContent="Edit Product";
- window.scrollTo({top:0,behavior:"smooth"});
+ if(!list.length){
+  $("transactionsList").innerHTML='<div class="empty">No transactions found.</div>';
+  return;
+ }
+
+ $("transactionsList").innerHTML=list.map(t=>`
+  <div class="item">
+   <div class="item-title">${safe(t.reason||"Wallet Transaction")}</div>
+   <div class="meta">
+    User: ${safe(users[t.uid]?.email||t.uid)}<br>
+    Type: ${safe(t.type||"—")}<br>
+    Amount: ${money(t.amount)}<br>
+    Transaction: ${safe(t.trxId||"—")}<br>
+    Date: ${t.createdAt?new Date(t.createdAt).toLocaleString():"—"}
+   </div>
+  </div>
+ `).join("");
 };
 
+/* PRODUCTS */
+window.renderAdminProducts=()=>{
+ const q=($("productSearch")?.value||"").toLowerCase();
+ const list=entries(products).filter(([id,p])=>
+  [id,p.name,p.category].some(v=>String(v||"").toLowerCase().includes(q))
+ );
+
+ if(!list.length){
+  $("adminProductsList").innerHTML='<div class="empty">No products found.</div>';
+  return;
+ }
+
+ $("adminProductsList").innerHTML=list.map(([id,p])=>`
+  <div class="item">
+   <div class="row">
+    <div class="row" style="justify-content:flex-start">
+     ${p.imageUrl?`<img class="product-image" src="${safe(p.imageUrl)}" alt="">`:""}
+     <div>
+      <div class="item-title">${safe(p.name||"Product")}</div>
+      <div class="meta">${safe(p.category||"General")} · ${money(p.price)}</div>
+     </div>
+    </div>
+    <span class="badge ${p.active===false?"inactive":"active"}">${p.active===false?"Inactive":"Active"}</span>
+   </div>
+   <div class="actions">
+    <button class="btn small" onclick="editProduct('${id}')">Edit</button>
+    <button class="btn red small" onclick="deleteProduct('${id}')">Delete</button>
+   </div>
+  </div>
+ `).join("");
+};
+
+window.openProductEditor=()=>{
+ $("productModalTitle").textContent="Add Product";
+ $("editProductId").value="";
+ ["productName","productPrice","productDescription","productImage","productDownload","productVideo","productExpiry","productMaintenanceMessage"].forEach(id=>$(id).value="");
+ $("productActive").value="true";
+ $("productMaintenance").value="false";
+ fillCategorySelect();
+ $("productModal").classList.add("show");
+};
+
+window.editProduct=id=>{
+ const p=products[id];
+ if(!p)return;
+ $("productModalTitle").textContent="Edit Product";
+ $("editProductId").value=id;
+ $("productName").value=p.name||"";
+ $("productPrice").value=p.price??"";
+ $("productDescription").value=p.description||"";
+ $("productImage").value=p.imageUrl||"";
+ $("productDownload").value=p.downloadUrl||"";
+ $("productVideo").value=p.setupVideoUrl||"";
+ $("productActive").value=String(p.active!==false);
+ $("productMaintenance").value=String(p.maintenance===true);
+ $("productMaintenanceMessage").value=p.maintenanceMessage||"";
+ $("productExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
+ fillCategorySelect(p.category||"");
+ $("productModal").classList.add("show");
+};
+
+function fillCategorySelect(selected=""){
+ const select=$("productCategory");
+ if(!select)return;
+ const list=entries(categories);
+ select.innerHTML='<option value="">Select category</option>'+list.map(([id,c])=>{
+  const name=typeof c==="string"?c:(c.name||id);
+  return `<option value="${safe(name)}">${safe(name)}</option>`;
+ }).join("");
+ if(selected)select.value=selected;
+}
+
 window.saveProduct=async()=>{
- if(!currentAdmin)return toast("Admin login required");
+ const id=$("editProductId").value;
+ const name=$("productName").value.trim();
+ const category=$("productCategory").value;
+ const price=Number($("productPrice").value);
 
- const id=$("editProductId").value||makeId();
- const name=$("pName").value.trim();
- const category=$("pCategory").value;
- const price=Number($("pPrice").value);
+ if(!name)return toast("Product name required");
+ if(!Number.isFinite(price)||price<0)return toast("Enter a valid price");
 
- if(!name||!category||!Number.isFinite(price)||price<0)
-  return toast("Name, category and valid price required");
-
- const old=productsCache[id]||{};
+ const expiryValue=$("productExpiry").value;
  const data={
-  ...old,name,category,price,
-  active:$("pActive").value==="true",
-  description:$("pDescription").value.trim(),
-  imageUrl:$("pImage").value.trim(),
-  downloadUrl:$("pDownload").value.trim(),
-  setupVideoUrl:$("pVideo").value.trim(),
-  expiry:$("pExpiry").value?new Date($("pExpiry").value).getTime():null,
+  name,
+  category:category||"General",
+  price,
+  description:$("productDescription").value.trim(),
+  imageUrl:$("productImage").value.trim(),
+  downloadUrl:$("productDownload").value.trim(),
+  setupVideoUrl:$("productVideo").value.trim(),
+  active:$("productActive").value==="true",
+  maintenance:$("productMaintenance").value==="true",
+  maintenanceMessage:$("productMaintenanceMessage").value.trim(),
+  expiry:expiryValue?new Date(expiryValue).getTime():null,
   updatedAt:Date.now()
  };
 
  try{
-  await write("products/"+id,data);
-  toast("Product saved");
-  clearProductForm();
-  await loadProducts();
-  await loadDashboard();
- }catch(e){toast(errorMessage(e))}
+  if(id){
+   await update(r("products/"+id),data);
+  }else{
+   data.createdAt=Date.now();
+   await set(push(r("products")),data);
+  }
+  closeModal("productModal");
+  toast("Product saved successfully");
+ }catch(e){toast(errorText(e))}
 };
 
-window.toggleProduct=async encodedId=>{
- if(!currentAdmin)return toast("Admin login required");
- const id=decodeURIComponent(encodedId);
+window.deleteProduct=async id=>{
+ if(!confirm("Delete this product permanently?"))return;
  try{
-  const p=productsCache[id];
-  await patch("products/"+id,{active:p.active===false,updatedAt:Date.now()});
-  await loadProducts();
- }catch(e){toast(errorMessage(e))}
-};
-
-window.deleteProduct=async encodedId=>{
- if(!currentAdmin)return toast("Admin login required");
- const id=decodeURIComponent(encodedId);
- if(!confirm("Delete this product?"))return;
- try{
-  await remove(path("products/"+id));
+  await remove(r("products/"+id));
   toast("Product deleted");
-  await loadProducts();
-  await loadDashboard();
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
 };
 
 /* CATEGORIES */
-async function loadCategories(){
- if(!currentAdmin)return;
- try{
-  categoriesCache=obj(await read("categories"));
-  setList("categoriesList",entries(categoriesCache).map(([id,c])=>{
-   const name=typeof c==="string"?c:c.name||id;
-   return `<div class="item">
-    <div class="item-title">${safeText(name)}</div>
-    <div class="small">ID: ${safeText(id)}</div>
-    <div class="actions">
-     <button class="btn red" onclick="deleteCategory('${encodeURIComponent(id)}')">Delete</button>
-    </div>
-   </div>`;
-  }).join(""));
-  await fillCategorySelect();
- }catch(e){
-  setList("categoriesList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
- }
-}
-
-async function fillCategorySelect(){
- const cats=entries(categoriesCache);
- $("pCategory").innerHTML='<option value="">Select category</option>'+
- cats.map(([id,c])=>{
-  const name=typeof c==="string"?c:(c.name||id);
-  return `<option value="${safeText(name)}">${safeText(name)}</option>`;
- }).join("");
-}
-
 window.addCategory=async()=>{
- if(!currentAdmin)return toast("Admin login required");
- const name=$("categoryName").value.trim();
- if(!name)return toast("Enter category name");
+ const name=$("newCategoryName").value.trim();
+ if(!name)return toast("Category name required");
+
+ const exists=entries(categories).some(([,c])=>
+  String(typeof c==="string"?c:c.name||"").toLowerCase()===name.toLowerCase()
+ );
+ if(exists)return toast("Category already exists");
+
  try{
-  const id=makeId();
-  await write("categories/"+id,{name,createdAt:Date.now()});
-  $("categoryName").value="";
+  await set(push(r("categories")),{name,createdAt:Date.now()});
+  $("newCategoryName").value="";
   toast("Category added");
-  await loadCategories();
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
 };
 
-window.deleteCategory=async encodedId=>{
- if(!currentAdmin)return toast("Admin login required");
- const id=decodeURIComponent(encodedId);
- if(!confirm("Delete category? Products using it will not be deleted."))return;
- try{
-  await remove(path("categories/"+id));
-  toast("Category deleted");
-  await loadCategories();
- }catch(e){toast(errorMessage(e))}
-};
-
-/* REFERRALS */
-async function loadReferrals(){
- if(!currentAdmin)return;
- try{
-  const [codes,claims]=await Promise.all([read("referralCodes"),read("referralClaims")]);
-
-  setList("referralsList",entries(codes).map(([code,c])=>`
-   <div class="item">
-    <div class="item-title">${safeText(code)}</div>
-    <div class="small">
-     Reward: ${money(c.rewardAmount??c.reward)}<br>
-     Used: ${Number(c.usedCount)||0} / ${Number(c.maxUses)||0}
-    </div>
-    <p>${c.active===false?'<span class="pill inactive">Inactive</span>':'<span class="pill active">Active</span>'}</p>
-    <div class="actions">
-     <button class="btn secondary" onclick="editReferral('${encodeURIComponent(code)}')">Edit</button>
-     <button class="btn yellow" onclick="toggleReferral('${encodeURIComponent(code)}')">${c.active===false?"Activate":"Disable"}</button>
-     <button class="btn red" onclick="deleteReferral('${encodeURIComponent(code)}')">Delete</button>
-    </div>
-   </div>`).join(""));
-
-  let claimHtml="";
-  for(const [uid,list] of entries(claims)){
-   for(const [id,c] of entries(list)){
-    claimHtml+=`<div class="item">
-     <div class="item-title">Code: ${safeText(c.code||"—")}</div>
-     <div class="small">
-      UID: ${safeText(uid)}<br>
-      Email: ${safeText(c.email||"—")}<br>
-      Status: ${safeText(c.status||"submitted")}<br>
-      Date: ${dateText(c.submittedAt)}
-     </div>
-    </div>`;
-   }
-  }
-  setList("claimsList",claimHtml);
- }catch(e){
-  setList("referralsList",`<div class="empty">${safeText(errorMessage(e))}</div>`);
- }
+function renderCategories(){
+ const list=entries(categories);
+ $("categoriesList").innerHTML=list.length?list.map(([id,c])=>{
+  const name=typeof c==="string"?c:(c.name||id);
+  return `<div class="item">
+   <div class="row">
+    <div class="item-title">${safe(name)}</div>
+    <button class="btn red small" onclick="deleteCategory('${id}')">Delete</button>
+   </div>
+  </div>`;
+ }).join(""):'<div class="empty">No categories created.</div>';
 }
-window.loadReferrals=loadReferrals;
 
+window.deleteCategory=async id=>{
+ if(!confirm("Delete this category? Existing products will not be deleted."))return;
+ try{
+  await remove(r("categories/"+id));
+  toast("Category deleted");
+ }catch(e){toast(errorText(e))}
+};
+
+/* REFERRAL CODES */
 window.createReferral=async()=>{
- if(!currentAdmin)return toast("Admin login required");
  const code=$("refCode").value.trim().toUpperCase();
  const reward=Number($("refReward").value);
- const max=Number($("refMax").value);
+ const maxUses=Number($("refMaxUses").value);
 
- if(!/^[A-Z0-9_-]{3,32}$/.test(code))return toast("Code must be 3–32 letters/numbers");
- if(!Number.isFinite(reward)||reward<0||!Number.isInteger(max)||max<1)
-  return toast("Enter valid reward and max uses");
+ if(!/^[A-Z0-9_-]{3,32}$/.test(code))return toast("Enter a valid referral code");
+ if(!Number.isFinite(reward)||reward<0)return toast("Enter valid reward amount");
+ if(!Number.isInteger(maxUses)||maxUses<1)return toast("Enter valid maximum uses");
 
  try{
-  if(await read("referralCodes/"+code))return toast("This code already exists");
-  await write("referralCodes/"+code,{
-   code,rewardAmount:reward,maxUses:max,usedCount:0,
-   active:$("refActive").value==="true",createdAt:Date.now()
+  const existing=await read("referralCodes/"+code);
+  if(existing)return toast("Referral code already exists");
+
+  await set(r("referralCodes/"+code),{
+   code,
+   rewardAmount:reward,
+   maxUses,
+   usedCount:0,
+   active:true,
+   createdAt:Date.now()
   });
+
   $("refCode").value="";
   $("refReward").value="";
-  $("refMax").value="";
+  $("refMaxUses").value="";
   toast("Referral code created");
-  await loadReferrals();
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
 };
 
-window.editReferral=async encodedCode=>{
- if(!currentAdmin)return toast("Admin login required");
- const code=decodeURIComponent(encodedCode);
- try{
-  const c=await read("referralCodes/"+code);
-  if(!c)return;
-  const reward=prompt("Reward amount:",c.rewardAmount??c.reward??0);
-  if(reward===null)return;
-  const max=prompt("Maximum uses:",c.maxUses??1);
-  if(max===null)return;
-  if(!Number.isFinite(Number(reward))||Number(reward)<0||
-     !Number.isInteger(Number(max))||Number(max)<1)
-   return toast("Invalid values");
-  await patch("referralCodes/"+code,{
-   rewardAmount:Number(reward),maxUses:Number(max),updatedAt:Date.now()
-  });
-  toast("Referral updated");
-  await loadReferrals();
- }catch(e){toast(errorMessage(e))}
-};
-
-window.toggleReferral=async encodedCode=>{
- if(!currentAdmin)return toast("Admin login required");
- const code=decodeURIComponent(encodedCode);
- try{
-  const c=await read("referralCodes/"+code);
-  await patch("referralCodes/"+code,{active:c.active===false,updatedAt:Date.now()});
-  await loadReferrals();
- }catch(e){toast(errorMessage(e))}
-};
-
-window.deleteReferral=async encodedCode=>{
- if(!currentAdmin)return toast("Admin login required");
- const code=decodeURIComponent(encodedCode);
- if(!confirm("Delete this referral code?"))return;
- try{
-  await remove(path("referralCodes/"+code));
-  toast("Referral deleted");
-  await loadReferrals();
- }catch(e){toast(errorMessage(e))}
-};
-
-/* HOME & BANNER */
-async function loadHome(){
- if(!currentAdmin)return;
- try{
-  const h=obj(await read("settings/home"));
-  const notice=await read("settings/notice");
-  $("homeTitle").value=h.title||"";
-  $("homeSubtitle").value=h.subtitle||"";
-  $("homeBanner").value=h.bannerImage||"";
-  $("homeNotice").value=typeof notice==="string"?notice:(notice?.text||"");
- }catch(e){toast(errorMessage(e))}
+function renderReferrals(){
+ const list=entries(referralCodes);
+ $("referralsList").innerHTML=list.length?list.map(([code,c])=>`
+  <div class="item">
+   <div class="row">
+    <div class="item-title">${safe(code)}</div>
+    <span class="badge ${c.active===false?"inactive":"active"}">${c.active===false?"Inactive":"Active"}</span>
+   </div>
+   <div class="meta">
+    Reward: ${money(c.rewardAmount??c.reward)}<br>
+    Used: ${Number(c.usedCount)||0} / ${Number(c.maxUses)||0}
+   </div>
+   <div class="actions">
+    <button class="btn secondary small" onclick="toggleReferral('${code}')">${c.active===false?"Activate":"Deactivate"}</button>
+    <button class="btn red small" onclick="deleteReferral('${code}')">Delete</button>
+   </div>
+  </div>
+ `).join(""):'<div class="empty">No referral codes.</div>';
 }
 
-window.saveHome=async()=>{
- if(!currentAdmin)return toast("Admin login required");
+window.toggleReferral=async code=>{
  try{
-  await write("settings/home",{
+  const c=referralCodes[code];
+  await update(r("referralCodes/"+code),{active:c.active===false});
+  toast("Referral status updated");
+ }catch(e){toast(errorText(e))}
+};
+
+window.deleteReferral=async code=>{
+ if(!confirm("Delete referral code "+code+"?"))return;
+ try{
+  await remove(r("referralCodes/"+code));
+  toast("Referral code deleted");
+ }catch(e){toast(errorText(e))}
+};
+
+/* REFERRAL CLAIMS */
+function allClaims(){
+ const list=[];
+ for(const [uid,items] of entries(referralClaims)){
+  for(const [id,c] of entries(items))list.push({uid,id,...c});
+ }
+ return list.sort((a,b)=>(b.submittedAt||0)-(a.submittedAt||0));
+}
+
+function renderClaims(){
+ const list=allClaims();
+ $("claimsList").innerHTML=list.length?list.map(c=>`
+  <div class="item">
+   <div class="item-title">${safe(c.code||"Referral Claim")}</div>
+   <div class="meta">
+    User: ${safe(c.email||users[c.uid]?.email||c.uid)}<br>
+    UID: ${safe(c.uid)}<br>
+    Claim ID: ${safe(c.id)}<br>
+    Date: ${c.submittedAt?new Date(c.submittedAt).toLocaleString():"—"}
+   </div>
+   <span class="badge ${safe(c.status||"pending")}">${safe(c.status||"pending")}</span>
+   ${c.status==="pending"?`
+    <div class="actions">
+     <button class="btn green small" onclick="claimAction('${c.uid}','${c.id}','approved')">Approve Claim</button>
+     <button class="btn red small" onclick="claimAction('${c.uid}','${c.id}','rejected')">Reject</button>
+    </div>
+   `:""}
+  </div>
+ `).join(""):'<div class="empty">No referral claims.</div>';
+}
+
+window.claimAction=async(uid,id,status)=>{
+ if(!confirm("Set referral claim to "+status+"?"))return;
+ try{
+  await update(r(`referralClaims/${uid}/${id}`),{
+   status,
+   processedAt:Date.now(),
+   processedBy:admin.uid
+  });
+  toast("Claim "+status);
+ }catch(e){toast(errorText(e))}
+};
+
+/* HOME SETTINGS */
+function fillHomeSettings(){
+ $("homeTitle").value=homeSettings.title||"";
+ $("homeSubtitle").value=homeSettings.subtitle||"";
+ $("homeBanner").value=homeSettings.bannerImage||"";
+}
+
+window.saveHomeSettings=async()=>{
+ try{
+  await set(r("settings/home"),{
    title:$("homeTitle").value.trim(),
    subtitle:$("homeSubtitle").value.trim(),
    bannerImage:$("homeBanner").value.trim(),
    updatedAt:Date.now()
   });
-  await write("settings/notice",$("homeNotice").value.trim());
+  await set(r("settings/notice"),$("homeNotice").value.trim());
   toast("Home settings saved");
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
 };
-
-/* ACTION FLOW */
-const actionFields={
- giveawayChannel:"aGiveawayChannel",
- giveawayAccount:"aGiveawayAccount",
- tiktokUrl:"aTiktok",
- youtubeUrl:"aYoutube",
- updatesTelegram:"aUpdates",
- freeReferralUrl:"aFreeReferral"
-};
-
-async function loadActionLinks(){
- if(!currentAdmin)return;
- try{
-  linksCache=obj(await read("settings/actionLinks"));
-  for(const [key,id] of Object.entries(actionFields))$(id).value=linksCache[key]||"";
-  renderToolbox();
- }catch(e){toast(errorMessage(e))}
-}
-
-window.saveActionLinks=async()=>{
- if(!currentAdmin)return toast("Admin login required");
- const data={...linksCache};
- for(const [key,id] of Object.entries(actionFields))data[key]=$(id).value.trim();
- data.updatedAt=Date.now();
- try{
-  await write("settings/actionLinks",data);
-  linksCache=data;
-  renderToolbox();
-  toast("Action Flow links saved");
- }catch(e){toast(errorMessage(e))}
-};
-
-function renderToolbox(){
- const items=[
-  ["Giveaway Channel","giveawayChannel"],
-  ["Giveaway Account","giveawayAccount"],
-  ["TikTok ID","tiktokUrl"],
-  ["YouTube ID","youtubeUrl"],
-  ["All Updates","updatesTelegram"],
-  ["Free Referral Codes","freeReferralUrl"]
- ];
- setList("toolboxLinks",items.map(([name,key])=>{
-  const url=linksCache[key]||"";
-  return `<div class="item">
-   <div class="item-title">${safeText(name)}</div>
-   <div class="small">${safeText(url||"Link not set")}</div>
-   ${url?`<div class="actions">
-    <button class="btn secondary" onclick="openLink('${encodeURIComponent(url)}')">Open Link</button>
-   </div>`:""}
-  </div>`;
- }).join(""));
-}
-
-window.openLink=encoded=>{
- const url=decodeURIComponent(encoded);
- try{
-  const u=new URL(url);
-  if(!["http:","https:"].includes(u.protocol))throw 0;
-  window.open(u.href,"_blank","noopener");
- }catch{toast("Invalid link")}
-};
-
-async function loadToolbox(){
- await loadActionLinks();
- renderToolbox();
-}
 
 /* PAYMENT SETTINGS */
-async function loadPayments(){
- if(!currentAdmin)return;
- try{
-  const a=obj(await read("settings/actionLinks"));
-  $("bkashNumber").value=a.bkashNumber||"";
-  $("nagadNumber").value=a.nagadNumber||"";
-  $("paymentInstructions").value=a.paymentInstructions||"";
- }catch(e){toast(errorMessage(e))}
+function fillActionSettings(){
+ $("setBkash").value=actionLinks.bkashNumber||"";
+ $("setNagad").value=actionLinks.nagadNumber||"";
+ $("setPaymentInstructions").value=actionLinks.paymentInstructions||"";
+
+ $("linkGiveawayChannel").value=actionLinks.giveawayChannel||"";
+ $("linkGiveawayAccount").value=actionLinks.giveawayAccount||"";
+ $("linkTiktok").value=actionLinks.tiktokUrl||"";
+ $("linkYoutube").value=actionLinks.youtubeUrl||"";
+ $("linkUpdates").value=actionLinks.updatesTelegram||"";
+ $("linkReferral").value=actionLinks.freeReferralUrl||"";
 }
 
-window.savePayments=async()=>{
- if(!currentAdmin)return toast("Admin login required");
+window.savePaymentSettings=async()=>{
  try{
-  const old=obj(await read("settings/actionLinks"));
-  await write("settings/actionLinks",{
-   ...old,
-   bkashNumber:$("bkashNumber").value.trim(),
-   nagadNumber:$("nagadNumber").value.trim(),
-   paymentInstructions:$("paymentInstructions").value.trim(),
+  await update(r("settings/actionLinks"),{
+   bkashNumber:$("setBkash").value.trim(),
+   nagadNumber:$("setNagad").value.trim(),
+   paymentInstructions:$("setPaymentInstructions").value.trim(),
    updatedAt:Date.now()
   });
   toast("Payment settings saved");
- }catch(e){toast(errorMessage(e))}
+ }catch(e){toast(errorText(e))}
+};
+
+window.saveActionLinks=async()=>{
+ try{
+  await update(r("settings/actionLinks"),{
+   giveawayChannel:$("linkGiveawayChannel").value.trim(),
+   giveawayAccount:$("linkGiveawayAccount").value.trim(),
+   tiktokUrl:$("linkTiktok").value.trim(),
+   youtubeUrl:$("linkYoutube").value.trim(),
+   updatesTelegram:$("linkUpdates").value.trim(),
+   freeReferralUrl:$("linkReferral").value.trim(),
+   updatedAt:Date.now()
+  });
+  toast("Action links saved");
+ }catch(e){toast(errorText(e))}
 };
 
 /* MAINTENANCE */
-async function loadMaintenance(){
- if(!currentAdmin)return;
- try{
-  const m=obj(await read("settings/maintenance"));
-  $("siteMaintenance").value=String(m.enabled===true);
-  $("maintenanceMessage").value=m.message||"";
-  await loadProducts();
- }catch(e){toast(errorMessage(e))}
+function fillMaintenance(){
+ $("maintenanceEnabled").value=String(maintenance.enabled===true);
+ $("maintenanceMessage").value=maintenance.message||"";
 }
 
 window.saveMaintenance=async()=>{
- if(!currentAdmin)return toast("Admin login required");
  try{
-  await write("settings/maintenance",{
-   enabled:$("siteMaintenance").value==="true",
+  await set(r("settings/maintenance"),{
+   enabled:$("maintenanceEnabled").value==="true",
    message:$("maintenanceMessage").value.trim(),
    updatedAt:Date.now()
   });
-  toast("Website maintenance settings saved");
- }catch(e){toast(errorMessage(e))}
+  toast("Maintenance settings saved");
+ }catch(e){toast(errorText(e))}
 };
 
-$("maintenanceProduct").addEventListener("change",()=>{
- const id=$("maintenanceProduct").value;
- const p=productsCache[id];
- if(!p)return;
- $("productMaintenance").value=String(p.maintenance===true);
- $("productMaintenanceMessage").value=p.maintenanceMessage||"";
- $("maintenanceExpiry").value=p.expiry?new Date(p.expiry).toISOString().slice(0,16):"";
-});
+/* MODAL */
+window.closeModal=id=>$(id).classList.remove("show");
 
-window.saveProductMaintenance=async()=>{
- if(!currentAdmin)return toast("Admin login required");
- const id=$("maintenanceProduct").value;
- if(!id)return toast("Select a product");
- try{
-  const expiry=$("maintenanceExpiry").value;
-  await patch("products/"+id,{
-   maintenance:$("productMaintenance").value==="true",
-   maintenanceMessage:$("productMaintenanceMessage").value.trim(),
-   expiry:expiry?new Date(expiry).getTime():null,
-   updatedAt:Date.now()
-  });
-  toast("Product settings saved");
-  await loadProducts();
- }catch(e){toast(errorMessage(e))}
-};
 </script>
 </body>
 </html>
