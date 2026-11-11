@@ -318,7 +318,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
 const firebaseConfig={
- apiKey:"AIzaSyCY7gl6V_WANX6B_irbNdap8z7pZfSb5Os",
+ apiKey:"AIzaSyCY7gl6V_WANX6B_irbndap8z7pZfSb5Os",
  authDomain:"devzxer-9d8e9.firebaseapp.com",
  databaseURL:"https://devzxer-9d8e9-default-rtdb.asia-southeast1.firebasedatabase.app",
  projectId:"devzxer-9d8e9",
@@ -385,8 +385,6 @@ async function write(p,v){await set(path(p),v)}
 async function patch(p,v){await update(path(p),v)}
 function obj(v){return v&&typeof v==="object"?v:{}}
 function entries(v){return Object.entries(obj(v))}
-
-/* FIX: Generate a push ID without writing to a restricted _ids path. */
 function makeId(){return push(ref(db)).key}
 
 function setList(id,html){
@@ -545,7 +543,7 @@ async function loadDashboard(){
 
   for(const [uid,list] of entries(wallets)){
    for(const [id,o] of entries(list)){
-    if(statusOf(o)==="pending")pendingWallet++;
+    if(statusOf(o)==="pending"||statusOf(o)==="processing")pendingWallet++;
     recent.push({kind:"Wallet Request",uid,id,...o});
    }
   }
@@ -650,6 +648,7 @@ async function loadWalletRequests(){
 
   for(const [uid,list] of entries(all)){
    for(const [id,r] of entries(list)){
+    const state=statusOf(r);
     const safeUid=encodeURIComponent(uid);
     const safeId=encodeURIComponent(id);
 
@@ -661,11 +660,15 @@ async function loadWalletRequests(){
       TrxID: ${safeText(r.trxId||"—")}<br>
       Date: ${dateText(r.requestedAt)}
      </div>
-     <p>${statusPill(statusOf(r))}</p>
-     ${statusOf(r)==="pending"?`
+     <p>${statusPill(state)}</p>
+     ${["pending","processing"].includes(state)?`
       <div class="actions">
-       <button class="btn green" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'approved')">Approve</button>
+       <button class="btn green" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'approved')">
+        ${state==="processing"?"Complete Approval":"Approve"}
+       </button>
+       ${state==="pending"?`
        <button class="btn red" onclick="walletRequestAction(decodeURIComponent('${safeUid}'),decodeURIComponent('${safeId}'),'rejected')">Reject</button>
+       `:""}
       </div>`:""}
     </div>`;
    }
@@ -678,45 +681,173 @@ async function loadWalletRequests(){
 }
 window.loadWalletRequests=loadWalletRequests;
 
+/*
+ WALLET APPROVAL FIX
+ Uses a wallet-level transaction and a request-specific credit marker.
+ The marker prevents a repeated approval from crediting the same request twice.
+*/
 window.walletRequestAction=async(uid,id,status)=>{
  if(!currentAdmin)return toast("Admin login required");
+ if(busy)return;
+
  if(!confirm(status==="approved"?"Approve and add balance?":"Reject this request?"))return;
 
- try{
-  const requestRef=path(`walletRequests/${uid}/${id}`);
+ busy=true;
 
+ const requestRef=path(`walletRequests/${uid}/${id}`);
+ const walletRef=path(`wallets/${uid}`);
+
+ try{
+  let req=await read(`walletRequests/${uid}/${id}`);
+
+  if(!req)throw new Error("Wallet request not found");
+
+  if(status==="rejected"){
+   const rejectResult=await runTransaction(requestRef,current=>{
+    if(!current||statusOf(current)!=="pending")return;
+
+    current.status="rejected";
+    current.processedAt=Date.now();
+    current.processedBy=currentAdmin.uid;
+
+    return current;
+   });
+
+   if(!rejectResult.committed)
+    throw new Error("Request already processed. Refresh the list.");
+
+   toast("Wallet request rejected");
+   await loadWalletRequests();
+   await loadDashboard();
+   return;
+  }
+
+  const amount=Number(req.amount);
+
+  if(!Number.isFinite(amount)||amount<=0)
+   throw new Error("Invalid request amount");
+
+  /*
+   Claim the request first.
+   A request already marked processing can be safely retried.
+  */
   const claim=await runTransaction(requestRef,current=>{
-   if(!current||statusOf(current)!=="pending")return;
-   current.status=status;
-   current.processedAt=Date.now();
-   current.processedBy=currentAdmin.uid;
+   if(!current)return;
+
+   const state=statusOf(current);
+
+   if(state==="pending"){
+    current.status="processing";
+    current.processingBy=currentAdmin.uid;
+    current.processingAt=Date.now();
+    current.processingAction="approved";
+    return current;
+   }
+
+   if(state==="processing"&&current.processingAction==="approved"){
+    return current;
+   }
+
+   return;
+  });
+
+  if(!claim.committed)
+   throw new Error("Request is already processed or cannot be claimed.");
+
+  req=claim.snapshot.val();
+
+  if(!req||statusOf(req)!=="processing")
+   throw new Error("Request is not in processing state.");
+
+  /*
+   Credit the wallet exactly once.
+   The creditedRequests marker is stored in the same wallet transaction
+   as the balance update.
+  */
+  const walletResult=await runTransaction(walletRef,current=>{
+   current=current&&typeof current==="object"?current:{};
+
+   const credited=current.creditedRequests&&typeof current.creditedRequests==="object"
+    ?current.creditedRequests:{};
+
+   if(credited[id])return current;
+
+   const oldBalance=Number(current.balance)||0;
+
+   current.balance=oldBalance+amount;
+   current.creditedRequests={
+    ...credited,
+    [id]:{
+     amount:amount,
+     requestId:id,
+     creditedAt:Date.now()
+    }
+   };
+
    return current;
   });
 
-  if(!claim.committed)throw new Error("Request already processed");
+  if(!walletResult.committed)
+   throw new Error("Wallet balance update was not committed.");
 
-  const req=claim.snapshot.val();
+  const walletData=walletResult.snapshot.val();
 
-  if(status==="approved"){
-   const amount=Number(req.amount);
-   if(!Number.isFinite(amount)||amount<=0)
-    throw new Error("Invalid request amount");
+  if(!walletData?.creditedRequests?.[id])
+   throw new Error("Wallet credit verification failed.");
 
-   const bal=await runTransaction(path(`wallets/${uid}/balance`),v=>(Number(v)||0)+amount);
-   if(!bal.committed)throw new Error("Wallet balance update failed");
+  /*
+   Use a fixed transaction ID so retrying will not create
+   multiple transaction history records.
+  */
+  const transactionId="walletreq_"+id;
+  const transactionPath=`walletTransactions/${uid}/${transactionId}`;
 
-   await logTransaction(uid,{
+  const oldTransaction=await read(transactionPath);
+
+  if(!oldTransaction){
+   await write(transactionPath,{
+    id:transactionId,
+    uid:uid,
     type:"credit",
-    amount,
+    amount:amount,
     reason:"Wallet request approved",
-    requestId:id
+    requestId:id,
+    createdAt:Date.now(),
+    createdBy:currentAdmin.uid
    });
   }
 
-  toast("Wallet request "+status);
+  /*
+   Mark the request approved only after wallet credit and
+   transaction history have been confirmed.
+  */
+  await patch(`walletRequests/${uid}/${id}`,{
+   status:"approved",
+   processedAt:Date.now(),
+   processedBy:currentAdmin.uid,
+   creditedAmount:amount
+  });
+
+  toast("Approved! Wallet balance updated successfully.");
+
   await loadWalletRequests();
   await loadDashboard();
- }catch(e){toast(errorMessage(e))}
+  await loadTransactions();
+
+ }catch(e){
+  console.error("Wallet approval error:",e);
+  toast(errorMessage(e));
+
+  try{
+   await loadWalletRequests();
+   await loadDashboard();
+  }catch(refreshError){
+   console.error(refreshError);
+  }
+
+ }finally{
+  busy=false;
+ }
 };
 
 /* TRANSACTIONS */
@@ -1190,7 +1321,6 @@ window.saveHome=async()=>{
    updatedAt:Date.now()
   });
 
-  /* Save notice as a string for User Panel compatibility. */
   await write("settings/notice",$("homeNotice").value.trim());
 
   toast("Home settings saved");
